@@ -7,31 +7,29 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 1. Build dist bundle
-fs.mkdirSync(path.join(__dirname, 'dist'), { recursive: true });
+async function start() {
+  fs.mkdirSync(path.join(__dirname, 'dist'), { recursive: true });
 
-console.log('Building React app with esbuild...');
-esbuild.buildSync({
-  entryPoints: [path.join(__dirname, 'src/main.tsx')],
-  bundle: true,
-  outfile: path.join(__dirname, 'dist/bundle.js'),
-  format: 'esm',
-  jsx: 'automatic',
-  loader: { '.css': 'empty', '.svg': 'dataurl' },
-  define: {
-    'process.env.NODE_ENV': '"development"',
-    'import.meta.env.VITE_API_URL': '""'
+  console.log('Building React app with esbuild...');
+  await esbuild.build({
+    entryPoints: [path.join(__dirname, 'src/main.tsx')],
+    bundle: true,
+    outfile: path.join(__dirname, 'dist/bundle.js'),
+    format: 'esm',
+    jsx: 'automatic',
+    loader: { '.css': 'empty', '.svg': 'dataurl' },
+    define: {
+      'process.env.NODE_ENV': '"development"',
+      'import.meta.env.VITE_API_URL': '""'
+    }
+  });
+  console.log('Build complete! Size:', fs.statSync(path.join(__dirname, 'dist/bundle.js')).size);
+
+  if (fs.existsSync(path.join(__dirname, 'public/favicon.svg'))) {
+    fs.copyFileSync(path.join(__dirname, 'public/favicon.svg'), path.join(__dirname, 'dist/favicon.svg'));
   }
-});
-console.log('Build complete! Size:', fs.statSync(path.join(__dirname, 'dist/bundle.js')).size);
 
-// Copy favicon
-if (fs.existsSync(path.join(__dirname, 'public/favicon.svg'))) {
-  fs.copyFileSync(path.join(__dirname, 'public/favicon.svg'), path.join(__dirname, 'dist/favicon.svg'));
-}
-
-// 2. Create index.html
-const htmlContent = `<!doctype html>
+  const htmlContent = `<!doctype html>
 <html lang="en" class="dark" style="background-color: #0D0E12; color: #F1F3F9;">
   <head>
     <meta charset="UTF-8" />
@@ -97,64 +95,63 @@ const htmlContent = `<!doctype html>
   </body>
 </html>`;
 
-fs.writeFileSync(path.join(__dirname, 'dist/index.html'), htmlContent);
+  fs.writeFileSync(path.join(__dirname, 'dist/index.html'), htmlContent);
 
-// 3. Fast Static Server with Proxy
-const mimeTypes = {
-  '.html': 'text/html',
-  '.js': 'application/javascript',
-  '.css': 'text/css',
-  '.svg': 'image/svg+xml',
-  '.json': 'application/json',
-};
+  const mimeTypes = {
+    '.html': 'text/html',
+    '.js': 'application/javascript',
+    '.css': 'text/css',
+    '.svg': 'image/svg+xml',
+    '.json': 'application/json',
+  };
 
-const server = http.createServer((req, res) => {
-  // CORS & Cache headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Cache-Control', 'no-cache');
+  const server = http.createServer((req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cache-Control', 'no-cache');
 
-  // Proxy /api to backend
-  if (req.url.startsWith('/api')) {
-    const proxyReq = http.request(
-      `http://127.0.0.1:8000${req.url}`,
-      {
-        method: req.method,
-        headers: { ...req.headers, host: '127.0.0.1:8000' },
-      },
-      (proxyRes) => {
-        res.writeHead(proxyRes.statusCode, proxyRes.headers);
-        proxyRes.pipe(res, { end: true });
-      }
-    );
-    proxyReq.on('error', (e) => {
-      res.writeHead(502, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Backend unreachable', details: e.message }));
-    });
-    req.pipe(proxyReq, { end: true });
-    return;
-  }
-
-  // Serve static files
-  let filePath = path.join(__dirname, 'dist', req.url === '/' ? 'index.html' : req.url.split('?')[0]);
-  if (!fs.existsSync(filePath)) {
-    filePath = path.join(__dirname, 'dist/index.html');
-  }
-
-  const ext = path.extname(filePath).toLowerCase();
-  const contentType = mimeTypes[ext] || 'application/octet-stream';
-
-  fs.readFile(filePath, (err, content) => {
-    if (err) {
-      res.writeHead(500);
-      res.end('Server error: ' + err.code);
-    } else {
-      res.writeHead(200, { 'Content-Type': contentType });
-      res.end(content, 'utf-8');
+    if (req.url.startsWith('/api')) {
+      const proxyReq = http.request(
+        `http://127.0.0.1:8000${req.url}`,
+        {
+          method: req.method,
+          headers: { ...req.headers, host: '127.0.0.1:8000' },
+        },
+        (proxyRes) => {
+          res.writeHead(proxyRes.statusCode, proxyRes.headers);
+          proxyRes.pipe(res, { end: true });
+        }
+      );
+      proxyReq.on('error', (e) => {
+        res.writeHead(502, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Backend unreachable', details: e.message }));
+      });
+      req.pipe(proxyReq, { end: true });
+      return;
     }
-  });
-});
 
-const PORT = 3000;
-server.listen(PORT, '0.0.0.0', () => {
-  console.log(`\n🚀 Pinecone Compliance UI Server running at: http://localhost:${PORT}\n`);
-});
+    let filePath = path.join(__dirname, 'dist', req.url === '/' ? 'index.html' : req.url.split('?')[0]);
+    if (!fs.existsSync(filePath)) {
+      filePath = path.join(__dirname, 'dist/index.html');
+    }
+
+    const ext = path.extname(filePath).toLowerCase();
+    const contentType = mimeTypes[ext] || 'application/octet-stream';
+
+    fs.readFile(filePath, (err, content) => {
+      if (err) {
+        res.writeHead(500);
+        res.end('Server error: ' + err.code);
+      } else {
+        res.writeHead(200, { 'Content-Type': contentType });
+        res.end(content, 'utf-8');
+      }
+    });
+  });
+
+  const PORT = 3000;
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`\n🚀 Pinecone Compliance UI Server running at: http://localhost:${PORT}\n`);
+  });
+}
+
+start().catch(console.error);
