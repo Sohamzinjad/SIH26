@@ -101,7 +101,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                           <div className="font-medium text-white">{env.name}</div>
                           <div className="text-[10px] text-slate-400 font-mono mt-0.5">{env.region}</div>
                         </div>
-                        {selectedEnv === env.id && <Check className="w-4 h-4 text-blue-400" />}
+                        {selectedEnv === env.id && <Check className="w-4 h-4 text-emerald-400" />}
                       </button>
                     ))}
                   </div>
@@ -111,7 +111,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* Center Tabs (Pinecone Console Style) */}
-          <nav className="flex items-center space-x-1 sm:space-x-1 bg-[#151821] p-1 rounded-xl border border-[#232736]">
+          <nav className="flex items-center space-x-1 sm:space-x-1 bg-[#12141A] p-1 rounded-xl border border-[#22262F]">
             <button
               onClick={() => setCurrentTab('dashboard')}
               className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
@@ -171,7 +171,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Right Action Utilities */}
           <div className="flex items-center space-x-3">
             {/* System Status Pill */}
-            <div className="hidden lg:flex items-center space-x-2 px-2.5 py-1 rounded-full bg-[#161924] border border-[#232736] text-[11px] text-slate-300">
+            <div className="hidden lg:flex items-center space-x-2 px-2.5 py-1 rounded-full bg-[#12141A] border border-[#22262F] text-[11px] text-slate-300">
               <span className="flex h-2 w-2 relative">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -185,15 +185,15 @@ export const Navbar: React.FC<NavbarProps> = ({
               href="https://docs.pinecone.io"
               target="_blank"
               rel="noreferrer"
-              className="hidden sm:flex items-center space-x-1.5 text-xs text-slate-400 hover:text-slate-200 transition px-2.5 py-1.5 rounded-lg hover:bg-[#1B1E2B]"
+              className="hidden sm:flex items-center space-x-1.5 text-xs text-slate-400 hover:text-slate-200 transition px-2.5 py-1.5 rounded-lg hover:bg-[#1A1D24]"
             >
               <BookOpen className="w-3.5 h-3.5" />
               <span>Docs</span>
             </a>
 
             {/* User Profile Avatar */}
-            <div className="flex items-center space-x-2 pl-2 border-l border-[#232736]">
-              <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white text-xs font-bold ring-1 ring-white/20">
+            <div className="flex items-center space-x-2 pl-2 border-l border-[#22262F]">
+              <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[#00E58C] to-[#00B96F] flex items-center justify-center text-white text-xs font-bold ring-1 ring-white/20">
                 NT
               </div>
             </div>

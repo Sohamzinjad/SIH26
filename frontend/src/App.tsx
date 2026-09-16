@@ -56,7 +56,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0D0E12] text-[#F1F3F9] font-sans flex flex-col selection:bg-blue-600/30 selection:text-white">
+    <div className="min-h-screen bg-[#0A0C0F] text-[#F4F6FB] font-sans flex flex-col selection:bg-emerald-500/30 selection:text-white">
       {/* Pinecone Console Header */}
       <Navbar
         currentTab={currentTab}
