@@ -13,23 +13,37 @@ log() {
 }
 
 generate_commit_message() {
-  local staged="$1"
+  local statuses="$1"
   local additions=() modifications=() deletions=() renames=()
 
-  while IFS=$'\t' read -r st path; do
+  while IFS= read -r line; do
+    [[ -z "$line" ]] && continue
+    local st="${line:0:2}"
+    local path="${line:3}"
     case "$st" in
-      A|A?*) additions+=("$path") ;;
-      M|M?*|T) modifications+=("$path") ;;
-      D|D?*) deletions+=("$path") ;;
-      R*) renames+=("${path#*-> }") ;;
+      '??') additions+=("$path") ;;
+      'A '*|'A'*) additions+=("$path") ;;
+      'M '*|'M'*) modifications+=("$path") ;;
+      'D '*|'D'*) deletions+=("$path") ;;
+      'R'*)
+        local arrow=" -> "
+        local arrow_idx="${path#*"$arrow"}"
+        if [[ "$arrow_idx" != "$path" ]]; then
+          renames+=("$path")
+        else
+          modifications+=("$path")
+        fi
+        ;;
+      'C'*) additions+=("$path") ;;
+      *) modifications+=("$path") ;;
     esac
-  done <<< "$staged"
+  done <<< "$statuses"
 
   local parts=()
-  [[ ${#additions[@]} -gt 0 ]] && parts+=("add $(join_raw "${additions[@]}")")
-  [[ ${#modifications[@]} -gt 0 ]] && parts+=("update $(join_raw "${modifications[@]}")")
-  [[ ${#deletions[@]} -gt 0 ]] && parts+=("remove $(join_raw "${deletions[@]}")")
-  [[ ${#renames[@]} -gt 0 ]] && parts+=("rename $(join_raw "${renames[@]}")")
+  [[ ${#additions[@]} -gt 0 ]] && parts+=("add $(join_file_names "${additions[@]}")")
+  [[ ${#modifications[@]} -gt 0 ]] && parts+=("update $(join_file_names "${modifications[@]}")")
+  [[ ${#deletions[@]} -gt 0 ]] && parts+=("remove $(join_file_names "${deletions[@]}")")
+  [[ ${#renames[@]} -gt 0 ]] && parts+=("rename $(join_renames "${renames[@]}")")
 
   local verb="chore"
   if [[ ${#additions[@]} -gt 0 ]]; then
@@ -38,27 +52,31 @@ generate_commit_message() {
     verb="fix"
   fi
 
-  local scope=""
-  local first="${parts[0]:-}"
-  if [[ "$first" =~ ^(add|update|remove|rename) ]]; then
-    scope="(${first#* })"
-  fi
-
   local detail
   detail="$(join_parts "${parts[@]}")"
 
-  if [[ ${#parts[@]} -eq 1 ]]; then
-    echo "$verb${scope}: $detail"
-  else
-    echo "$verb: $detail"
-  fi
+  echo "$verb: $detail"
 }
 
-join_raw() {
+file_base() {
+  echo "${1##*/}"
+}
+
+join_file_names() {
   local joined=""
   for p in "$@"; do
     [[ -n "$joined" ]] && joined="$joined, "
-    joined="$joined$(basename "$p")"
+    joined="$joined$(file_base "$p")"
+  done
+  echo "${joined%, }"
+}
+
+join_renames() {
+  local joined=""
+  for p in "$@"; do
+    [[ -n "$joined" ]] && joined="$joined, "
+    local base="${p##*/}"
+    joined="$joined$base"
   done
   echo "${joined%, }"
 }
@@ -83,7 +101,7 @@ run_once() {
   names="$(git status --porcelain | sed 's/^...//')"
 
   local statuses
-  statuses="$(git status --porcelain | awk '{print $1 "\t" $2}')"
+  statuses="$(git status --porcelain)"
 
   git add -A
 

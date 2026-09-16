@@ -155,7 +155,7 @@ export const MappingsView: React.FC<MappingsViewProps> = ({ onMappingApproved })
                 <div className="space-y-1">
                   <div className="flex items-center space-x-2">
                     <span className="font-mono text-xs font-semibold text-cyan-400">Proposal #{m.id}</span>
-                    <span className="px-2 py-0.5 text-[10px] font-mono rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                    <span className="px-2 py-0.5 text-[10px] font-mono rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                       Guessed: {m.vendor_guessed}
                     </span>
                     <span className="px-2 py-0.5 text-[10px] font-mono rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
@@ -190,10 +190,10 @@ export const MappingsView: React.FC<MappingsViewProps> = ({ onMappingApproved })
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <span className="text-[11px] uppercase font-semibold text-[#9AA2B0] tracking-wider font-mono flex items-center gap-1.5">
-                    <Code className="w-3.5 h-3.5 text-blue-400" />
+                    <Code className="w-3.5 h-3.5 text-emerald-400" />
                     <span>Proposed AST Normalization (JSON)</span>
                   </span>
-                  <pre className="bg-[#0A0C0F] border border-[#22262F] rounded-lg p-3.5 font-mono text-[11px] text-blue-300 max-h-60 overflow-y-auto leading-relaxed">
+                  <pre className="bg-[#0A0C0F] border border-[#22262F] rounded-lg p-3.5 font-mono text-[11px] text-emerald-300 max-h-60 overflow-y-auto leading-relaxed">
                     {JSON.stringify(m.proposed_schema, null, 2)}
                   </pre>
                 </div>

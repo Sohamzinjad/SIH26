@@ -29,9 +29,9 @@ class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div style={{ padding: '2rem', background: '#0D0E12', color: '#F1F3F9', minHeight: '100vh', fontFamily: 'monospace' }}>
-          <h1 style={{ color: '#EF4444', fontSize: '1.25rem', marginBottom: '1rem' }}>⚠️ Pinecone UI Runtime Error</h1>
-          <pre style={{ background: '#161924', padding: '1rem', borderRadius: '0.5rem', border: '1px solid #232736', color: '#F87171' }}>
+        <div style={{ padding: '2rem', background: '#0A0C0F', color: '#F4F6FB', minHeight: '100vh', fontFamily: 'monospace' }}>
+          <h1 style={{ color: '#F76B5E', fontSize: '1.25rem', marginBottom: '1rem' }}>Pine Audit Runtime Error</h1>
+          <pre style={{ background: '#12141A', padding: '1rem', borderRadius: '0.5rem', border: '1px solid #22262F', color: '#F76B5E' }}>
             {this.state.error?.toString()}
           </pre>
           <button

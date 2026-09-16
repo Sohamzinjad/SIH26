@@ -107,7 +107,7 @@ export const App: React.FC = () => {
           </div>
 
           <div className="flex items-center space-x-6 text-[11px]">
-            <div className="flex items-center space-x-1.5 text-slate-400">
+            <div className="flex items-center space-x-1.5 text-[11px] text-slate-400">
               <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
               <span>All Systems Operational</span>
             </div>
