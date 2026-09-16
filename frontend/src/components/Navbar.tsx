@@ -38,7 +38,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   ];
 
   return (
-    <header className="bg-[#111319]/90 backdrop-blur-md border-b border-[#232736] sticky top-0 z-50 transition-colors">
+    <header className="bg-[#0F1115]/90 backdrop-blur-md border-b border-[#22262F] sticky top-0 z-50 transition-colors">
       {/* Upper Navigation Bar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
@@ -66,7 +66,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div className="relative hidden md:block">
               <button
                 onClick={() => setProjectOpen(!projectOpen)}
-                className="flex items-center space-x-2 px-2.5 py-1.5 rounded-lg bg-[#161924] hover:bg-[#1D2130] border border-[#232736] text-xs text-slate-200 transition"
+                className="flex items-center space-x-2 px-2.5 py-1.5 rounded-lg bg-[#12141A] hover:bg-[#1A1D24] border border-[#22262F] text-xs text-slate-200 transition"
               >
                 <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
                 <span className="font-medium text-slate-200">
@@ -79,7 +79,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
 
               {projectOpen && (
-                <div className="absolute left-0 mt-2 w-72 rounded-xl bg-[#151821] border border-[#2D3245] shadow-2xl p-1.5 z-50">
+                <div className="absolute left-0 mt-2 w-72 rounded-xl bg-[#12141A] border border-[#2C313B] shadow-2xl p-1.5 z-50">
                   <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400 border-b border-[#232736]">
                     Select Environment
                   </div>
@@ -93,8 +93,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                         }}
                         className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-left text-xs transition ${
                           selectedEnv === env.id
-                            ? 'bg-blue-600/15 text-blue-400 border border-blue-500/30'
-                            : 'text-slate-300 hover:bg-[#1B1E2B]'
+                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                            : 'text-slate-300 hover:bg-[#1A1D24]'
                         }`}
                       >
                         <div>
@@ -116,11 +116,11 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => setCurrentTab('dashboard')}
               className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
                 currentTab === 'dashboard'
-                  ? 'bg-[#232736] text-white shadow-sm font-semibold'
-                  : 'text-[#8D95AB] hover:text-white hover:bg-[#1B1E2B]'
+                  ? 'bg-[#1A1D24] text-white shadow-sm font-semibold'
+                  : 'text-[#9AA2B0] hover:text-white hover:bg-[#1A1D24]'
               }`}
             >
-              <Boxes className="w-3.5 h-3.5 text-blue-400" />
+              <Boxes className="w-3.5 h-3.5 text-emerald-400" />
               <span>Indexes</span>
             </button>
 
@@ -128,11 +128,11 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => setCurrentTab('upload')}
               className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
                 currentTab === 'upload'
-                  ? 'bg-[#232736] text-white shadow-sm font-semibold'
-                  : 'text-[#8D95AB] hover:text-white hover:bg-[#1B1E2B]'
+                  ? 'bg-[#1A1D24] text-white shadow-sm font-semibold'
+                  : 'text-[#9AA2B0] hover:text-white hover:bg-[#1A1D24]'
               }`}
             >
-              <UploadCloud className="w-3.5 h-3.5 text-cyan-400" />
+              <UploadCloud className="w-3.5 h-3.5 text-emerald-400" />
               <span>Ingest & Audit</span>
             </button>
 
@@ -141,8 +141,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onClick={() => setCurrentTab('audit-detail')}
                 className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
                   currentTab === 'audit-detail'
-                    ? 'bg-[#232736] text-white shadow-sm font-semibold'
-                    : 'text-[#8D95AB] hover:text-white hover:bg-[#1B1E2B]'
+                    ? 'bg-[#1A1D24] text-white shadow-sm font-semibold'
+                    : 'text-[#9AA2B0] hover:text-white hover:bg-[#1A1D24]'
                 }`}
               >
                 <FileText className="w-3.5 h-3.5 text-emerald-400" />
@@ -154,14 +154,14 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => setCurrentTab('mappings')}
               className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all relative ${
                 currentTab === 'mappings'
-                  ? 'bg-[#232736] text-white shadow-sm font-semibold'
-                  : 'text-[#8D95AB] hover:text-white hover:bg-[#1B1E2B]'
+                  ? 'bg-[#1A1D24] text-white shadow-sm font-semibold'
+                  : 'text-[#9AA2B0] hover:text-white hover:bg-[#1A1D24]'
               }`}
             >
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
               <span>AI Governance</span>
               {pendingCount > 0 && (
-                <span className="ml-1 px-1.5 py-0.2 text-[10px] bg-amber-500 text-slate-950 font-bold rounded-full">
+                <span className="ml-1 px-1.5 py-0.2 text-[10px] bg-emerald-500 text-slate-950 font-bold rounded-full">
                   {pendingCount}
                 </span>
               )}
