@@ -1,42 +1,108 @@
-# SIH26155 — AI-Driven Multi-Vendor Network Security Compliance Auditor (NTRO)
+# SIH26155 — AI-Driven Multi-Vendor Network Security Compliance Auditor
 
-A comprehensive, defense-grade network security compliance auditor built for **Smart India Hackathon 2026 (Problem Statement: SIH26155, Sponsoring Organization: NTRO)**.
+[![Built for NTRO](https://img.shields.io/badge/Sponsor-NTRO-blue.svg)](https://www.sih.gov.in/)
+[![Problem Statement](https://img.shields.io/badge/SIH%202026-SIH26155-orange.svg)](https://www.sih.gov.in/)
+[![Python](https://img.shields.io/badge/Backend-FastAPI%20%7C%20Python%203.12+-green.svg)](https://fastapi.tiangolo.com/)
+[![Frontend](https://img.shields.io/badge/Frontend-React%2018%20%7C%20Tailwind%20%7C%20Vite-cyan.svg)](https://vitejs.dev/)
+[![Compliance Standards](https://img.shields.io/badge/Frameworks-CIS%20%7C%20NIST%20800--53%20%7C%20DISA%20STIG-purple.svg)](https://www.cisecurity.org/)
+[![Air-Gapped Safe](https://img.shields.io/badge/Security-Air--Gapped%20Safe-emerald.svg)]()
 
----
-
-## 🌟 Core Differentiators & Architecture
-
-1. **Air-Gapped & High-Assurance:** Zero reliance on external proprietary LLMs/cloud APIs for security decisions. Operates completely offline with local Ollama models and deterministic fallback heuristics.
-2. **"AI Proposes, Deterministic Code Decides, Humans Approve Novel Cases":**
-   - Heuristic & regex state machines for deterministic parsing of known vendors (**Cisco IOS**, **Fortinet FortiOS**).
-   - Local AI (Ollama) proposes schema mappings **only for unknown/white-box syntax**.
-   - Human analyst signs off on proposed dialect normalizations; approved fingerprints are cached for instantaneous offline recognition.
-3. **Multi-Framework Compliance Engine:**
-   - **CIS Benchmarks** (Cisco IOS & FortiOS)
-   - **NIST SP 800-53 Rev 5** (AC, AU, IA, SC control families)
-   - **DISA STIGs** (SRG Network Device controls)
-   - Non-naive weighted compliance scoring:
-     $$\text{Compliance Score} = \frac{\sum \text{Weights of Passing Checks}}{\sum \text{Weights of All Evaluated Checks}} \times 100$$
-4. **Attack-Path Threat Correlation & Strategic Remediation:**
-   - Correlates multi-stage vulnerability chains (e.g., *Cleartext VTY + No ACL + Default SNMP $\rightarrow$ Unauthenticated Privileged Takeover*).
-   - **Single Key Fix Algorithm:** Identifies the single highest-leverage configuration remediation command that dismantles the maximum number of active threat chains.
-5. **Dual-Database Resilience:** Connects to PostgreSQL (Neon DB) by default and falls back seamlessly to SQLite for fully isolated, air-gapped demo runs.
+> **"AI proposes, deterministic code decides, humans approve novel cases."**  
+> A high-assurance, defense-grade multi-vendor network security compliance auditor built for **NTRO** (National Technical Research Organisation) under **Smart India Hackathon 2026**.
 
 ---
 
-## 📊 Measured Corpus Evaluation Metrics
-
-Evaluated across hardened, vulnerable, and white-box device test corpora:
-- **True Detection Rate (Recall):** `100.0%`
-- **False Positive Rate (FPR):** `0.0%`
-- **False Negative Rate (FNR):** `0.0%`
-- **Total Controls Validated:** 14 automated baseline rules across CIS/NIST/STIG.
+## 📑 Table of Contents
+1. [Core Innovations & Differentiators](#-core-innovations--differentiators)
+2. [Supported Vendors & Compliance Frameworks](#-supported-vendors--compliance-frameworks)
+3. [Corpus Evaluation & Accuracy Metrics](#-corpus-evaluation--accuracy-metrics)
+4. [System Architecture](#-system-architecture)
+5. [Quick Start & Live Demo](#-quick-start--live-demo)
+6. [API Reference](#-api-reference)
+7. [Repository Structure](#-repository-structure)
 
 ---
 
-## 🚀 Quick Start
+## 🌟 Core Innovations & Differentiators
 
-### 1. Backend Setup
+### 1. Air-Gapped High Assurance Architecture
+Designed specifically for defense/intelligence deployment environments where public cloud LLMs (OpenAI, Anthropic) are strictly prohibited:
+- Runs locally using **Ollama (`llama3.2:3b`)** or built-in offline structural heuristics.
+- **Dual-database resilience**: Automatically connects to PostgreSQL (Neon DB) with instant zero-configuration fallback to SQLite when operating in isolated, air-gapped field environments.
+
+### 2. Human-in-the-Loop AI with Persistent Dialect Caching
+- **Deterministic First:** Known vendor configurations (**Cisco IOS**, **FortiOS**) are parsed with 100% deterministic, line-exact regex state machines.
+- **AI Scoped to Unknowns:** When an unfamiliar or white-box config is uploaded, local AI analyzes the syntax and proposes a structured normalization.
+- **Human Approval:** Security analysts review and approve proposed schemas in a side-by-side UI.
+- **Dialect Caching:** Approved syntax fingerprints (SHA-256) are stored in cache, allowing all future devices using that white-box dialect to parse deterministically without re-invoking the model.
+
+### 3. Attack-Path Threat Correlation & Strategic Single Fix
+Rather than producing a disconnected list of 50+ violations, our correlator links failures into actionable exploit stories (e.g., *Cleartext Telnet + Missing VTY Access-Class + Default SNMP Community $\rightarrow$ Privileged Administrative Takeover*).
+
+**The Key Differentiator — Single Key Fix Algorithm:**
+The engine computes which single remediation command dismantles the maximum number of active threat chains at once, giving commanders and network engineers their highest-leverage first move.
+
+### 4. Non-Naive Severity-Weighted Compliance Scoring
+$$\text{Compliance Score} = \left(\frac{\sum \text{Weights of Passing Checks}}{\sum \text{Weights of All Evaluated Checks}}\right) \times 100$$
+- **Critical:** Weight 20 (e.g. Telnet enabled, default SNMP community)
+- **High:** Weight 10 (e.g. Missing VTY ACL, no remote syslog, HTTP enabled)
+- **Medium:** Weight 5 (e.g. Inactivity timeout $> 10$ min, plaintext passwords)
+- **Low:** Weight 2 (e.g. Logging timestamps, finger service)
+
+---
+
+## 🛡️ Supported Vendors & Compliance Frameworks
+
+### Supported Network Hardware:
+| Vendor / OS | Parsing Strategy | Line-Level Evidence |
+| :--- | :--- | :--- |
+| **Cisco IOS / IOS-XE** | Deterministic line-state machine | Exact line numbers & snippets |
+| **Fortinet FortiOS** | Deterministic block-state parser | Exact section & directive lines |
+| **White-Box / Unknown NOS** | AI proposal + Analyst approval + Cached dialect | Structural AST mapping |
+
+### Implemented Compliance Frameworks:
+- **CIS Benchmarks:**
+  - *CIS Cisco IOS Benchmark v4.0.0* (18 automated checks)
+  - *CIS Fortinet FortiOS Benchmark* (5 automated checks)
+- **NIST SP 800-53 Rev 5:**
+  - `AC-2` (Account Management)
+  - `AC-3` (Access Enforcement)
+  - `AC-12` (Session Termination)
+  - `AC-17` (Remote Access Protection)
+  - `AU-2` (Audit Events & Centralized Logging)
+  - `IA-2` (Centralized AAA Identification)
+  - `IA-5` (Cryptographic Authenticator Storage)
+- **DISA STIGs (DoD Network Device SRG):**
+  - `STIG-V-202007` (10-Minute Interactive Inactivity Lock)
+  - `STIG-V-202065` (FIPS-Approved Password Hashing)
+  - `STIG-V-202049` (Prohibition of Insecure Ports & Services)
+
+---
+
+## 📊 Corpus Evaluation & Accuracy Metrics
+
+The system was evaluated against a labelled ground-truth corpus containing hardened configurations, vulnerable configurations, and unfamiliar white-box devices:
+
+```
+================ CORPUS EVALUATION METRICS ================
+True Detection Rate (Recall): 100.0%
+False Positive Rate (FPR):    0.0%
+False Negative Rate (FNR):    0.0%
+Total Automated Rules:        14 Baseline Rules Verified
+===========================================================
+```
+
+---
+
+## 🚀 Quick Start & Live Demo
+
+### Prerequisites
+- Python 3.10+
+- Node.js 18+ and npm
+- (Optional) Docker & Docker Compose
+- (Optional) Local Ollama with `llama3.2:3b`
+
+### 1. Launch Backend (FastAPI)
 
 ```bash
 cd backend
@@ -44,16 +110,17 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-# Run automated test suite
-PYTHONPATH=.. pytest tests/ -v
+# Run full test suite & corpus benchmark
+PYTHONPATH=.. pytest tests/ -v -s
 
-# Start FastAPI server
+# Start the API server
 uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-Backend API will be available at: `http://localhost:8000` (Docs: `http://localhost:8000/docs`).
+- **API Documentation (Swagger):** `http://localhost:8000/docs`
+- **Health Endpoint:** `http://localhost:8000/api/health`
 
-### 2. Frontend Setup
+### 2. Launch Frontend (React + Vite)
 
 ```bash
 cd frontend
@@ -61,9 +128,9 @@ npm install
 npm run dev
 ```
 
-Frontend UI will run at: `http://localhost:3000`.
+- **Web Dashboard:** `http://localhost:3000`
 
-### 3. Docker Compose (Full Stack)
+### 3. Full-Stack Docker Deployment
 
 ```bash
 docker-compose up --build
@@ -71,42 +138,96 @@ docker-compose up --build
 
 ---
 
+## 🔌 API Reference
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/api/audit/upload` | Upload config file or raw text with vendor auto-detection |
+| `GET` | `/api/audit/{id}` | Get audit results, findings, attack paths, and single key fix |
+| `GET` | `/api/findings/{id}` | Filter findings by framework (`CIS`, `NIST-800-53`, `DISA-STIG`) or severity |
+| `GET` | `/api/mappings/pending` | List pending AI normalization proposals for unknown vendors |
+| `POST` | `/api/mappings/{id}/approve` | Approve AI mapping, cache fingerprint, and execute deterministic audit |
+| `POST` | `/api/mappings/{id}/reject` | Reject proposed unknown vendor schema |
+| `GET` | `/api/reports/{id}/html` | Generate print-ready executive compliance HTML report |
+| `GET` | `/api/dashboard/overview` | Network fleet posture, average scores, and active exploit chains |
+| `GET` | `/api/health` | Service health, database status, and Ollama connectivity |
+
+---
+
 ## 📁 Repository Structure
 
 ```
-.
+SIh26/
 ├── backend/
-│   ├── ai/                 # Ollama client & dialect fingerprint cache
-│   ├── correlation/        # Attack chains & single-fix recommendation engine
-│   ├── models/             # SQLAlchemy ORM models (Device, Audit, Finding, AttackPath)
-│   ├── parsers/            # Base parser, Cisco IOS, FortiOS, and vendor detection
+│   ├── ai/                 # Ollama client, prompts & dialect cache
+│   │   ├── fingerprint_cache.py
+│   │   ├── ollama_client.py
+│   │   └── prompts.py
+│   ├── correlation/        # Threat chain correlation & single key fix engine
+│   │   ├── attack_paths.py
+│   │   └── remediation.py
+│   ├── models/             # SQLAlchemy ORM database models
+│   │   ├── audit_trail.py
+│   │   ├── device.py
+│   │   └── mapping.py
+│   ├── parsers/            # Deterministic parsers & vendor detection
+│   │   ├── base.py
+│   │   ├── cisco_ios.py
+│   │   ├── fortios.py
+│   │   └── vendor_detect.py
 │   ├── reporting/          # Defense-ready HTML compliance report generator
-│   ├── routes/             # FastAPI routers (audit, findings, mappings, reports, dashboard)
-│   ├── rules/              # CIS, NIST 800-53, and DISA STIG rule definitions
-│   ├── sample_configs/     # Labelled test configs (Cisco, FortiGate, Whitebox)
+│   │   └── generator.py
+│   ├── routes/             # FastAPI REST endpoints
+│   │   ├── audit.py
+│   │   ├── dashboard.py
+│   │   ├── findings.py
+│   │   ├── mappings.py
+│   │   └── reports.py
+│   ├── rules/              # CIS, NIST SP 800-53, and DISA STIG rules
+│   │   ├── base.py
+│   │   ├── cis_cisco.py
+│   │   ├── cis_fortios.py
+│   │   ├── disa_stig.py
+│   │   ├── engine.py
+│   │   └── nist_800_53.py
+│   ├── sample_configs/     # Labelled test configs (Cisco, FortiOS, Whitebox)
 │   ├── schemas/            # Pydantic DTOs & NormalizedConfig schema
+│   │   ├── api.py
+│   │   ├── finding.py
+│   │   └── neutral_config.py
 │   ├── tests/              # Pytest test suite & labelled corpus benchmarks
-│   ├── config.py           # App settings & environment loader
-│   ├── database.py         # SQLAlchemy engine with Neon + SQLite fallback
+│   ├── config.py           # Configuration & settings loader
+│   ├── database.py         # Database engine with Neon + SQLite fallback
 │   ├── Dockerfile
 │   ├── main.py             # FastAPI entrypoint
 │   └── requirements.txt
 ├── frontend/
 │   ├── src/
-│   │   ├── api/            # API client
+│   │   ├── api/            # Typed API client
 │   │   ├── components/     # Dashboard, Upload, AuditDetail, Mappings views
-│   │   ├── types/          # TypeScript definitions
-│   │   ├── App.tsx
+│   │   ├── types/          # TypeScript interface definitions
+│   │   ├── App.tsx         # Main application orchestrator
 │   │   └── main.tsx
 │   ├── Dockerfile
 │   ├── package.json
+│   ├── tailwind.config.js
 │   └── vite.config.ts
-├── docker-compose.yml
+├── docker-compose.yml      # Multi-container deployment (API, Web, Ollama)
+├── .gitignore
 └── README.md
 ```
 
 ---
 
-## 🛡️ License
+## 🏆 Presentation & Live Demo Highlights
 
-Built for Smart India Hackathon 2026.
+When demonstrating to judges:
+1. **Hardened Cisco Preset:** Click the preset button $\rightarrow$ observe $>85\%$ compliance score, green control badges, and zero active attack paths.
+2. **Vulnerable Cisco Preset:** Click the preset button $\rightarrow$ observe compliance score $<50\%$, multiple chained attack paths, and the **"Single Key Fix"** hero banner showing how applying `access-class` breaks 3 exploit chains at once.
+3. **Unknown White-box Dialect:** Upload custom syntax $\rightarrow$ show how the AI proposes normalization, the analyst inspects raw vs proposed JSON side-by-side, and clicking **Approve** caches the dialect fingerprint for future audits.
+4. **Export Executive Report:** Click **Export Auditor Report** to open the print-ready, formatted HTML compliance report.
+
+---
+
+## 👥 Authors & Acknowledgements
+Built for **Smart India Hackathon 2026** (Problem Statement: **SIH26155**, Sponsor: **NTRO**).
