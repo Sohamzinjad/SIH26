@@ -80,7 +80,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
               {projectOpen && (
                 <div className="absolute left-0 mt-2 w-72 rounded-xl bg-[#12141A] border border-[#2C313B] shadow-2xl p-1.5 z-50">
-                  <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400 border-b border-[#232736]">
+                  <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400 border-b border-[#22262F]">
                     Select Environment
                   </div>
                   <div className="py-1 space-y-1">

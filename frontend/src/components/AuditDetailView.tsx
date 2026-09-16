@@ -274,7 +274,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
                     {path.finding_rule_ids.map((rid) => (
                       <span
                         key={rid}
-                        className="px-2 py-0.5 bg-[#161924] text-[10px] font-mono text-rose-300 rounded border border-rose-500/20"
+                        className="px-2 py-0.5 bg-[#12141A] text-[10px] font-mono text-rose-300 rounded border border-rose-500/20"
                       >
                         {rid}
                       </span>
@@ -481,3 +481,4 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
     </div>
   );
 };
+// test

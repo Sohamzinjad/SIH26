@@ -91,7 +91,7 @@ export const MappingsView: React.FC<MappingsViewProps> = ({ onMappingApproved })
         </div>
         <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
           <span>Human-in-the-Loop Dialect Normalization</span>
-          <span className="text-xs font-mono font-normal px-2 py-0.5 rounded-full bg-[#1F222E] text-slate-400 border border-[#2C313B]">
+          <span className="text-xs font-mono font-normal px-2 py-0.5 rounded-full bg-[#1A1D24] text-slate-400 border border-[#2C313B]">
             {mappings.length} Pending
           </span>
         </h1>
