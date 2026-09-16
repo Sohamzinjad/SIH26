@@ -424,7 +424,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
                         onClick={() => setSelectedFinding(f)}
                         className="flex items-center space-x-1 text-xs bg-[#0A0C0F] hover:bg-[#1A1D24] text-slate-300 px-2.5 py-1.5 rounded-lg border border-[#22262F] transition font-mono"
                       >
-                        <Code className="w-3.5 h-3.5 text-blue-400" />
+                        <Code className="w-3.5 h-3.5 text-emerald-400" />
                         <span>Line {f.evidence.line_start}</span>
                       </button>
                     )}
@@ -470,7 +470,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
                 <span className="text-[11px] uppercase font-semibold text-[#9AA2B0] tracking-wider font-mono">
                   Recommended CLI Fix:
                 </span>
-                <pre className="bg-[#0A0C0F] border border-[#22262F] rounded-lg p-3 font-mono text-xs text-blue-300 overflow-x-auto">
+                <pre className="bg-[#0A0C0F] border border-[#22262F] rounded-lg p-3 font-mono text-xs text-emerald-300 overflow-x-auto">
                   {selectedFinding.remediation}
                 </pre>
               </div>

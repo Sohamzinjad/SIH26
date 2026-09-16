@@ -83,7 +83,7 @@ export const MappingsView: React.FC<MappingsViewProps> = ({ onMappingApproved })
   return (
     <div className="max-w-5xl mx-auto space-y-6 animate-fadeIn">
       {/* Pinecone Breadcrumbs & Top Section */}
-      <div className="border-b border-[#232736] pb-5">
+      <div className="border-b border-[#22262F] pb-5">
         <div className="flex items-center space-x-2 text-xs text-slate-400 mb-1 font-mono">
           <span>Indexes</span>
           <span>/</span>
@@ -91,26 +91,26 @@ export const MappingsView: React.FC<MappingsViewProps> = ({ onMappingApproved })
         </div>
         <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
           <span>Human-in-the-Loop Dialect Normalization</span>
-          <span className="text-xs font-mono font-normal px-2 py-0.5 rounded-full bg-[#1F222E] text-slate-400 border border-[#2D3245]">
+          <span className="text-xs font-mono font-normal px-2 py-0.5 rounded-full bg-[#1F222E] text-slate-400 border border-[#2C313B]">
             {mappings.length} Pending
           </span>
         </h1>
-        <p className="text-xs text-[#8D95AB] mt-1 max-w-3xl">
+        <p className="text-xs text-[#9AA2B0] mt-1 max-w-3xl">
           Deterministic compliance principle: AI proposes structural mappings for unfamiliar NOS/whitebox syntaxes; human security analysts approve the fingerprint before caching.
         </p>
       </div>
 
       {/* Governance Banner */}
-      <div className="bg-[#151821] border border-[#232736] rounded-xl p-5 shadow-pinecone">
+      <div className="bg-[#12141A] border border-[#22262F] rounded-xl p-5 shadow-pinecone">
         <div className="flex items-start space-x-3.5">
-          <div className="p-2 rounded-lg bg-blue-500/10 text-blue-400 flex-shrink-0">
+          <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 flex-shrink-0">
             <ShieldCheck className="w-5 h-5" />
           </div>
           <div className="space-y-1">
             <h3 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
               Deterministic Memory Guarantee
             </h3>
-            <p className="text-xs text-[#8D95AB] leading-relaxed">
+            <p className="text-xs text-[#9AA2B0] leading-relaxed">
               Once an analyst approves a dialect schema, the grammar fingerprint is hashed and stored in local deterministic memory. Subsequent configurations in this dialect are audited instantaneously without LLM intervention.
             </p>
           </div>
@@ -134,13 +134,13 @@ export const MappingsView: React.FC<MappingsViewProps> = ({ onMappingApproved })
       {/* Mappings List */}
       <div className="space-y-4">
         {mappings.length === 0 ? (
-          <div className="bg-[#151821] border border-[#232736] rounded-xl p-12 text-center shadow-pinecone">
+          <div className="bg-[#12141A] border border-[#22262F] rounded-xl p-12 text-center shadow-pinecone">
             <div className="flex flex-col items-center justify-center space-y-3">
               <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
                 <CheckCircle2 className="w-6 h-6" />
               </div>
               <h3 className="text-sm font-semibold text-white">All Dialects Fingerprinted</h3>
-              <p className="text-xs text-[#8D95AB] max-w-md">
+              <p className="text-xs text-[#9AA2B0] max-w-md">
                 No syntax proposals are awaiting human review. All monitored fleet configurations map deterministically to known vendor grammars.
               </p>
             </div>
@@ -149,9 +149,9 @@ export const MappingsView: React.FC<MappingsViewProps> = ({ onMappingApproved })
           mappings.map((m) => (
             <div
               key={m.id}
-              className="bg-[#151821] border border-[#232736] hover:border-[#353A4E] rounded-xl p-6 space-y-4 shadow-pinecone transition"
+              className="bg-[#12141A] border border-[#22262F] hover:border-[#2C313B] rounded-xl p-6 space-y-4 shadow-pinecone transition"
             >
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-[#232736] pb-4">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-[#22262F] pb-4">
                 <div className="space-y-1">
                   <div className="flex items-center space-x-2">
                     <span className="font-mono text-xs font-semibold text-cyan-400">Proposal #{m.id}</span>
@@ -171,7 +171,7 @@ export const MappingsView: React.FC<MappingsViewProps> = ({ onMappingApproved })
                   <button
                     onClick={() => handleReject(m.id)}
                     disabled={processingId === m.id}
-                    className="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white bg-[#0D0E12] hover:bg-[#1B1E2B] border border-[#232736] transition disabled:opacity-50"
+                    className="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white bg-[#0A0C0F] hover:bg-[#1A1D24] border border-[#22262F] transition disabled:opacity-50"
                   >
                     Reject
                   </button>
@@ -189,22 +189,22 @@ export const MappingsView: React.FC<MappingsViewProps> = ({ onMappingApproved })
               {/* Proposed Schema & Raw Config Preview */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <span className="text-[11px] uppercase font-semibold text-[#8D95AB] tracking-wider font-mono flex items-center gap-1.5">
+                  <span className="text-[11px] uppercase font-semibold text-[#9AA2B0] tracking-wider font-mono flex items-center gap-1.5">
                     <Code className="w-3.5 h-3.5 text-blue-400" />
                     <span>Proposed AST Normalization (JSON)</span>
                   </span>
-                  <pre className="bg-[#0D0E12] border border-[#232736] rounded-lg p-3.5 font-mono text-[11px] text-blue-300 max-h-60 overflow-y-auto leading-relaxed">
+                  <pre className="bg-[#0A0C0F] border border-[#22262F] rounded-lg p-3.5 font-mono text-[11px] text-blue-300 max-h-60 overflow-y-auto leading-relaxed">
                     {JSON.stringify(m.proposed_schema, null, 2)}
                   </pre>
                 </div>
 
                 {m.config_sample && (
                   <div className="space-y-1.5">
-                    <span className="text-[11px] uppercase font-semibold text-[#8D95AB] tracking-wider font-mono flex items-center gap-1.5">
+                    <span className="text-[11px] uppercase font-semibold text-[#9AA2B0] tracking-wider font-mono flex items-center gap-1.5">
                       <Terminal className="w-3.5 h-3.5 text-cyan-400" />
                       <span>Uncatalogued Config Sample</span>
                     </span>
-                    <pre className="bg-[#0D0E12] border border-[#232736] rounded-lg p-3.5 font-mono text-[11px] text-emerald-400 max-h-60 overflow-y-auto leading-relaxed">
+                    <pre className="bg-[#0A0C0F] border border-[#22262F] rounded-lg p-3.5 font-mono text-[11px] text-emerald-400 max-h-60 overflow-y-auto leading-relaxed">
                       {m.config_sample}
                     </pre>
                   </div>
