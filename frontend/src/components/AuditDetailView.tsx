@@ -68,7 +68,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
   if (loading) {
     return (
       <div className="flex flex-col justify-center items-center h-96 space-y-4">
-        <div className="w-10 h-10 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-10 h-10 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
         <p className="text-xs text-slate-400 font-mono tracking-wider uppercase">Loading Audit Run #{auditId}...</p>
       </div>
     );
@@ -115,7 +115,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
             <span>/</span>
             <span className="text-slate-200">{audit.hostname}</span>
             <span>/</span>
-            <span className="text-blue-400">audit-{audit.id}</span>
+            <span className="text-emerald-400">audit-{audit.id}</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
@@ -164,8 +164,8 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
 
       {/* Strategic Threat Severance Recommendation (Pinecone Highlight Card) */}
       {single_fix_recommendation && (
-        <div className="bg-gradient-to-r from-[#121829] via-[#12141A] to-[#12141A] border border-blue-500/40 rounded-xl p-6 shadow-pinecone-glow relative overflow-hidden">
-          <div className="flex items-center space-x-2 text-blue-400 font-bold uppercase tracking-wider text-[11px] mb-2 font-mono">
+        <div className="bg-gradient-to-r from-[#0A2018] via-[#12141A] to-[#12141A] border border-emerald-500/40 rounded-xl p-6 shadow-pinecone-glow relative overflow-hidden">
+          <div className="flex items-center space-x-2 text-emerald-400 font-bold uppercase tracking-wider text-[11px] mb-2 font-mono">
             <Zap className="w-4 h-4 text-amber-400 fill-amber-400" />
             <span>Strategic Threat Severance Recommendation</span>
           </div>
@@ -187,7 +187,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
               <div className="font-semibold text-white text-xs mt-1 truncate">
                 {single_fix_recommendation.rule_title}
               </div>
-              <code className="text-xs text-blue-400 font-mono mt-0.5 block">{single_fix_recommendation.rule_id}</code>
+              <code className="text-xs text-emerald-400 font-mono mt-0.5 block">{single_fix_recommendation.rule_id}</code>
             </div>
 
             <div className="bg-[#0A0C0F] border border-[#22262F] p-3.5 rounded-lg">
@@ -306,7 +306,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Filter rules by title or ID..."
-                className="w-full bg-[#0A0C0F] border border-[#22262F] focus:border-blue-500 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none transition"
+                className="w-full bg-[#0A0C0F] border border-[#22262F] focus:border-emerald-500 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none transition"
               />
             </div>
           </div>
@@ -382,7 +382,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
                 >
                   <div className="space-y-1 max-w-3xl">
                     <div className="flex items-center space-x-2">
-                      <span className="font-mono text-xs font-semibold text-blue-400">{f.rule_id}</span>
+                      <span className="font-mono text-xs font-semibold text-emerald-400">{f.rule_id}</span>
                       <span className="text-[10px] uppercase font-mono px-2 py-0.2 rounded bg-[#0A0C0F] text-slate-400 border border-[#22262F]">
                         {f.framework}
                       </span>
