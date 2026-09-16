@@ -1,6 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { DashboardOverview } from '../types';
-import { ShieldCheck, AlertTriangle, Network, Server, ArrowRight, FileCheck, ExternalLink } from 'lucide-react';
+import { 
+  Boxes, 
+  ShieldCheck, 
+  AlertTriangle, 
+  Network, 
+  Server, 
+  Plus, 
+  Search, 
+  ExternalLink, 
+  Copy, 
+  Check, 
+  ArrowUpRight,
+  Filter,
+  Sparkles,
+  Terminal,
+  Activity,
+  CheckCircle2,
+  Cpu
+} from 'lucide-react';
 import { getReportUrl } from '../api/client';
 
 interface DashboardViewProps {
@@ -16,182 +34,389 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onSelectAudit,
   onNewAudit,
 }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [vendorFilter, setVendorFilter] = useState('ALL');
+  const [copiedHost, setCopiedHost] = useState<string | null>(null);
+
   if (loading || !overview) {
     return (
-      <div className="flex justify-center items-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      <div className="flex flex-col justify-center items-center h-96 space-y-4">
+        <div className="relative w-12 h-12">
+          <div className="absolute inset-0 rounded-xl bg-blue-500/20 animate-ping"></div>
+          <div className="relative rounded-xl bg-[#161924] border border-blue-500/50 p-3 flex items-center justify-center">
+            <Boxes className="w-6 h-6 text-blue-400 animate-spin" />
+          </div>
+        </div>
+        <p className="text-xs text-slate-400 font-mono tracking-wider uppercase">Loading Indexes & Fleet Posture...</p>
       </div>
     );
   }
 
-  const scoreColor =
-    overview.average_score >= 80
-      ? 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10'
-      : overview.average_score >= 60
-      ? 'text-amber-400 border-amber-500/30 bg-amber-500/10'
-      : 'text-rose-400 border-rose-500/30 bg-rose-500/10';
+  const handleCopyHost = (hostname: string) => {
+    navigator.clipboard.writeText(hostname);
+    setCopiedHost(hostname);
+    setTimeout(() => setCopiedHost(null), 1500);
+  };
+
+  const filteredDevices = overview.devices.filter((device) => {
+    const matchesSearch = device.hostname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          device.vendor.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesVendor = vendorFilter === 'ALL' || device.vendor.toLowerCase().includes(vendorFilter.toLowerCase());
+    return matchesSearch && matchesVendor;
+  });
 
   return (
-    <div className="space-y-8">
-      {/* Top Banner */}
-      <div className="bg-gradient-to-r from-blue-900/40 via-dark-800 to-dark-800 border border-dark-600 rounded-xl p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div className="space-y-8 animate-fadeIn">
+      {/* Pinecone Breadcrumbs & Top Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#232736] pb-6">
         <div>
-          <h2 className="text-2xl font-bold text-white tracking-tight">
-            National Network Security Posture
-          </h2>
-          <p className="text-sm text-slate-400 mt-1">
-            Deterministic CIS / NIST SP 800-53 / DISA STIG controls evaluated against enterprise multi-vendor fleet.
+          <div className="flex items-center space-x-2 text-xs text-slate-400 mb-1 font-mono">
+            <span>Indexes</span>
+            <span>/</span>
+            <span className="text-slate-200">Production Fleet</span>
+          </div>
+          <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2.5">
+            <span>Fleet Indexes & Compliance</span>
+            <span className="text-xs font-normal font-mono px-2 py-0.5 rounded-full bg-[#1F222E] text-slate-400 border border-[#2D3245]">
+              {overview.devices.length} Total
+            </span>
+          </h1>
+          <p className="text-xs text-[#8D95AB] mt-1 max-w-2xl">
+            Deterministic security compliance auditing for multi-vendor network devices. Evaluates running configs against CIS, NIST SP 800-53, and DISA STIG controls.
           </p>
         </div>
-        <button
-          onClick={onNewAudit}
-          className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-2.5 rounded-lg shadow-lg shadow-blue-600/20 transition"
-        >
-          <span>Run New Config Audit</span>
-          <ArrowRight className="w-4 h-4" />
-        </button>
+
+        {/* Primary Pinecone Create Index CTA */}
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={onNewAudit}
+            className="flex items-center space-x-2 bg-white hover:bg-neutral-200 text-neutral-900 font-semibold px-4 py-2 rounded-lg text-xs transition shadow-sm"
+          >
+            <Plus className="w-4 h-4 text-black stroke-[2.5]" />
+            <span>+ Create Index / Run Audit</span>
+          </button>
+        </div>
       </div>
 
-      {/* KPI Stats Grid */}
+      {/* Pinecone Metric Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <div className={`p-5 rounded-xl border ${scoreColor} flex flex-col justify-between`}>
+        {/* Metric 1: Fleet Compliance Score */}
+        <div className="bg-[#151821] border border-[#232736] hover:border-[#2E3347] rounded-xl p-4 transition-all flex flex-col justify-between group">
           <div className="flex justify-between items-start">
-            <span className="text-xs font-semibold uppercase tracking-wider">Fleet Compliance</span>
-            <ShieldCheck className="w-5 h-5" />
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8D95AB]">
+              Fleet Compliance
+            </span>
+            <div className={`p-1 rounded-md ${
+              overview.average_score >= 80 
+                ? 'bg-emerald-500/10 text-emerald-400' 
+                : overview.average_score >= 60 
+                ? 'bg-amber-500/10 text-amber-400' 
+                : 'bg-rose-500/10 text-rose-400'
+            }`}>
+              <ShieldCheck className="w-4 h-4" />
+            </div>
           </div>
           <div className="mt-3">
-            <span className="text-3xl font-extrabold">{overview.average_score}%</span>
-            <p className="text-xs text-slate-400 mt-1">Weighted passing score</p>
+            <div className="flex items-baseline space-x-2">
+              <span className="text-2xl font-bold text-white tracking-tight font-sans">
+                {overview.average_score}%
+              </span>
+              <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded font-semibold ${
+                overview.average_score >= 80
+                  ? 'bg-emerald-500/20 text-emerald-300'
+                  : 'bg-amber-500/20 text-amber-300'
+              }`}>
+                {overview.average_score >= 80 ? 'HEALTHY' : 'WARNING'}
+              </span>
+            </div>
+            {/* Micro Progress Bar */}
+            <div className="w-full bg-[#1F2330] rounded-full h-1.5 mt-2 overflow-hidden">
+              <div
+                className={`h-1.5 rounded-full transition-all duration-500 ${
+                  overview.average_score >= 80 
+                    ? 'bg-emerald-400' 
+                    : overview.average_score >= 60 
+                    ? 'bg-amber-400' 
+                    : 'bg-rose-400'
+                }`}
+                style={{ width: `${overview.average_score}%` }}
+              />
+            </div>
+            <p className="text-[11px] text-[#8D95AB] mt-2">Weighted pass across fleet</p>
           </div>
         </div>
 
-        <div className="bg-dark-800 border border-dark-600 p-5 rounded-xl flex flex-col justify-between">
-          <div className="flex justify-between items-start text-slate-400">
-            <span className="text-xs font-semibold uppercase tracking-wider">Active Devices</span>
-            <Server className="w-5 h-5 text-blue-400" />
+        {/* Metric 2: Active Devices */}
+        <div className="bg-[#151821] border border-[#232736] hover:border-[#2E3347] rounded-xl p-4 transition-all flex flex-col justify-between">
+          <div className="flex justify-between items-start">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8D95AB]">
+              Active Devices
+            </span>
+            <div className="p-1 rounded-md bg-blue-500/10 text-blue-400">
+              <Server className="w-4 h-4" />
+            </div>
           </div>
           <div className="mt-3">
-            <span className="text-3xl font-extrabold text-white">{overview.total_devices}</span>
-            <p className="text-xs text-slate-400 mt-1">{overview.total_audits} total audit runs</p>
+            <span className="text-2xl font-bold text-white tracking-tight">
+              {overview.total_devices}
+            </span>
+            <p className="text-[11px] text-[#8D95AB] mt-2">
+              <span className="font-mono text-slate-300">{overview.total_audits}</span> audit executions logged
+            </p>
           </div>
         </div>
 
-        <div className="bg-dark-800 border border-dark-600 p-5 rounded-xl flex flex-col justify-between">
-          <div className="flex justify-between items-start text-slate-400">
-            <span className="text-xs font-semibold uppercase tracking-wider">Critical Failures</span>
-            <AlertTriangle className="w-5 h-5 text-rose-500" />
+        {/* Metric 3: Critical Security Gaps */}
+        <div className="bg-[#151821] border border-[#232736] hover:border-[#2E3347] rounded-xl p-4 transition-all flex flex-col justify-between">
+          <div className="flex justify-between items-start">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8D95AB]">
+              Critical Gaps
+            </span>
+            <div className="p-1 rounded-md bg-rose-500/10 text-rose-400">
+              <AlertTriangle className="w-4 h-4" />
+            </div>
           </div>
           <div className="mt-3">
-            <span className="text-3xl font-extrabold text-rose-400">{overview.critical_failures}</span>
-            <p className="text-xs text-slate-400 mt-1">{overview.high_failures} high severity gaps</p>
+            <div className="flex items-baseline space-x-2">
+              <span className="text-2xl font-bold text-rose-400 tracking-tight">
+                {overview.critical_failures}
+              </span>
+              <span className="text-[10px] font-mono text-rose-400/80 uppercase">Severe</span>
+            </div>
+            <p className="text-[11px] text-[#8D95AB] mt-2">
+              +{overview.high_failures} high severity findings
+            </p>
           </div>
         </div>
 
-        <div className="bg-dark-800 border border-dark-600 p-5 rounded-xl flex flex-col justify-between">
-          <div className="flex justify-between items-start text-slate-400">
-            <span className="text-xs font-semibold uppercase tracking-wider">Attack Chains</span>
-            <Network className="w-5 h-5 text-orange-400" />
+        {/* Metric 4: Attack Chains */}
+        <div className="bg-[#151821] border border-[#232736] hover:border-[#2E3347] rounded-xl p-4 transition-all flex flex-col justify-between">
+          <div className="flex justify-between items-start">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8D95AB]">
+              Attack Chains
+            </span>
+            <div className="p-1 rounded-md bg-orange-500/10 text-orange-400">
+              <Network className="w-4 h-4" />
+            </div>
           </div>
           <div className="mt-3">
-            <span className="text-3xl font-extrabold text-orange-400">{overview.active_attack_chains}</span>
-            <p className="text-xs text-slate-400 mt-1">Correlated exploit paths</p>
+            <div className="flex items-baseline space-x-2">
+              <span className="text-2xl font-bold text-orange-400 tracking-tight">
+                {overview.active_attack_chains}
+              </span>
+              <span className="text-[10px] font-mono text-orange-400/80 uppercase">Active</span>
+            </div>
+            <p className="text-[11px] text-[#8D95AB] mt-2">Correlated multi-stage vectors</p>
           </div>
         </div>
 
-        <div className="bg-dark-800 border border-dark-600 p-5 rounded-xl flex flex-col justify-between">
-          <div className="flex justify-between items-start text-slate-400">
-            <span className="text-xs font-semibold uppercase tracking-wider">AI Proposals</span>
-            <FileCheck className="w-5 h-5 text-cyan-400" />
+        {/* Metric 5: AI Dialect Governance */}
+        <div className="bg-[#151821] border border-[#232736] hover:border-[#2E3347] rounded-xl p-4 transition-all flex flex-col justify-between">
+          <div className="flex justify-between items-start">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8D95AB]">
+              AI Dialects
+            </span>
+            <div className="p-1 rounded-md bg-cyan-500/10 text-cyan-400">
+              <Sparkles className="w-4 h-4" />
+            </div>
           </div>
           <div className="mt-3">
-            <span className="text-3xl font-extrabold text-cyan-400">{overview.pending_ai_proposals}</span>
-            <p className="text-xs text-slate-400 mt-1">Pending analyst sign-off</p>
+            <div className="flex items-baseline space-x-2">
+              <span className="text-2xl font-bold text-cyan-400 tracking-tight">
+                {overview.pending_ai_proposals}
+              </span>
+              <span className="text-[10px] font-mono text-slate-400 uppercase">Pending</span>
+            </div>
+            <p className="text-[11px] text-[#8D95AB] mt-2">Human-in-the-loop sign-off</p>
           </div>
         </div>
       </div>
 
-      {/* Device Fleet Section */}
-      <div className="bg-dark-800 border border-dark-600 rounded-xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-dark-600 flex justify-between items-center">
-          <h3 className="font-semibold text-white">Monitored Network Infrastructure</h3>
-          <span className="text-xs text-slate-400">{overview.devices.length} devices configured</span>
+      {/* Pinecone Indexes Section */}
+      <div className="bg-[#151821] border border-[#232736] rounded-xl overflow-hidden shadow-pinecone">
+        {/* Controls Bar: Search & Filter */}
+        <div className="p-4 border-b border-[#232736] flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+          <div className="flex items-center space-x-3 flex-1">
+            {/* Search Input */}
+            <div className="relative flex-1 max-w-md">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search indexes by hostname, vendor, or dialect..."
+                className="w-full bg-[#0D0E12] border border-[#232736] focus:border-blue-500 rounded-lg pl-9 pr-4 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none transition"
+              />
+            </div>
+
+            {/* Vendor Filter Pills */}
+            <div className="hidden md:flex items-center space-x-1 bg-[#0D0E12] p-0.5 rounded-lg border border-[#232736]">
+              {['ALL', 'CISCO', 'FORTINET', 'WHITEBOX'].map((vendor) => (
+                <button
+                  key={vendor}
+                  onClick={() => setVendorFilter(vendor)}
+                  className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition ${
+                    vendorFilter === vendor
+                      ? 'bg-[#232736] text-white'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  {vendor}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2 text-xs text-slate-400">
+            <span className="font-mono">{filteredDevices.length}</span>
+            <span>of {overview.devices.length} indexes</span>
+          </div>
         </div>
 
+        {/* Pinecone Index Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-slate-300">
-            <thead className="bg-dark-900/50 text-xs uppercase text-slate-400 border-b border-dark-600">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-[#111319] text-[11px] font-semibold uppercase tracking-wider text-[#8D95AB] border-b border-[#232736]">
               <tr>
-                <th className="px-6 py-3">Hostname</th>
-                <th className="px-6 py-3">Vendor / OS</th>
-                <th className="px-6 py-3">Compliance Score</th>
-                <th className="px-6 py-3">Audit Status</th>
-                <th className="px-6 py-3 text-right">Actions</th>
+                <th className="px-6 py-3.5">Index Name / Hostname</th>
+                <th className="px-6 py-3.5">Vendor & Architecture</th>
+                <th className="px-6 py-3.5">Compliance Score</th>
+                <th className="px-6 py-3.5">Status</th>
+                <th className="px-6 py-3.5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-dark-600">
-              {overview.devices.length === 0 ? (
+            <tbody className="divide-y divide-[#232736]/60">
+              {filteredDevices.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-slate-400">
-                    No devices registered yet. Upload a configuration file to start auditing.
+                  <td colSpan={5} className="px-6 py-12 text-center text-[#8D95AB]">
+                    <div className="flex flex-col items-center justify-center space-y-2">
+                      <Boxes className="w-8 h-8 text-slate-600" />
+                      <p className="text-sm font-medium text-slate-300">No indexes match your query</p>
+                      <p className="text-xs text-slate-500">Run a new configuration audit to register an index.</p>
+                      <button
+                        onClick={onNewAudit}
+                        className="mt-2 text-xs bg-white text-black font-semibold px-3 py-1.5 rounded-lg hover:bg-neutral-200 transition"
+                      >
+                        + Run Config Audit
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ) : (
-                overview.devices.map((device) => {
+                filteredDevices.map((device) => {
                   const devScore = device.score !== null && device.score !== undefined ? device.score : null;
+                  const isReady = device.status === 'COMPLETED';
+
                   return (
-                    <tr key={device.id} className="hover:bg-dark-700/50 transition">
-                      <td className="px-6 py-4 font-mono font-medium text-white">{device.hostname}</td>
+                    <tr 
+                      key={device.id} 
+                      className="hover:bg-[#1B1E2B]/80 transition group"
+                    >
+                      {/* Hostname Column */}
                       <td className="px-6 py-4">
-                        <span className="px-2.5 py-1 text-xs rounded-full bg-slate-800 text-slate-300 font-mono border border-slate-700">
-                          {device.vendor}
-                        </span>
+                        <div className="flex items-center space-x-3">
+                          <div className="flex items-center space-x-2">
+                            <span className="flex h-2 w-2 relative">
+                              {isReady && (
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                              )}
+                              <span className={`relative inline-flex rounded-full h-2 w-2 ${
+                                isReady ? 'bg-emerald-400' : 'bg-amber-400'
+                              }`}></span>
+                            </span>
+                            <span 
+                              onClick={() => device.latest_audit_id && onSelectAudit(device.latest_audit_id)}
+                              className="font-mono font-medium text-white hover:text-blue-400 cursor-pointer transition text-sm"
+                            >
+                              {device.hostname}
+                            </span>
+                          </div>
+
+                          <button
+                            onClick={() => handleCopyHost(device.hostname)}
+                            className="opacity-0 group-hover:opacity-100 text-slate-500 hover:text-slate-300 transition"
+                            title="Copy hostname"
+                          >
+                            {copiedHost === device.hostname ? (
+                              <Check className="w-3.5 h-3.5 text-emerald-400" />
+                            ) : (
+                              <Copy className="w-3.5 h-3.5" />
+                            )}
+                          </button>
+                        </div>
+                        <div className="text-[11px] text-slate-500 font-mono mt-0.5">
+                          Index ID: idx-{device.id.toString().padStart(4, '0')} &bull; Deterministic
+                        </div>
                       </td>
+
+                      {/* Vendor Column */}
+                      <td className="px-6 py-4">
+                        <div className="flex items-center space-x-2">
+                          <span className="px-2 py-0.5 rounded-md bg-[#1F222E] text-slate-300 font-mono text-[11px] border border-[#2D3245]">
+                            {device.vendor}
+                          </span>
+                          <span className="text-[11px] text-slate-500 font-mono">Serverless</span>
+                        </div>
+                      </td>
+
+                      {/* Compliance Score Column */}
                       <td className="px-6 py-4">
                         {devScore !== null ? (
-                          <div className="flex items-center space-x-2">
-                            <div className="w-16 bg-dark-900 rounded-full h-2 overflow-hidden">
+                          <div className="space-y-1 max-w-[140px]">
+                            <div className="flex justify-between items-center text-[11px]">
+                              <span className="font-bold text-white font-mono">{devScore}%</span>
+                              <span className={`text-[10px] font-mono ${
+                                devScore >= 80 ? 'text-emerald-400' : devScore >= 60 ? 'text-amber-400' : 'text-rose-400'
+                              }`}>
+                                {devScore >= 80 ? 'PASS' : devScore >= 60 ? 'MED' : 'HIGH RISK'}
+                              </span>
+                            </div>
+                            <div className="w-full bg-[#1F2330] rounded-full h-1.5 overflow-hidden">
                               <div
-                                className={`h-2 rounded-full ${
-                                  devScore >= 80 ? 'bg-emerald-500' : devScore >= 60 ? 'bg-amber-500' : 'bg-rose-500'
+                                className={`h-1.5 rounded-full ${
+                                  devScore >= 80 ? 'bg-emerald-400' : devScore >= 60 ? 'bg-amber-400' : 'bg-rose-400'
                                 }`}
                                 style={{ width: `${devScore}%` }}
                               />
                             </div>
-                            <span className="font-bold text-xs">{devScore}%</span>
                           </div>
                         ) : (
-                          <span className="text-slate-500 text-xs">N/A</span>
+                          <span className="text-slate-500 font-mono text-[11px]">N/A</span>
                         )}
                       </td>
+
+                      {/* Status Column */}
                       <td className="px-6 py-4">
                         <span
-                          className={`px-2 py-0.5 text-xs font-semibold rounded-md ${
-                            device.status === 'COMPLETED'
-                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                          className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-mono font-medium ${
+                            isReady
+                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                               : device.status === 'PENDING_AI_MAPPING'
-                              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                              : 'bg-slate-700 text-slate-300'
+                              ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                              : 'bg-slate-800 text-slate-400 border border-slate-700'
                           }`}
                         >
-                          {device.status}
+                          {isReady ? 'Ready' : device.status}
                         </span>
                       </td>
+
+                      {/* Actions Column */}
                       <td className="px-6 py-4 text-right space-x-2">
                         {device.latest_audit_id && (
                           <>
                             <button
                               onClick={() => onSelectAudit(device.latest_audit_id!)}
-                              className="text-xs text-blue-400 hover:text-blue-300 font-medium hover:underline"
+                              className="text-xs font-medium text-blue-400 hover:text-white px-2.5 py-1 rounded bg-blue-500/10 hover:bg-blue-600 border border-blue-500/30 hover:border-blue-600 transition"
                             >
-                              View Findings
+                              Audit Findings
                             </button>
                             <a
                               href={getReportUrl(device.latest_audit_id)}
                               target="_blank"
                               rel="noreferrer"
-                              className="inline-flex items-center space-x-1 text-xs text-slate-400 hover:text-slate-200"
+                              className="inline-flex items-center space-x-1 text-xs text-slate-400 hover:text-slate-200 px-2 py-1 rounded hover:bg-[#232736] transition"
                             >
-                              <ExternalLink className="w-3 h-3" />
+                              <ExternalLink className="w-3.5 h-3.5" />
                               <span>Report</span>
                             </a>
                           </>
@@ -206,37 +431,56 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       </div>
 
-      {/* Recent Audits Table */}
-      <div className="bg-dark-800 border border-dark-600 rounded-xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-dark-600 flex justify-between items-center">
-          <h3 className="font-semibold text-white">Recent Compliance Audit Runs</h3>
+      {/* Pinecone Recent Audits / Execution Runs */}
+      <div className="bg-[#151821] border border-[#232736] rounded-xl overflow-hidden shadow-pinecone">
+        <div className="px-6 py-4 border-b border-[#232736] flex justify-between items-center">
+          <div>
+            <h3 className="font-semibold text-white text-sm">Recent Audit Executions</h3>
+            <p className="text-[11px] text-[#8D95AB]">Deterministic rule runs recorded against CIS and NIST baselines</p>
+          </div>
+          <span className="text-[11px] font-mono text-slate-400">
+            {overview.recent_audits.length} runs recorded
+          </span>
         </div>
+
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-slate-300">
-            <thead className="bg-dark-900/50 text-xs uppercase text-slate-400 border-b border-dark-600">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-[#111319] text-[11px] font-semibold uppercase tracking-wider text-[#8D95AB] border-b border-[#232736]">
               <tr>
                 <th className="px-6 py-3">Audit ID</th>
-                <th className="px-6 py-3">Device Hostname</th>
+                <th className="px-6 py-3">Target Hostname</th>
                 <th className="px-6 py-3">Vendor</th>
-                <th className="px-6 py-3">Score</th>
-                <th className="px-6 py-3">Failures</th>
-                <th className="px-6 py-3 text-right">Actions</th>
+                <th className="px-6 py-3">Compliance Score</th>
+                <th className="px-6 py-3">Gaps Identified</th>
+                <th className="px-6 py-3 text-right">Details</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-dark-600">
+            <tbody className="divide-y divide-[#232736]/60">
               {overview.recent_audits.map((a) => (
-                <tr key={a.id} className="hover:bg-dark-700/50 transition">
-                  <td className="px-6 py-4 font-mono text-xs text-slate-400">#{a.id}</td>
-                  <td className="px-6 py-4 font-medium text-white">{a.hostname}</td>
-                  <td className="px-6 py-4 text-xs font-mono text-slate-400">{a.vendor}</td>
-                  <td className="px-6 py-4 font-bold text-xs">{a.score}%</td>
-                  <td className="px-6 py-4 text-xs text-rose-400 font-semibold">{a.fail_count} gaps</td>
-                  <td className="px-6 py-4 text-right">
+                <tr key={a.id} className="hover:bg-[#1B1E2B]/80 transition">
+                  <td className="px-6 py-3.5 font-mono text-[11px] text-slate-400">
+                    audit-{a.id.toString().padStart(3, '0')}
+                  </td>
+                  <td className="px-6 py-3.5 font-medium text-white font-mono">{a.hostname}</td>
+                  <td className="px-6 py-3.5 text-slate-300 font-mono text-[11px]">{a.vendor}</td>
+                  <td className="px-6 py-3.5">
+                    <span className={`font-mono font-bold ${
+                      a.score >= 80 ? 'text-emerald-400' : a.score >= 60 ? 'text-amber-400' : 'text-rose-400'
+                    }`}>
+                      {a.score}%
+                    </span>
+                  </td>
+                  <td className="px-6 py-3.5">
+                    <span className="px-2 py-0.5 text-[10px] font-mono rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-medium">
+                      {a.fail_count} failed controls
+                    </span>
+                  </td>
+                  <td className="px-6 py-3.5 text-right">
                     <button
                       onClick={() => onSelectAudit(a.id)}
-                      className="text-xs bg-blue-600/20 text-blue-400 border border-blue-500/30 px-3 py-1 rounded hover:bg-blue-600/40 transition"
+                      className="text-xs bg-[#1F222E] hover:bg-[#2A2F40] text-slate-200 border border-[#2D3245] px-2.5 py-1 rounded transition"
                     >
-                      Audit Details
+                      Inspect Findings &rarr;
                     </button>
                   </td>
                 </tr>
