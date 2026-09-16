@@ -177,7 +177,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8D95AB]">
               Active Devices
             </span>
-            <div className="p-1 rounded-md bg-blue-500/10 text-blue-400">
+            <div className="p-1 rounded-md bg-emerald-500/10 text-emerald-400">
               <Server className="w-4 h-4" />
             </div>
           </div>
@@ -270,7 +270,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search indexes by hostname, vendor, or dialect..."
-                className="w-full bg-[#0D0E12] border border-[#232736] focus:border-blue-500 rounded-lg pl-9 pr-4 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none transition"
+                className="w-full bg-[#0D0E12] border border-[#232736] focus:border-emerald-500 rounded-lg pl-9 pr-4 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none transition"
               />
             </div>
 

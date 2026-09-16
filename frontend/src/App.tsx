@@ -93,12 +93,12 @@ export const App: React.FC = () => {
       </main>
 
       {/* Pinecone Console Footer */}
-      <footer className="bg-[#111319] border-t border-[#232736] py-6 px-4 sm:px-6 lg:px-8 text-xs text-[#8D95AB] mt-auto">
+      <footer className="bg-[#0F1115] border-t border-[#22262F] py-6 px-4 sm:px-6 lg:px-8 text-xs text-[#9AA2B0] mt-auto">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-1.5 font-mono text-[11px] text-slate-300">
               <Lock className="w-3.5 h-3.5 text-emerald-400" />
-              <span>PINECONE AUDIT ENGINE</span>
+              <span>PINE AUDIT ENGINE</span>
             </div>
             <span className="text-slate-600">&bull;</span>
             <span className="text-[11px] text-slate-400">
