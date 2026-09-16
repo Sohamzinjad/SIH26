@@ -4,43 +4,43 @@
 
 @layer base {
   body {
-    @apply bg-[#0D0E12] text-[#F1F3F9] font-sans antialiased;
-    background-image: 
-      radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.04) 0%, transparent 60%),
-      radial-gradient(circle at 100% 100%, rgba(16, 185, 129, 0.02) 0%, transparent 40%);
-    background-attachment: fixed;
+    @apply bg-[#0A0C0F] text-[#F4F6FB] font-sans antialiased;
   }
 }
 
 /* Pinecone subtle dot pattern */
 .pinecone-dots {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 
 /* Custom scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #0D0E12;
+  background: #0A0C0F;
 }
 ::-webkit-scrollbar-thumb {
-  background: #232736;
+  background: #262B35;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3D445D;
+  background: #363C49;
 }
 
 /* Glass & Card Borders */
 .pinecone-card {
-  background: #151821;
-  border: 1px solid #232736;
+  background: #14161C;
+  border: 1px solid #22262F;
   border-radius: 0.75rem;
-  transition: all 0.2s ease-in-out;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 .pinecone-card:hover {
-  border-color: #353A4D;
+  border-color: #2C313B;
+}
+
+.pinecone-accent {
+  color: #00E58C;
 }
