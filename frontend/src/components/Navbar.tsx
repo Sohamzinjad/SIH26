@@ -51,24 +51,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               {/* Pinecone Iconic Geometric Logo */}
               <div className="relative w-8 h-8 flex items-center justify-center">
-                <svg viewBox="0 0 32 32" className="w-8 h-8 filter drop-shadow-[0_0_8px_rgba(59,130,246,0.3)]">
+                <svg viewBox="0 0 32 32" className="w-8 h-8 filter drop-shadow-[0_0_8px_rgba(0,229,140,0.35)]">
                   {/* Top diamond facet */}
-                  <polygon points="16,2 26,8 16,14 6,8" fill="#38BDF8" className="transition-all group-hover:brightness-110" />
+                  <polygon points="16,2 26,8 16,14 6,8" fill="#7BF2C0" className="transition-all group-hover:brightness-110" />
                   {/* Left bottom facet */}
-                  <polygon points="6,9 16,15 16,27 6,21" fill="#2563EB" className="transition-all group-hover:brightness-110" />
+                  <polygon points="6,9 16,15 16,27 6,21" fill="#00E58C" className="transition-all group-hover:brightness-110" />
                   {/* Right bottom facet */}
-                  <polygon points="16,15 26,9 26,21 16,27" fill="#4F46E5" className="transition-all group-hover:brightness-110" />
+                  <polygon points="16,15 26,9 26,21 16,27" fill="#00B96F" className="transition-all group-hover:brightness-110" />
                 </svg>
-              </div>
-              <div className="flex flex-col">
-                <div className="flex items-center space-x-2">
-                  <span className="font-bold text-base tracking-tight text-white font-sans flex items-center gap-1.5">
-                    PINECONE <span className="text-[#8D95AB] font-normal text-sm">//</span> <span className="text-white font-semibold text-sm">AUDIT</span>
-                  </span>
-                  <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium tracking-wide">
-                    Air-Gapped
-                  </span>
-                </div>
               </div>
             </div>
 
