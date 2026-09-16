@@ -35,3 +35,7 @@ htmlcov/
 
 # Docker
 *.log
+
+# auto-commit script
+.auto-commit.pid
+.auto-commit.log
