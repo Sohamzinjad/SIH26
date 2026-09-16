@@ -36,6 +36,8 @@ htmlcov/
 # Docker
 *.log
 
-# auto-commit script
+# Local-only scripts and artifacts (kept on disk, not tracked)
+auto-commit.sh
+start.sh
 .auto-commit.pid
 .auto-commit.log
