@@ -216,7 +216,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
               </span>
               <button
                 onClick={() => handleCopyRemediation(single_fix_recommendation.remediation)}
-                className="flex items-center space-x-1.5 text-xs text-slate-300 hover:text-white bg-[#1A1D24] hover:bg-[#2A2F40] px-2.5 py-1 rounded border border-[#2C313B] transition font-mono"
+                className="flex items-center space-x-1.5 text-xs text-slate-300 hover:text-white bg-[#1A1D24] hover:bg-[#262B35] px-2.5 py-1 rounded border border-[#2C313B] transition font-mono"
               >
                 {copiedRemediation ? (
                   <>
@@ -255,7 +255,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
             {attack_paths.map((path) => (
               <div
                 key={path.chain_id}
-                className="bg-[#0A0C0F] border border-[#22262F] hover:border-[#353A4E] rounded-lg p-4 space-y-2.5 transition"
+                className="bg-[#0A0C0F] border border-[#22262F] hover:border-[#2C313B] rounded-lg p-4 space-y-2.5 transition"
               >
                 <div className="flex justify-between items-start">
                   <h4 className="font-semibold text-white text-xs pr-2">{path.name}</h4>
@@ -265,7 +265,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
                 </div>
                 <p className="text-xs text-[#9AA2B0] leading-relaxed">{path.narrative}</p>
 
-                <div className="border-t border-[#1F2330] pt-2 space-y-1">
+                <div className="border-t border-[#262B35] pt-2 space-y-1">
                   <div className="text-[11px] text-slate-400 flex items-center space-x-1 font-mono">
                     <CornerDownRight className="w-3 h-3 text-slate-500" />
                     <span>Prerequisite Findings:</span>
@@ -378,7 +378,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
               return (
                 <div
                   key={f.rule_id}
-                  className="p-4 hover:bg-[#1B1E2B]/80 transition flex flex-col md:flex-row justify-between items-start md:items-center gap-4 group"
+                  className="p-4 hover:bg-[#1A1D24]/80 transition flex flex-col md:flex-row justify-between items-start md:items-center gap-4 group"
                 >
                   <div className="space-y-1 max-w-3xl">
                     <div className="flex items-center space-x-2">
