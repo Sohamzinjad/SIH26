@@ -93,7 +93,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   return (
     <div className="space-y-8 animate-fadeIn">
       {/* Pinecone Breadcrumbs & Top Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#232736] pb-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#22262F] pb-6">
         <div>
           <div className="flex items-center space-x-2 text-xs text-slate-400 mb-1 font-mono">
             <span>Indexes</span>
@@ -106,7 +106,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {devices.length} Total
             </span>
           </h1>
-          <p className="text-xs text-[#8D95AB] mt-1 max-w-2xl">
+          <p className="text-xs text-[#9AA2B0] mt-1 max-w-2xl">
             Deterministic security compliance auditing for multi-vendor network devices. Evaluates running configs against CIS, NIST SP 800-53, and DISA STIG controls.
           </p>
         </div>
@@ -126,9 +126,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* Pinecone Metric Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {/* Metric 1: Fleet Compliance Score */}
-        <div className="bg-[#151821] border border-[#232736] hover:border-[#2E3347] rounded-xl p-4 transition-all flex flex-col justify-between group">
+        <div className="bg-[#12141A] border border-[#22262F] hover:border-[#2E3347] rounded-xl p-4 transition-all flex flex-col justify-between group">
           <div className="flex justify-between items-start">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8D95AB]">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#9AA2B0]">
               Fleet Compliance
             </span>
             <div className={`p-1 rounded-md ${
@@ -167,14 +167,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 style={{ width: `${averageScore}%` }}
               />
             </div>
-            <p className="text-[11px] text-[#8D95AB] mt-2">Weighted pass across fleet</p>
+            <p className="text-[11px] text-[#9AA2B0] mt-2">Weighted pass across fleet</p>
           </div>
         </div>
 
         {/* Metric 2: Active Devices */}
-        <div className="bg-[#151821] border border-[#232736] hover:border-[#2E3347] rounded-xl p-4 transition-all flex flex-col justify-between">
+        <div className="bg-[#12141A] border border-[#22262F] hover:border-[#2E3347] rounded-xl p-4 transition-all flex flex-col justify-between">
           <div className="flex justify-between items-start">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8D95AB]">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#9AA2B0]">
               Active Devices
             </span>
             <div className="p-1 rounded-md bg-emerald-500/10 text-emerald-400">
@@ -185,16 +185,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <span className="text-2xl font-bold text-white tracking-tight">
               {totalDevices}
             </span>
-            <p className="text-[11px] text-[#8D95AB] mt-2">
+            <p className="text-[11px] text-[#9AA2B0] mt-2">
               <span className="font-mono text-slate-300">{totalAudits}</span> audit executions logged
             </p>
           </div>
         </div>
 
         {/* Metric 3: Critical Security Gaps */}
-        <div className="bg-[#151821] border border-[#232736] hover:border-[#2E3347] rounded-xl p-4 transition-all flex flex-col justify-between">
+        <div className="bg-[#12141A] border border-[#22262F] hover:border-[#2E3347] rounded-xl p-4 transition-all flex flex-col justify-between">
           <div className="flex justify-between items-start">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8D95AB]">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#9AA2B0]">
               Critical Gaps
             </span>
             <div className="p-1 rounded-md bg-rose-500/10 text-rose-400">
@@ -208,16 +208,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </span>
               <span className="text-[10px] font-mono text-rose-400/80 uppercase">Severe</span>
             </div>
-            <p className="text-[11px] text-[#8D95AB] mt-2">
+            <p className="text-[11px] text-[#9AA2B0] mt-2">
               +{highFailures} high severity findings
             </p>
           </div>
         </div>
 
         {/* Metric 4: Attack Chains */}
-        <div className="bg-[#151821] border border-[#232736] hover:border-[#2E3347] rounded-xl p-4 transition-all flex flex-col justify-between">
+        <div className="bg-[#12141A] border border-[#22262F] hover:border-[#2E3347] rounded-xl p-4 transition-all flex flex-col justify-between">
           <div className="flex justify-between items-start">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8D95AB]">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#9AA2B0]">
               Attack Chains
             </span>
             <div className="p-1 rounded-md bg-orange-500/10 text-orange-400">
@@ -231,14 +231,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </span>
               <span className="text-[10px] font-mono text-orange-400/80 uppercase">Active</span>
             </div>
-            <p className="text-[11px] text-[#8D95AB] mt-2">Correlated multi-stage vectors</p>
+            <p className="text-[11px] text-[#9AA2B0] mt-2">Correlated multi-stage vectors</p>
           </div>
         </div>
 
         {/* Metric 5: AI Dialect Governance */}
-        <div className="bg-[#151821] border border-[#232736] hover:border-[#2E3347] rounded-xl p-4 transition-all flex flex-col justify-between">
+        <div className="bg-[#12141A] border border-[#22262F] hover:border-[#2E3347] rounded-xl p-4 transition-all flex flex-col justify-between">
           <div className="flex justify-between items-start">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8D95AB]">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#9AA2B0]">
               AI Dialects
             </span>
             <div className="p-1 rounded-md bg-cyan-500/10 text-cyan-400">
@@ -252,15 +252,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </span>
               <span className="text-[10px] font-mono text-slate-400 uppercase">Pending</span>
             </div>
-            <p className="text-[11px] text-[#8D95AB] mt-2">Human-in-the-loop sign-off</p>
+            <p className="text-[11px] text-[#9AA2B0] mt-2">Human-in-the-loop sign-off</p>
           </div>
         </div>
       </div>
 
       {/* Pinecone Indexes Section */}
-      <div className="bg-[#151821] border border-[#232736] rounded-xl overflow-hidden shadow-pinecone">
+      <div className="bg-[#12141A] border border-[#22262F] rounded-xl overflow-hidden shadow-pinecone">
         {/* Controls Bar: Search & Filter */}
-        <div className="p-4 border-b border-[#232736] flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+        <div className="p-4 border-b border-[#22262F] flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
           <div className="flex items-center space-x-3 flex-1">
             {/* Search Input */}
             <div className="relative flex-1 max-w-md">
@@ -270,19 +270,19 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search indexes by hostname, vendor, or dialect..."
-                className="w-full bg-[#0D0E12] border border-[#232736] focus:border-emerald-500 rounded-lg pl-9 pr-4 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none transition"
+                className="w-full bg-[#0A0C0F] border border-[#22262F] focus:border-emerald-500 rounded-lg pl-9 pr-4 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none transition"
               />
             </div>
 
             {/* Vendor Filter Pills */}
-            <div className="hidden md:flex items-center space-x-1 bg-[#0D0E12] p-0.5 rounded-lg border border-[#232736]">
+            <div className="hidden md:flex items-center space-x-1 bg-[#0A0C0F] p-0.5 rounded-lg border border-[#22262F]">
               {['ALL', 'CISCO', 'FORTINET', 'WHITEBOX'].map((vendor) => (
                 <button
                   key={vendor}
                   onClick={() => setVendorFilter(vendor)}
                   className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition ${
                     vendorFilter === vendor
-                      ? 'bg-[#232736] text-white'
+                      ? 'bg-[#22262F] text-white'
                       : 'text-slate-400 hover:text-white'
                   }`}
                 >
@@ -301,7 +301,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Pinecone Index Table */}
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#111319] text-[11px] font-semibold uppercase tracking-wider text-[#8D95AB] border-b border-[#232736]">
+            <thead className="bg-[#111319] text-[11px] font-semibold uppercase tracking-wider text-[#9AA2B0] border-b border-[#22262F]">
               <tr>
                 <th className="px-6 py-3.5">Index Name / Hostname</th>
                 <th className="px-6 py-3.5">Vendor & Architecture</th>
@@ -310,10 +310,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <th className="px-6 py-3.5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#232736]/60">
+            <tbody className="divide-y divide-[#22262F]/60">
               {filteredDevices.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-[#8D95AB]">
+                  <td colSpan={5} className="px-6 py-12 text-center text-[#9AA2B0]">
                     <div className="flex flex-col items-center justify-center space-y-2">
                       <Boxes className="w-8 h-8 text-slate-600" />
                       <p className="text-sm font-medium text-slate-300">No indexes registered yet</p>
@@ -335,7 +335,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   return (
                     <tr 
                       key={device.id} 
-                      className="hover:bg-[#1B1E2B]/80 transition group"
+                      className="hover:bg-[#1A1D24]/80 transition group"
                     >
                       {/* Hostname Column */}
                       <td className="px-6 py-4">
@@ -439,7 +439,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                               href={getReportUrl(device.latest_audit_id)}
                               target="_blank"
                               rel="noreferrer"
-                              className="inline-flex items-center space-x-1 text-xs text-slate-400 hover:text-slate-200 px-2 py-1 rounded hover:bg-[#232736] transition"
+                              className="inline-flex items-center space-x-1 text-xs text-slate-400 hover:text-slate-200 px-2 py-1 rounded hover:bg-[#22262F] transition"
                             >
                               <ExternalLink className="w-3.5 h-3.5" />
                               <span>Report</span>
@@ -457,11 +457,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       </div>
 
       {/* Pinecone Recent Audits / Execution Runs */}
-      <div className="bg-[#151821] border border-[#232736] rounded-xl overflow-hidden shadow-pinecone">
-        <div className="px-6 py-4 border-b border-[#232736] flex justify-between items-center">
+      <div className="bg-[#12141A] border border-[#22262F] rounded-xl overflow-hidden shadow-pinecone">
+        <div className="px-6 py-4 border-b border-[#22262F] flex justify-between items-center">
           <div>
             <h3 className="font-semibold text-white text-sm">Recent Audit Executions</h3>
-            <p className="text-[11px] text-[#8D95AB]">Deterministic rule runs recorded against CIS and NIST baselines</p>
+            <p className="text-[11px] text-[#9AA2B0]">Deterministic rule runs recorded against CIS and NIST baselines</p>
           </div>
           <span className="text-[11px] font-mono text-slate-400">
             {recentAudits.length} runs recorded
@@ -470,7 +470,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#111319] text-[11px] font-semibold uppercase tracking-wider text-[#8D95AB] border-b border-[#232736]">
+            <thead className="bg-[#111319] text-[11px] font-semibold uppercase tracking-wider text-[#9AA2B0] border-b border-[#22262F]">
               <tr>
                 <th className="px-6 py-3">Audit ID</th>
                 <th className="px-6 py-3">Target Hostname</th>
@@ -480,9 +480,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <th className="px-6 py-3 text-right">Details</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#232736]/60">
+            <tbody className="divide-y divide-[#22262F]/60">
               {recentAudits.map((a) => (
-                <tr key={a.id} className="hover:bg-[#1B1E2B]/80 transition">
+                <tr key={a.id} className="hover:bg-[#1A1D24]/80 transition">
                   <td className="px-6 py-3.5 font-mono text-[11px] text-slate-400">
                     audit-{a.id?.toString().padStart(3, '0')}
                   </td>
