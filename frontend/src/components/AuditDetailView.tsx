@@ -2,8 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { AuditDetail, Finding } from '../types';
 import { fetchAuditDetail, getReportUrl } from '../api/client';
 import {
-  ShieldCheck, AlertTriangle, ExternalLink, Zap, Network,
-  ChevronDown, ChevronRight, CheckCircle, XCircle, Code, CornerDownRight
+  ShieldCheck, 
+  AlertTriangle, 
+  ExternalLink, 
+  Zap, 
+  Network,
+  ChevronDown, 
+  ChevronRight, 
+  CheckCircle, 
+  XCircle, 
+  Code, 
+  CornerDownRight,
+  Copy,
+  Check,
+  Search,
+  Filter,
+  ArrowLeft,
+  Share2,
+  Terminal,
+  FileCheck
 } from 'lucide-react';
 
 interface AuditDetailViewProps {
@@ -19,9 +36,11 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
   const [frameworkFilter, setFrameworkFilter] = useState<string>('ALL');
   const [severityFilter, setSeverityFilter] = useState<string>('ALL');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Selected finding for evidence snippet drawer
   const [selectedFinding, setSelectedFinding] = useState<Finding | null>(null);
+  const [copiedRemediation, setCopiedRemediation] = useState(false);
 
   useEffect(() => {
     loadAudit();
@@ -40,18 +59,32 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
     }
   };
 
+  const handleCopyRemediation = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedRemediation(true);
+    setTimeout(() => setCopiedRemediation(false), 2000);
+  };
+
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      <div className="flex flex-col justify-center items-center h-96 space-y-4">
+        <div className="w-10 h-10 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-xs text-slate-400 font-mono tracking-wider uppercase">Loading Audit Run #{auditId}...</p>
       </div>
     );
   }
 
   if (error || !detail) {
     return (
-      <div className="p-8 text-center text-rose-400 bg-rose-500/10 border border-rose-500/30 rounded-xl">
-        <p>{error || 'Audit record not found'}</p>
+      <div className="p-8 text-center text-rose-400 bg-rose-500/10 border border-rose-500/30 rounded-xl max-w-xl mx-auto space-y-3">
+        <AlertTriangle className="w-8 h-8 mx-auto text-rose-400" />
+        <p className="font-semibold text-sm">{error || 'Audit record not found'}</p>
+        <button
+          onClick={loadAudit}
+          className="text-xs bg-rose-500/20 hover:bg-rose-500/30 text-white px-3 py-1.5 rounded-lg transition font-mono"
+        >
+          Retry Inspection
+        </button>
       </div>
     );
   }
@@ -62,139 +95,186 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
     if (frameworkFilter !== 'ALL' && f.framework !== frameworkFilter) return false;
     if (severityFilter !== 'ALL' && f.severity !== severityFilter.toLowerCase()) return false;
     if (statusFilter !== 'ALL' && f.status !== statusFilter.toLowerCase()) return false;
+    if (searchQuery.trim() !== '') {
+      const q = searchQuery.toLowerCase();
+      return f.title.toLowerCase().includes(q) || f.rule_id.toLowerCase().includes(q) || (f.explanation && f.explanation.toLowerCase().includes(q));
+    }
     return true;
   });
 
+  const passCount = findings.filter(f => f.status === 'pass').length;
+  const failCount = findings.filter(f => f.status === 'fail').length;
+
   return (
-    <div className="space-y-8">
-      {/* Header bar */}
-      <div className="bg-dark-800 border border-dark-600 rounded-xl p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div className="space-y-8 animate-fadeIn">
+      {/* Pinecone Breadcrumbs & Top Section */}
+      <div className="border-b border-[#232736] pb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <div className="flex items-center space-x-3">
-            <h2 className="text-2xl font-bold text-white font-mono">{audit.hostname}</h2>
-            <span className="px-2.5 py-0.5 text-xs font-mono rounded bg-slate-800 text-slate-300 border border-slate-700">
+          <div className="flex items-center space-x-2 text-xs text-slate-400 mb-1 font-mono">
+            <span>Indexes</span>
+            <span>/</span>
+            <span className="text-slate-200">{audit.hostname}</span>
+            <span>/</span>
+            <span className="text-blue-400">audit-{audit.id}</span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-2xl font-bold text-white font-mono tracking-tight">{audit.hostname}</h1>
+            <span className="px-2.5 py-0.5 text-xs font-mono rounded-md bg-[#1F222E] text-slate-300 border border-[#2D3245]">
               {audit.vendor}
             </span>
-            <span className="text-xs text-slate-400">Audit #{audit.id}</span>
+            <span className="px-2 py-0.5 text-[11px] font-mono rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              Deterministic Engine
+            </span>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
-            File: <code className="text-slate-300">{detail.audit.status}</code> &bull; Started:{' '}
-            {new Date(audit.started_at).toLocaleString()}
+          <p className="text-xs text-[#8D95AB] mt-1.5 font-mono">
+            Evaluated at {new Date(audit.started_at).toLocaleString()} &bull; {findings.length} total controls evaluated
           </p>
         </div>
 
+        {/* Score & Export Button */}
         <div className="flex items-center space-x-4">
-          <div className="text-right">
-            <div className="text-xs text-slate-400 uppercase font-semibold">Compliance Score</div>
-            <div
-              className={`text-3xl font-extrabold ${
+          <div className="bg-[#151821] border border-[#232736] rounded-xl px-4 py-2.5 flex items-center space-x-3 shadow-pinecone">
+            <div>
+              <div className="text-[10px] text-[#8D95AB] uppercase font-semibold tracking-wider">Compliance</div>
+              <div className={`text-2xl font-extrabold font-mono ${
                 audit.score >= 80 ? 'text-emerald-400' : audit.score >= 60 ? 'text-amber-400' : 'text-rose-400'
-              }`}
-            >
-              {audit.score}%
+              }`}>
+                {audit.score}%
+              </div>
+            </div>
+            <div className="h-8 w-px bg-[#232736]"></div>
+            <div className="text-xs space-y-0.5">
+              <div className="text-emerald-400 font-mono font-semibold">{passCount} Pass</div>
+              <div className="text-rose-400 font-mono font-semibold">{failCount} Fail</div>
             </div>
           </div>
+
           <a
             href={getReportUrl(audit.id)}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center space-x-2 bg-dark-700 hover:bg-dark-600 text-slate-200 px-4 py-2.5 rounded-lg border border-dark-500 transition text-sm font-medium"
+            className="flex items-center space-x-2 bg-white hover:bg-neutral-200 text-neutral-900 font-semibold px-4 py-2.5 rounded-lg text-xs transition shadow-sm"
           >
-            <ExternalLink className="w-4 h-4" />
-            <span>Export Auditor Report</span>
+            <ExternalLink className="w-3.5 h-3.5 text-black stroke-[2.5]" />
+            <span>Export Report</span>
           </a>
         </div>
       </div>
 
-      {/* Differentiator Hero: Single Key Fix that breaks most paths */}
+      {/* Strategic Threat Severance Recommendation (Pinecone Highlight Card) */}
       {single_fix_recommendation && (
-        <div className="bg-gradient-to-r from-blue-950/80 via-dark-800 to-dark-800 border-2 border-blue-500/60 rounded-xl p-6 shadow-xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 transform translate-x-4 -translate-y-4 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl"></div>
-          <div className="flex items-center space-x-2 text-blue-400 font-bold uppercase tracking-wider text-xs mb-2">
+        <div className="bg-gradient-to-r from-[#121829] via-[#151821] to-[#151821] border border-blue-500/40 rounded-xl p-6 shadow-pinecone-glow relative overflow-hidden">
+          <div className="flex items-center space-x-2 text-blue-400 font-bold uppercase tracking-wider text-[11px] mb-2 font-mono">
             <Zap className="w-4 h-4 text-amber-400 fill-amber-400" />
             <span>Strategic Threat Severance Recommendation</span>
           </div>
-          <h3 className="text-xl font-bold text-white mb-2">
-            Single Fix That Dismantles the Most Threat Chains
-          </h3>
-          <p className="text-sm text-slate-300 mb-4">{single_fix_recommendation.why}</p>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <div className="bg-dark-900/80 border border-dark-600 p-3 rounded-lg">
-              <span className="text-xs text-slate-400">Target Rule:</span>
-              <div className="font-semibold text-white text-sm mt-0.5">
-                {single_fix_recommendation.rule_title}
-              </div>
-              <code className="text-xs text-blue-400 font-mono">{single_fix_recommendation.rule_id}</code>
-            </div>
-
-            <div className="bg-dark-900/80 border border-dark-600 p-3 rounded-lg">
-              <span className="text-xs text-slate-400">Chains Neutralized:</span>
-              <div className="font-bold text-emerald-400 text-lg mt-0.5">
-                {single_fix_recommendation.paths_broken_count} of {attack_paths.length} chains
-              </div>
-              <span className="text-[11px] text-slate-400">
-                Leaves only {single_fix_recommendation.remaining_paths_count} remaining
-              </span>
-            </div>
-
-            <div className="bg-dark-900/80 border border-dark-600 p-3 rounded-lg">
-              <span className="text-xs text-slate-400">Impact Score:</span>
-              <div className="font-bold text-amber-400 text-lg mt-0.5">
-                +{single_fix_recommendation.impact_score} pts
-              </div>
-              <span className="text-[11px] text-slate-400">Threat reduction index</span>
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
+            <div>
+              <h2 className="text-lg font-bold text-white tracking-tight">
+                Single Fix That Dismantles the Most Threat Chains
+              </h2>
+              <p className="text-xs text-slate-300 mt-1 max-w-3xl leading-relaxed">
+                {single_fix_recommendation.why}
+              </p>
             </div>
           </div>
 
-          <div>
-            <span className="text-xs uppercase font-semibold text-slate-400 tracking-wider">
-              Exact Remediation Commands:
-            </span>
-            <pre className="bg-dark-900 border border-dark-600 rounded-lg p-3 text-xs text-emerald-400 font-mono mt-1 overflow-x-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
+            <div className="bg-[#0D0E12] border border-[#232736] p-3.5 rounded-lg">
+              <span className="text-[11px] text-[#8D95AB] uppercase tracking-wider font-semibold">Target Control</span>
+              <div className="font-semibold text-white text-xs mt-1 truncate">
+                {single_fix_recommendation.rule_title}
+              </div>
+              <code className="text-xs text-blue-400 font-mono mt-0.5 block">{single_fix_recommendation.rule_id}</code>
+            </div>
+
+            <div className="bg-[#0D0E12] border border-[#232736] p-3.5 rounded-lg">
+              <span className="text-[11px] text-[#8D95AB] uppercase tracking-wider font-semibold">Threat Chains Severed</span>
+              <div className="font-bold text-emerald-400 text-lg font-mono mt-0.5">
+                {single_fix_recommendation.paths_broken_count} of {attack_paths.length} chains
+              </div>
+              <span className="text-[11px] text-slate-400">
+                Leaves only {single_fix_recommendation.remaining_paths_count} active vector
+              </span>
+            </div>
+
+            <div className="bg-[#0D0E12] border border-[#232736] p-3.5 rounded-lg">
+              <span className="text-[11px] text-[#8D95AB] uppercase tracking-wider font-semibold">Impact Score Gain</span>
+              <div className="font-bold text-amber-400 text-lg font-mono mt-0.5">
+                +{single_fix_recommendation.impact_score} pts
+              </div>
+              <span className="text-[11px] text-slate-400">Deterministic security boost</span>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] uppercase font-semibold text-[#8D95AB] tracking-wider font-mono">
+                Exact Remediation Script:
+              </span>
+              <button
+                onClick={() => handleCopyRemediation(single_fix_recommendation.remediation)}
+                className="flex items-center space-x-1.5 text-xs text-slate-300 hover:text-white bg-[#1F222E] hover:bg-[#2A2F40] px-2.5 py-1 rounded border border-[#2D3245] transition font-mono"
+              >
+                {copiedRemediation ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <span className="text-emerald-400">Copied</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Copy CLI Commands</span>
+                  </>
+                )}
+              </button>
+            </div>
+            <pre className="bg-[#0D0E12] border border-[#232736] rounded-lg p-3.5 text-xs text-emerald-400 font-mono overflow-x-auto leading-relaxed">
               {single_fix_recommendation.remediation}
             </pre>
           </div>
         </div>
       )}
 
-      {/* Attack Paths Correlation Section */}
+      {/* Correlated Attack Paths Section */}
       {attack_paths.length > 0 && (
-        <div className="bg-dark-800 border border-dark-600 rounded-xl p-6 space-y-4">
-          <div className="flex items-center justify-between">
+        <div className="bg-[#151821] border border-[#232736] rounded-xl p-6 space-y-4 shadow-pinecone">
+          <div className="flex items-center justify-between border-b border-[#232736] pb-4">
             <div className="flex items-center space-x-2">
-              <Network className="w-5 h-5 text-orange-400" />
-              <h3 className="font-bold text-white text-lg">
-                Correlated Attack Paths ({attack_paths.length})
+              <Network className="w-4 h-4 text-orange-400" />
+              <h3 className="font-bold text-white text-sm">
+                Correlated Exploit Attack Chains ({attack_paths.length})
               </h3>
             </div>
-            <span className="text-xs text-slate-400">Chained multi-stage exploit narratives</span>
+            <span className="text-xs text-slate-400 font-mono">Multi-stage graph narrative</span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {attack_paths.map((path) => (
               <div
                 key={path.chain_id}
-                className="bg-dark-900 border border-dark-600 rounded-lg p-4 space-y-3 relative hover:border-dark-500 transition"
+                className="bg-[#0D0E12] border border-[#232736] hover:border-[#353A4E] rounded-lg p-4 space-y-2.5 transition"
               >
                 <div className="flex justify-between items-start">
-                  <h4 className="font-semibold text-white text-sm pr-2">{path.name}</h4>
-                  <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-rose-500/20 text-rose-400 border border-rose-500/30 uppercase">
+                  <h4 className="font-semibold text-white text-xs pr-2">{path.name}</h4>
+                  <span className="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 uppercase">
                     {path.severity}
                   </span>
                 </div>
-                <p className="text-xs text-slate-300 leading-relaxed">{path.narrative}</p>
+                <p className="text-xs text-[#8D95AB] leading-relaxed">{path.narrative}</p>
 
-                <div className="border-t border-dark-700 pt-2 space-y-1">
-                  <div className="text-[11px] text-slate-400 flex items-center space-x-1">
+                <div className="border-t border-[#1F2330] pt-2 space-y-1">
+                  <div className="text-[11px] text-slate-400 flex items-center space-x-1 font-mono">
                     <CornerDownRight className="w-3 h-3 text-slate-500" />
                     <span>Prerequisite Findings:</span>
                   </div>
-                  <div className="flex flex-wrap gap-1">
+                  <div className="flex flex-wrap gap-1.5">
                     {path.finding_rule_ids.map((rid) => (
                       <span
                         key={rid}
-                        className="px-1.5 py-0.5 bg-dark-800 text-[10px] font-mono text-rose-300 rounded border border-rose-500/20"
+                        className="px-2 py-0.5 bg-[#161924] text-[10px] font-mono text-rose-300 rounded border border-rose-500/20"
                       >
                         {rid}
                       </span>
@@ -207,26 +287,42 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
         </div>
       )}
 
-      {/* Findings Table Section with Interactive Filtering */}
-      <div className="bg-dark-800 border border-dark-600 rounded-xl overflow-hidden">
-        <div className="p-6 border-b border-dark-600 space-y-4">
+      {/* Pinecone Findings Table Section with Interactive Filtering */}
+      <div className="bg-[#151821] border border-[#232736] rounded-xl overflow-hidden shadow-pinecone">
+        <div className="p-4 border-b border-[#232736] space-y-4">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-            <h3 className="font-bold text-white text-lg">Compliance Control Evaluations</h3>
-            <span className="text-xs text-slate-400">
-              Showing {filteredFindings.length} of {findings.length} controls
-            </span>
+            <div>
+              <h3 className="font-bold text-white text-sm">Deterministic Compliance Evaluations</h3>
+              <p className="text-[11px] text-[#8D95AB]">
+                Showing {filteredFindings.length} of {findings.length} evaluated rules
+              </p>
+            </div>
+
+            {/* Search Input for Rules */}
+            <div className="relative w-full sm:w-64">
+              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Filter rules by title or ID..."
+                className="w-full bg-[#0D0E12] border border-[#232736] focus:border-blue-500 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none transition"
+              />
+            </div>
           </div>
 
           {/* Filter Pills */}
-          <div className="flex flex-wrap items-center gap-3 text-xs">
-            {/* Framework */}
-            <div className="flex items-center space-x-1 bg-dark-900 p-1 rounded-lg border border-dark-600">
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            {/* Framework Filter */}
+            <div className="flex items-center space-x-1 bg-[#0D0E12] p-0.5 rounded-lg border border-[#232736]">
               {['ALL', 'CIS', 'NIST-800-53', 'DISA-STIG'].map((fw) => (
                 <button
                   key={fw}
                   onClick={() => setFrameworkFilter(fw)}
-                  className={`px-2.5 py-1 rounded-md transition ${
-                    frameworkFilter === fw ? 'bg-blue-600 text-white font-medium' : 'text-slate-400 hover:text-white'
+                  className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition ${
+                    frameworkFilter === fw
+                      ? 'bg-[#232736] text-white font-semibold'
+                      : 'text-slate-400 hover:text-white'
                   }`}
                 >
                   {fw}
@@ -234,14 +330,16 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
               ))}
             </div>
 
-            {/* Severity */}
-            <div className="flex items-center space-x-1 bg-dark-900 p-1 rounded-lg border border-dark-600">
+            {/* Severity Filter */}
+            <div className="flex items-center space-x-1 bg-[#0D0E12] p-0.5 rounded-lg border border-[#232736]">
               {['ALL', 'CRITICAL', 'HIGH', 'MEDIUM', 'LOW'].map((sev) => (
                 <button
                   key={sev}
                   onClick={() => setSeverityFilter(sev)}
-                  className={`px-2 py-1 rounded-md transition ${
-                    severityFilter === sev ? 'bg-dark-700 text-white font-medium' : 'text-slate-400 hover:text-white'
+                  className={`px-2 py-1 rounded-md text-[11px] font-medium transition ${
+                    severityFilter === sev
+                      ? 'bg-[#232736] text-white font-semibold'
+                      : 'text-slate-400 hover:text-white'
                   }`}
                 >
                   {sev}
@@ -249,14 +347,16 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
               ))}
             </div>
 
-            {/* Status */}
-            <div className="flex items-center space-x-1 bg-dark-900 p-1 rounded-lg border border-dark-600">
+            {/* Status Filter */}
+            <div className="flex items-center space-x-1 bg-[#0D0E12] p-0.5 rounded-lg border border-[#232736]">
               {['ALL', 'FAIL', 'PASS'].map((st) => (
                 <button
                   key={st}
                   onClick={() => setStatusFilter(st)}
-                  className={`px-2 py-1 rounded-md transition ${
-                    statusFilter === st ? 'bg-dark-700 text-white font-medium' : 'text-slate-400 hover:text-white'
+                  className={`px-2 py-1 rounded-md text-[11px] font-medium transition ${
+                    statusFilter === st
+                      ? 'bg-[#232736] text-white font-semibold'
+                      : 'text-slate-400 hover:text-white'
                   }`}
                 >
                   {st}
@@ -267,78 +367,82 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
         </div>
 
         {/* Findings List */}
-        <div className="divide-y divide-dark-600">
-          {filteredFindings.map((f) => {
-            const isFailed = f.status === 'fail';
-            return (
-              <div
-                key={f.rule_id}
-                className="p-4 hover:bg-dark-700/30 transition flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
-              >
-                <div className="space-y-1 max-w-2xl">
-                  <div className="flex items-center space-x-2">
-                    <span className="font-mono text-xs font-semibold text-blue-400">{f.rule_id}</span>
-                    <span className="text-[10px] uppercase font-mono px-2 py-0.2 rounded bg-dark-900 text-slate-400 border border-dark-600">
-                      {f.framework}
-                    </span>
-                    <span
-                      className={`text-[10px] font-bold uppercase px-1.5 py-0.2 rounded ${
-                        f.severity === 'critical'
-                          ? 'bg-rose-500/20 text-rose-400'
-                          : f.severity === 'high'
-                          ? 'bg-orange-500/20 text-orange-400'
-                          : f.severity === 'medium'
-                          ? 'bg-amber-500/20 text-amber-400'
-                          : 'bg-blue-500/20 text-blue-400'
-                      }`}
-                    >
-                      {f.severity}
-                    </span>
+        <div className="divide-y divide-[#232736]/60">
+          {filteredFindings.length === 0 ? (
+            <div className="p-8 text-center text-slate-500 text-xs">
+              No compliance rules match the current filters.
+            </div>
+          ) : (
+            filteredFindings.map((f) => {
+              const isFailed = f.status === 'fail';
+              return (
+                <div
+                  key={f.rule_id}
+                  className="p-4 hover:bg-[#1B1E2B]/80 transition flex flex-col md:flex-row justify-between items-start md:items-center gap-4 group"
+                >
+                  <div className="space-y-1 max-w-3xl">
+                    <div className="flex items-center space-x-2">
+                      <span className="font-mono text-xs font-semibold text-blue-400">{f.rule_id}</span>
+                      <span className="text-[10px] uppercase font-mono px-2 py-0.2 rounded bg-[#0D0E12] text-slate-400 border border-[#232736]">
+                        {f.framework}
+                      </span>
+                      <span
+                        className={`text-[10px] font-bold uppercase font-mono px-1.5 py-0.2 rounded ${
+                          f.severity === 'critical'
+                            ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                            : f.severity === 'high'
+                            ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20'
+                            : f.severity === 'medium'
+                            ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                            : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                        }`}
+                      >
+                        {f.severity}
+                      </span>
+                    </div>
+                    <h4 className="text-xs font-semibold text-white tracking-tight">{f.title}</h4>
+                    <p className="text-[11px] text-[#8D95AB] leading-relaxed">{f.explanation}</p>
                   </div>
-                  <h4 className="text-sm font-medium text-white">{f.title}</h4>
-                  <p className="text-xs text-slate-400">{f.explanation}</p>
-                </div>
 
-                <div className="flex items-center space-x-4 flex-shrink-0">
-                  {/* Status */}
-                  <div className="flex items-center space-x-1.5">
-                    {isFailed ? (
-                      <>
-                        <XCircle className="w-4 h-4 text-rose-400" />
-                        <span className="text-xs font-bold text-rose-400 uppercase">FAILED</span>
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircle className="w-4 h-4 text-emerald-400" />
-                        <span className="text-xs font-bold text-emerald-400 uppercase">PASSED</span>
-                      </>
+                  <div className="flex items-center space-x-4 flex-shrink-0">
+                    {/* Status Pill */}
+                    <div className="flex items-center space-x-1.5">
+                      {isFailed ? (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                          FAIL
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                          PASS
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Evidence Snippet Trigger */}
+                    {f.evidence && f.evidence.line_start && (
+                      <button
+                        onClick={() => setSelectedFinding(f)}
+                        className="flex items-center space-x-1 text-xs bg-[#0D0E12] hover:bg-[#1F222E] text-slate-300 px-2.5 py-1.5 rounded-lg border border-[#232736] transition font-mono"
+                      >
+                        <Code className="w-3.5 h-3.5 text-blue-400" />
+                        <span>Line {f.evidence.line_start}</span>
+                      </button>
                     )}
                   </div>
-
-                  {/* Evidence Trigger */}
-                  {f.evidence && f.evidence.line_start && (
-                    <button
-                      onClick={() => setSelectedFinding(f)}
-                      className="flex items-center space-x-1 text-xs bg-dark-900 hover:bg-dark-700 text-slate-300 px-2.5 py-1.5 rounded border border-dark-600 transition"
-                    >
-                      <Code className="w-3.5 h-3.5 text-blue-400" />
-                      <span>Line {f.evidence.line_start}</span>
-                    </button>
-                  )}
                 </div>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
       </div>
 
-      {/* Evidence Drawer Modal */}
+      {/* Evidence Modal / Slideover */}
       {selectedFinding && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-dark-800 border border-dark-600 rounded-xl max-w-2xl w-full p-6 space-y-4 shadow-2xl">
-            <div className="flex justify-between items-start">
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
+          <div className="bg-[#151821] border border-[#2D3245] rounded-xl max-w-2xl w-full p-6 space-y-4 shadow-2xl">
+            <div className="flex justify-between items-start border-b border-[#232736] pb-3">
               <div>
-                <h3 className="font-bold text-white text-lg">Configuration Evidence</h3>
+                <h3 className="font-bold text-white text-base">Configuration Evidence</h3>
                 <p className="text-xs text-slate-400 font-mono mt-0.5">
                   Rule: {selectedFinding.rule_id} &bull; Lines {selectedFinding.evidence?.line_start}-
                   {selectedFinding.evidence?.line_end || selectedFinding.evidence?.line_start}
@@ -346,27 +450,27 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
               </div>
               <button
                 onClick={() => setSelectedFinding(null)}
-                className="text-slate-400 hover:text-white text-sm"
+                className="text-slate-400 hover:text-white text-xs px-2 py-1 rounded hover:bg-[#232736] transition"
               >
                 &times; Close
               </button>
             </div>
 
-            <div>
-              <span className="text-xs uppercase font-semibold text-slate-400 tracking-wider">
-                Extracted Snippet from Running Config:
+            <div className="space-y-1">
+              <span className="text-[11px] uppercase font-semibold text-[#8D95AB] tracking-wider font-mono">
+                Running Config Snippet:
               </span>
-              <pre className="bg-dark-900 border border-dark-600 rounded-lg p-4 font-mono text-xs text-emerald-400 mt-2 overflow-x-auto">
+              <pre className="bg-[#0D0E12] border border-[#232736] rounded-lg p-4 font-mono text-xs text-emerald-400 overflow-x-auto">
                 {selectedFinding.evidence?.snippet || 'No raw snippet captured.'}
               </pre>
             </div>
 
             {selectedFinding.remediation && (
-              <div>
-                <span className="text-xs uppercase font-semibold text-slate-400 tracking-wider">
-                  Remediation Fix:
+              <div className="space-y-1">
+                <span className="text-[11px] uppercase font-semibold text-[#8D95AB] tracking-wider font-mono">
+                  Recommended CLI Fix:
                 </span>
-                <pre className="bg-dark-900 border border-dark-600 rounded-lg p-3 font-mono text-xs text-blue-300 mt-2 overflow-x-auto">
+                <pre className="bg-[#0D0E12] border border-[#232736] rounded-lg p-3 font-mono text-xs text-blue-300 overflow-x-auto">
                   {selectedFinding.remediation}
                 </pre>
               </div>

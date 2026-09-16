@@ -1,7 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { AIMapping } from '../types';
 import { fetchPendingMappings, approveAIMapping, rejectAIMapping } from '../api/client';
-import { Cpu, CheckCircle2, XCircle, AlertCircle, Shield, Info, ArrowRight } from 'lucide-react';
+import { 
+  Sparkles, 
+  CheckCircle2, 
+  XCircle, 
+  AlertCircle, 
+  ShieldCheck, 
+  Info, 
+  ArrowRight,
+  Code,
+  Terminal,
+  Database,
+  Cpu
+} from 'lucide-react';
 
 interface MappingsViewProps {
   onMappingApproved: (auditId: number) => void;
@@ -35,7 +47,7 @@ export const MappingsView: React.FC<MappingsViewProps> = ({ onMappingApproved })
     setError(null);
     try {
       const res = await approveAIMapping(m.id, 'lead_analyst_ntro');
-      setSuccessMsg(`Mapping #${m.id} approved! Dialect fingerprint cached for instantaneous offline recognition.`);
+      setSuccessMsg(`Dialect fingerprint #${m.id} approved and cached into deterministic memory.`);
       setMappings((prev) => prev.filter((item) => item.id !== m.id));
       if (res.audit_id) {
         onMappingApproved(res.audit_id);
@@ -61,125 +73,147 @@ export const MappingsView: React.FC<MappingsViewProps> = ({ onMappingApproved })
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      <div className="flex flex-col justify-center items-center h-96 space-y-4">
+        <div className="w-10 h-10 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-xs text-slate-400 font-mono tracking-wider uppercase">Checking AI Grammar Proposals...</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      {/* Principle Banner */}
-      <div className="bg-gradient-to-r from-blue-900/30 via-dark-800 to-dark-800 border border-blue-500/30 rounded-xl p-6">
-        <div className="flex items-start space-x-3">
-          <Shield className="w-6 h-6 text-blue-400 mt-1 flex-shrink-0" />
+    <div className="max-w-5xl mx-auto space-y-6 animate-fadeIn">
+      {/* Pinecone Breadcrumbs & Top Section */}
+      <div className="border-b border-[#232736] pb-5">
+        <div className="flex items-center space-x-2 text-xs text-slate-400 mb-1 font-mono">
+          <span>Indexes</span>
+          <span>/</span>
+          <span className="text-slate-200">AI Schema Governance</span>
+        </div>
+        <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
+          <span>Human-in-the-Loop Dialect Normalization</span>
+          <span className="text-xs font-mono font-normal px-2 py-0.5 rounded-full bg-[#1F222E] text-slate-400 border border-[#2D3245]">
+            {mappings.length} Pending
+          </span>
+        </h1>
+        <p className="text-xs text-[#8D95AB] mt-1 max-w-3xl">
+          Deterministic compliance principle: AI proposes structural mappings for unfamiliar NOS/whitebox syntaxes; human security analysts approve the fingerprint before caching.
+        </p>
+      </div>
+
+      {/* Governance Banner */}
+      <div className="bg-[#151821] border border-[#232736] rounded-xl p-5 shadow-pinecone">
+        <div className="flex items-start space-x-3.5">
+          <div className="p-2 rounded-lg bg-blue-500/10 text-blue-400 flex-shrink-0">
+            <ShieldCheck className="w-5 h-5" />
+          </div>
           <div className="space-y-1">
-            <h2 className="text-xl font-bold text-white">
-              Human-in-the-Loop AI Governance Layer
-            </h2>
-            <p className="text-sm text-slate-300 leading-relaxed">
-              <strong>Core Assurance Principle:</strong> AI models never decide security compliance.
-              When an unfamiliar or white-box syntax is detected, the AI proposes an initial
-              structural normalization. A human auditor reviews and approves it. Once approved, the
-              structural fingerprint is cached so future configs of that dialect parse
-              deterministically.
+            <h3 className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
+              Deterministic Memory Guarantee
+            </h3>
+            <p className="text-xs text-[#8D95AB] leading-relaxed">
+              Once an analyst approves a dialect schema, the grammar fingerprint is hashed and stored in local deterministic memory. Subsequent configurations in this dialect are audited instantaneously without LLM intervention.
             </p>
           </div>
         </div>
       </div>
 
       {successMsg && (
-        <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-lg flex items-center space-x-3 text-emerald-400 text-sm">
-          <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+        <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl flex items-center space-x-3 text-emerald-400 text-xs">
+          <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
           <span>{successMsg}</span>
         </div>
       )}
 
       {error && (
-        <div className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-lg flex items-center space-x-3 text-rose-400 text-sm">
-          <AlertCircle className="w-5 h-5 flex-shrink-0" />
+        <div className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl flex items-center space-x-3 text-rose-400 text-xs">
+          <AlertCircle className="w-4 h-4 flex-shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
-      {mappings.length === 0 ? (
-        <div className="bg-dark-800 border border-dark-600 rounded-xl p-12 text-center space-y-3">
-          <Cpu className="w-12 h-12 text-slate-500 mx-auto" />
-          <h3 className="text-lg font-semibold text-white">No Pending AI Normalization Proposals</h3>
-          <p className="text-sm text-slate-400 max-w-md mx-auto">
-            All uploaded configs either matched known deterministic parsers (Cisco, FortiOS) or had
-            previously approved dialect fingerprints.
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          <h3 className="text-lg font-semibold text-white flex items-center space-x-2">
-            <span>Pending Review Queue ({mappings.length})</span>
-          </h3>
-
-          {mappings.map((m) => (
-            <div key={m.id} className="bg-dark-800 border border-dark-600 rounded-xl p-6 space-y-4">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-dark-700 pb-4">
-                <div>
+      {/* Mappings List */}
+      <div className="space-y-4">
+        {mappings.length === 0 ? (
+          <div className="bg-[#151821] border border-[#232736] rounded-xl p-12 text-center shadow-pinecone">
+            <div className="flex flex-col items-center justify-center space-y-3">
+              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                <CheckCircle2 className="w-6 h-6" />
+              </div>
+              <h3 className="text-sm font-semibold text-white">All Dialects Fingerprinted</h3>
+              <p className="text-xs text-[#8D95AB] max-w-md">
+                No syntax proposals are awaiting human review. All monitored fleet configurations map deterministically to known vendor grammars.
+              </p>
+            </div>
+          </div>
+        ) : (
+          mappings.map((m) => (
+            <div
+              key={m.id}
+              className="bg-[#151821] border border-[#232736] hover:border-[#353A4E] rounded-xl p-6 space-y-4 shadow-pinecone transition"
+            >
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-[#232736] pb-4">
+                <div className="space-y-1">
                   <div className="flex items-center space-x-2">
-                    <span className="font-bold text-white text-base">Proposal #{m.id}</span>
-                    <span className="text-xs bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded font-mono">
+                    <span className="font-mono text-xs font-semibold text-cyan-400">Proposal #{m.id}</span>
+                    <span className="px-2 py-0.5 text-[10px] font-mono rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
                       Guessed: {m.vendor_guessed}
                     </span>
-                    <span className="text-xs text-slate-400 font-mono">
+                    <span className="px-2 py-0.5 text-[10px] font-mono rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                       Confidence: {(m.confidence * 100).toFixed(0)}%
                     </span>
                   </div>
-                  <p className="text-xs text-slate-400 font-mono mt-1">
-                    Fingerprint: {m.fingerprint_hash.substring(0, 24)}...
+                  <p className="text-xs text-slate-400 font-mono">
+                    Fingerprint Hash: <span className="text-slate-300">{m.fingerprint_hash}</span>
                   </p>
                 </div>
 
-                <div className="flex space-x-2">
+                <div className="flex items-center space-x-2">
                   <button
-                    disabled={processingId === m.id}
                     onClick={() => handleReject(m.id)}
-                    className="flex items-center space-x-1.5 px-3 py-1.5 bg-dark-700 hover:bg-dark-600 text-rose-400 border border-dark-500 text-xs font-medium rounded-lg transition"
-                  >
-                    <XCircle className="w-4 h-4" />
-                    <span>Reject</span>
-                  </button>
-
-                  <button
                     disabled={processingId === m.id}
-                    onClick={() => handleApprove(m)}
-                    className="flex items-center space-x-1.5 px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg shadow transition"
+                    className="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white bg-[#0D0E12] hover:bg-[#1B1E2B] border border-[#232736] transition disabled:opacity-50"
                   >
-                    <CheckCircle2 className="w-4 h-4" />
+                    Reject
+                  </button>
+                  <button
+                    onClick={() => handleApprove(m)}
+                    disabled={processingId === m.id}
+                    className="px-4 py-1.5 rounded-lg text-xs font-semibold text-black bg-white hover:bg-neutral-200 transition shadow-sm disabled:opacity-50 flex items-center space-x-1.5"
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5 text-black" />
                     <span>Approve & Cache Dialect</span>
                   </button>
                 </div>
               </div>
 
-              {/* Side-by-side comparison */}
+              {/* Proposed Schema & Raw Config Preview */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <span className="text-xs uppercase font-semibold text-slate-400 tracking-wider">
-                    Raw Unfamiliar Syntax:
+                <div className="space-y-1.5">
+                  <span className="text-[11px] uppercase font-semibold text-[#8D95AB] tracking-wider font-mono flex items-center gap-1.5">
+                    <Code className="w-3.5 h-3.5 text-blue-400" />
+                    <span>Proposed AST Normalization (JSON)</span>
                   </span>
-                  <pre className="bg-dark-900 border border-dark-600 rounded-lg p-3 text-xs font-mono text-slate-300 mt-1 max-h-80 overflow-y-auto">
-                    {m.config_sample || 'No raw sample available.'}
-                  </pre>
-                </div>
-
-                <div>
-                  <span className="text-xs uppercase font-semibold text-slate-400 tracking-wider">
-                    AI-Proposed Neutral Schema Mapping:
-                  </span>
-                  <pre className="bg-dark-900 border border-dark-600 rounded-lg p-3 text-xs font-mono text-cyan-300 mt-1 max-h-80 overflow-y-auto">
+                  <pre className="bg-[#0D0E12] border border-[#232736] rounded-lg p-3.5 font-mono text-[11px] text-blue-300 max-h-60 overflow-y-auto leading-relaxed">
                     {JSON.stringify(m.proposed_schema, null, 2)}
                   </pre>
                 </div>
+
+                {m.config_sample && (
+                  <div className="space-y-1.5">
+                    <span className="text-[11px] uppercase font-semibold text-[#8D95AB] tracking-wider font-mono flex items-center gap-1.5">
+                      <Terminal className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>Uncatalogued Config Sample</span>
+                    </span>
+                    <pre className="bg-[#0D0E12] border border-[#232736] rounded-lg p-3.5 font-mono text-[11px] text-emerald-400 max-h-60 overflow-y-auto leading-relaxed">
+                      {m.config_sample}
+                    </pre>
+                  </div>
+                )}
               </div>
             </div>
-          ))}
-        </div>
-      )}
+          ))
+        )}
+      </div>
     </div>
   );
 };
