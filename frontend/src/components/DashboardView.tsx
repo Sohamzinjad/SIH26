@@ -54,9 +54,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     return (
       <div className="flex flex-col justify-center items-center h-96 space-y-4">
         <div className="relative w-12 h-12">
-          <div className="absolute inset-0 rounded-xl bg-blue-500/20 animate-ping"></div>
-          <div className="relative rounded-xl bg-[#161924] border border-blue-500/50 p-3 flex items-center justify-center">
-            <Boxes className="w-6 h-6 text-blue-400 animate-spin" />
+          <div className="absolute inset-0 rounded-xl bg-emerald-500/20 animate-ping"></div>
+          <div className="relative rounded-xl bg-[#12141A] border border-emerald-500/50 p-3 flex items-center justify-center">
+            <Boxes className="w-6 h-6 text-emerald-400 animate-spin" />
           </div>
         </div>
         <p className="text-xs text-slate-400 font-mono tracking-wider uppercase">Loading Indexes & Fleet Posture...</p>
@@ -102,7 +102,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
           <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2.5">
             <span>Fleet Indexes & Compliance</span>
-            <span className="text-xs font-normal font-mono px-2 py-0.5 rounded-full bg-[#1F222E] text-slate-400 border border-[#2D3245]">
+            <span className="text-xs font-normal font-mono px-2 py-0.5 rounded-full bg-[#1A1D24] text-slate-400 border border-[#2C313B]">
               {devices.length} Total
             </span>
           </h1>
@@ -126,7 +126,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* Pinecone Metric Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {/* Metric 1: Fleet Compliance Score */}
-        <div className="bg-[#12141A] border border-[#22262F] hover:border-[#2E3347] rounded-xl p-4 transition-all flex flex-col justify-between group">
+        <div className="bg-[#12141A] border border-[#22262F] hover:border-[#2C313B] rounded-xl p-4 transition-all flex flex-col justify-between group">
           <div className="flex justify-between items-start">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-[#9AA2B0]">
               Fleet Compliance
@@ -155,7 +155,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </span>
             </div>
             {/* Micro Progress Bar */}
-            <div className="w-full bg-[#1F2330] rounded-full h-1.5 mt-2 overflow-hidden">
+            <div className="w-full bg-[#262B35] rounded-full h-1.5 mt-2 overflow-hidden">
               <div
                 className={`h-1.5 rounded-full transition-all duration-500 ${
                   averageScore >= 80 
@@ -172,7 +172,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Metric 2: Active Devices */}
-        <div className="bg-[#12141A] border border-[#22262F] hover:border-[#2E3347] rounded-xl p-4 transition-all flex flex-col justify-between">
+        <div className="bg-[#12141A] border border-[#22262F] hover:border-[#2C313B] rounded-xl p-4 transition-all flex flex-col justify-between">
           <div className="flex justify-between items-start">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-[#9AA2B0]">
               Active Devices
@@ -192,7 +192,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Metric 3: Critical Security Gaps */}
-        <div className="bg-[#12141A] border border-[#22262F] hover:border-[#2E3347] rounded-xl p-4 transition-all flex flex-col justify-between">
+        <div className="bg-[#12141A] border border-[#22262F] hover:border-[#2C313B] rounded-xl p-4 transition-all flex flex-col justify-between">
           <div className="flex justify-between items-start">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-[#9AA2B0]">
               Critical Gaps
@@ -215,7 +215,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Metric 4: Attack Chains */}
-        <div className="bg-[#12141A] border border-[#22262F] hover:border-[#2E3347] rounded-xl p-4 transition-all flex flex-col justify-between">
+        <div className="bg-[#12141A] border border-[#22262F] hover:border-[#2C313B] rounded-xl p-4 transition-all flex flex-col justify-between">
           <div className="flex justify-between items-start">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-[#9AA2B0]">
               Attack Chains
@@ -236,7 +236,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Metric 5: AI Dialect Governance */}
-        <div className="bg-[#12141A] border border-[#22262F] hover:border-[#2E3347] rounded-xl p-4 transition-all flex flex-col justify-between">
+        <div className="bg-[#12141A] border border-[#22262F] hover:border-[#2C313B] rounded-xl p-4 transition-all flex flex-col justify-between">
           <div className="flex justify-between items-start">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-[#9AA2B0]">
               AI Dialects
@@ -301,7 +301,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Pinecone Index Table */}
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#111319] text-[11px] font-semibold uppercase tracking-wider text-[#9AA2B0] border-b border-[#22262F]">
+            <thead className="bg-[#0F1115] text-[11px] font-semibold uppercase tracking-wider text-[#9AA2B0] border-b border-[#22262F]">
               <tr>
                 <th className="px-6 py-3.5">Index Name / Hostname</th>
                 <th className="px-6 py-3.5">Vendor & Architecture</th>
@@ -377,7 +377,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       {/* Vendor Column */}
                       <td className="px-6 py-4">
                         <div className="flex items-center space-x-2">
-                          <span className="px-2 py-0.5 rounded-md bg-[#1F222E] text-slate-300 font-mono text-[11px] border border-[#2D3245]">
+                          <span className="px-2 py-0.5 rounded-md bg-[#1A1D24] text-slate-300 font-mono text-[11px] border border-[#2C313B]">
                             {device.vendor}
                           </span>
                           <span className="text-[11px] text-slate-500 font-mono">Serverless</span>
@@ -396,7 +396,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                                 {devScore >= 80 ? 'PASS' : devScore >= 60 ? 'MED' : 'HIGH RISK'}
                               </span>
                             </div>
-                            <div className="w-full bg-[#1F2330] rounded-full h-1.5 overflow-hidden">
+                            <div className="w-full bg-[#262B35] rounded-full h-1.5 overflow-hidden">
                               <div
                                 className={`h-1.5 rounded-full ${
                                   devScore >= 80 ? 'bg-emerald-400' : devScore >= 60 ? 'bg-amber-400' : 'bg-rose-400'
@@ -470,7 +470,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#111319] text-[11px] font-semibold uppercase tracking-wider text-[#9AA2B0] border-b border-[#22262F]">
+            <thead className="bg-[#0F1115] text-[11px] font-semibold uppercase tracking-wider text-[#9AA2B0] border-b border-[#22262F]">
               <tr>
                 <th className="px-6 py-3">Audit ID</th>
                 <th className="px-6 py-3">Target Hostname</th>
@@ -503,7 +503,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <td className="px-6 py-3.5 text-right">
                     <button
                       onClick={() => onSelectAudit(a.id)}
-                      className="text-xs bg-[#1F222E] hover:bg-[#2A2F40] text-slate-200 border border-[#2D3245] px-2.5 py-1 rounded transition"
+                      className="text-xs bg-[#1A1D24] hover:bg-[#262B35] text-slate-200 border border-[#2C313B] px-2.5 py-1 rounded transition"
                     >
                       Inspect Findings &rarr;
                     </button>
