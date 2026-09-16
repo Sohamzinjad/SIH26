@@ -65,6 +65,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   }
 
   const data = overview || FALLBACK_OVERVIEW;
+  const devices = Array.isArray(data?.devices) ? data.devices : [];
+  const recentAudits = Array.isArray(data?.recent_audits) ? data.recent_audits : [];
+  const averageScore = typeof data?.average_score === 'number' ? data.average_score : 100;
+  const totalDevices = data?.total_devices ?? devices.length;
+  const totalAudits = data?.total_audits ?? recentAudits.length;
+  const criticalFailures = data?.critical_failures ?? 0;
+  const highFailures = data?.high_failures ?? 0;
+  const activeAttackChains = data?.active_attack_chains ?? 0;
+  const pendingAiProposals = data?.pending_ai_proposals ?? 0;
 
   const handleCopyHost = (hostname: string) => {
     navigator.clipboard.writeText(hostname);
@@ -72,10 +81,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     setTimeout(() => setCopiedHost(null), 1500);
   };
 
-  const filteredDevices = data.devices.filter((device) => {
-    const matchesSearch = device.hostname.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          device.vendor.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesVendor = vendorFilter === 'ALL' || device.vendor.toLowerCase().includes(vendorFilter.toLowerCase());
+  const filteredDevices = devices.filter((device) => {
+    const hostname = device?.hostname || '';
+    const vendor = device?.vendor || '';
+    const matchesSearch = hostname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          vendor.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesVendor = vendorFilter === 'ALL' || vendor.toLowerCase().includes(vendorFilter.toLowerCase());
     return matchesSearch && matchesVendor;
   });
 
@@ -92,7 +103,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2.5">
             <span>Fleet Indexes & Compliance</span>
             <span className="text-xs font-normal font-mono px-2 py-0.5 rounded-full bg-[#1F222E] text-slate-400 border border-[#2D3245]">
-              {data.devices.length} Total
+              {devices.length} Total
             </span>
           </h1>
           <p className="text-xs text-[#8D95AB] mt-1 max-w-2xl">
@@ -121,9 +132,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               Fleet Compliance
             </span>
             <div className={`p-1 rounded-md ${
-              data.average_score >= 80 
+              averageScore >= 80 
                 ? 'bg-emerald-500/10 text-emerald-400' 
-                : data.average_score >= 60 
+                : averageScore >= 60 
                 ? 'bg-amber-500/10 text-amber-400' 
                 : 'bg-rose-500/10 text-rose-400'
             }`}>
@@ -133,27 +144,27 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="mt-3">
             <div className="flex items-baseline space-x-2">
               <span className="text-2xl font-bold text-white tracking-tight font-sans">
-                {data.average_score}%
+                {averageScore}%
               </span>
               <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded font-semibold ${
-                data.average_score >= 80
+                averageScore >= 80
                   ? 'bg-emerald-500/20 text-emerald-300'
                   : 'bg-amber-500/20 text-amber-300'
               }`}>
-                {data.average_score >= 80 ? 'HEALTHY' : 'WARNING'}
+                {averageScore >= 80 ? 'HEALTHY' : 'WARNING'}
               </span>
             </div>
             {/* Micro Progress Bar */}
             <div className="w-full bg-[#1F2330] rounded-full h-1.5 mt-2 overflow-hidden">
               <div
                 className={`h-1.5 rounded-full transition-all duration-500 ${
-                  data.average_score >= 80 
+                  averageScore >= 80 
                     ? 'bg-emerald-400' 
-                    : data.average_score >= 60 
+                    : averageScore >= 60 
                     ? 'bg-amber-400' 
                     : 'bg-rose-400'
                 }`}
-                style={{ width: `${data.average_score}%` }}
+                style={{ width: `${averageScore}%` }}
               />
             </div>
             <p className="text-[11px] text-[#8D95AB] mt-2">Weighted pass across fleet</p>
@@ -172,10 +183,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
           <div className="mt-3">
             <span className="text-2xl font-bold text-white tracking-tight">
-              {data.total_devices}
+              {totalDevices}
             </span>
             <p className="text-[11px] text-[#8D95AB] mt-2">
-              <span className="font-mono text-slate-300">{data.total_audits}</span> audit executions logged
+              <span className="font-mono text-slate-300">{totalAudits}</span> audit executions logged
             </p>
           </div>
         </div>
@@ -193,12 +204,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="mt-3">
             <div className="flex items-baseline space-x-2">
               <span className="text-2xl font-bold text-rose-400 tracking-tight">
-                {data.critical_failures}
+                {criticalFailures}
               </span>
               <span className="text-[10px] font-mono text-rose-400/80 uppercase">Severe</span>
             </div>
             <p className="text-[11px] text-[#8D95AB] mt-2">
-              +{data.high_failures} high severity findings
+              +{highFailures} high severity findings
             </p>
           </div>
         </div>
@@ -216,7 +227,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="mt-3">
             <div className="flex items-baseline space-x-2">
               <span className="text-2xl font-bold text-orange-400 tracking-tight">
-                {data.active_attack_chains}
+                {activeAttackChains}
               </span>
               <span className="text-[10px] font-mono text-orange-400/80 uppercase">Active</span>
             </div>
@@ -237,7 +248,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="mt-3">
             <div className="flex items-baseline space-x-2">
               <span className="text-2xl font-bold text-cyan-400 tracking-tight">
-                {data.pending_ai_proposals}
+                {pendingAiProposals}
               </span>
               <span className="text-[10px] font-mono text-slate-400 uppercase">Pending</span>
             </div>
@@ -283,7 +294,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           <div className="flex items-center space-x-2 text-xs text-slate-400">
             <span className="font-mono">{filteredDevices.length}</span>
-            <span>of {data.devices.length} indexes</span>
+            <span>of {devices.length} indexes</span>
           </div>
         </div>
 
@@ -305,7 +316,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <td colSpan={5} className="px-6 py-12 text-center text-[#8D95AB]">
                     <div className="flex flex-col items-center justify-center space-y-2">
                       <Boxes className="w-8 h-8 text-slate-600" />
-                      <p className="text-sm font-medium text-slate-300">No indexes match your query</p>
+                      <p className="text-sm font-medium text-slate-300">No indexes registered yet</p>
                       <p className="text-xs text-slate-500">Run a new configuration audit to register an index.</p>
                       <button
                         onClick={onNewAudit}
@@ -359,7 +370,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           </button>
                         </div>
                         <div className="text-[11px] text-slate-500 font-mono mt-0.5">
-                          Index ID: idx-{device.id.toString().padStart(4, '0')} &bull; Deterministic
+                          Index ID: idx-{device.id?.toString().padStart(4, '0')} &bull; Deterministic
                         </div>
                       </td>
 
@@ -453,7 +464,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <p className="text-[11px] text-[#8D95AB]">Deterministic rule runs recorded against CIS and NIST baselines</p>
           </div>
           <span className="text-[11px] font-mono text-slate-400">
-            {data.recent_audits.length} runs recorded
+            {recentAudits.length} runs recorded
           </span>
         </div>
 
@@ -470,10 +481,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-[#232736]/60">
-              {data.recent_audits.map((a) => (
+              {recentAudits.map((a) => (
                 <tr key={a.id} className="hover:bg-[#1B1E2B]/80 transition">
                   <td className="px-6 py-3.5 font-mono text-[11px] text-slate-400">
-                    audit-{a.id.toString().padStart(3, '0')}
+                    audit-{a.id?.toString().padStart(3, '0')}
                   </td>
                   <td className="px-6 py-3.5 font-medium text-white font-mono">{a.hostname}</td>
                   <td className="px-6 py-3.5 text-slate-300 font-mono text-[11px]">{a.vendor}</td>
