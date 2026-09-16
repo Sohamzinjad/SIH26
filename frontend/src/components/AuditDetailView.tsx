@@ -108,7 +108,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
   return (
     <div className="space-y-8 animate-fadeIn">
       {/* Pinecone Breadcrumbs & Top Section */}
-      <div className="border-b border-[#232736] pb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="border-b border-[#22262F] pb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <div className="flex items-center space-x-2 text-xs text-slate-400 mb-1 font-mono">
             <span>Indexes</span>
@@ -134,7 +134,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
 
         {/* Score & Export Button */}
         <div className="flex items-center space-x-4">
-          <div className="bg-[#151821] border border-[#232736] rounded-xl px-4 py-2.5 flex items-center space-x-3 shadow-pinecone">
+          <div className="bg-[#12141A] border border-[#22262F] rounded-xl px-4 py-2.5 flex items-center space-x-3 shadow-pinecone">
             <div>
               <div className="text-[10px] text-[#8D95AB] uppercase font-semibold tracking-wider">Compliance</div>
               <div className={`text-2xl font-extrabold font-mono ${
@@ -143,7 +143,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
                 {audit.score}%
               </div>
             </div>
-            <div className="h-8 w-px bg-[#232736]"></div>
+            <div className="h-8 w-px bg-[#22262F]"></div>
             <div className="text-xs space-y-0.5">
               <div className="text-emerald-400 font-mono font-semibold">{passCount} Pass</div>
               <div className="text-rose-400 font-mono font-semibold">{failCount} Fail</div>
@@ -164,7 +164,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
 
       {/* Strategic Threat Severance Recommendation (Pinecone Highlight Card) */}
       {single_fix_recommendation && (
-        <div className="bg-gradient-to-r from-[#121829] via-[#151821] to-[#151821] border border-blue-500/40 rounded-xl p-6 shadow-pinecone-glow relative overflow-hidden">
+        <div className="bg-gradient-to-r from-[#121829] via-[#12141A] to-[#12141A] border border-blue-500/40 rounded-xl p-6 shadow-pinecone-glow relative overflow-hidden">
           <div className="flex items-center space-x-2 text-blue-400 font-bold uppercase tracking-wider text-[11px] mb-2 font-mono">
             <Zap className="w-4 h-4 text-amber-400 fill-amber-400" />
             <span>Strategic Threat Severance Recommendation</span>
@@ -182,7 +182,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
-            <div className="bg-[#0D0E12] border border-[#232736] p-3.5 rounded-lg">
+            <div className="bg-[#0A0C0F] border border-[#22262F] p-3.5 rounded-lg">
               <span className="text-[11px] text-[#8D95AB] uppercase tracking-wider font-semibold">Target Control</span>
               <div className="font-semibold text-white text-xs mt-1 truncate">
                 {single_fix_recommendation.rule_title}
@@ -190,7 +190,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
               <code className="text-xs text-blue-400 font-mono mt-0.5 block">{single_fix_recommendation.rule_id}</code>
             </div>
 
-            <div className="bg-[#0D0E12] border border-[#232736] p-3.5 rounded-lg">
+            <div className="bg-[#0A0C0F] border border-[#22262F] p-3.5 rounded-lg">
               <span className="text-[11px] text-[#8D95AB] uppercase tracking-wider font-semibold">Threat Chains Severed</span>
               <div className="font-bold text-emerald-400 text-lg font-mono mt-0.5">
                 {single_fix_recommendation.paths_broken_count} of {attack_paths.length} chains
@@ -200,7 +200,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
               </span>
             </div>
 
-            <div className="bg-[#0D0E12] border border-[#232736] p-3.5 rounded-lg">
+            <div className="bg-[#0A0C0F] border border-[#22262F] p-3.5 rounded-lg">
               <span className="text-[11px] text-[#8D95AB] uppercase tracking-wider font-semibold">Impact Score Gain</span>
               <div className="font-bold text-amber-400 text-lg font-mono mt-0.5">
                 +{single_fix_recommendation.impact_score} pts
@@ -231,7 +231,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
                 )}
               </button>
             </div>
-            <pre className="bg-[#0D0E12] border border-[#232736] rounded-lg p-3.5 text-xs text-emerald-400 font-mono overflow-x-auto leading-relaxed">
+            <pre className="bg-[#0A0C0F] border border-[#22262F] rounded-lg p-3.5 text-xs text-emerald-400 font-mono overflow-x-auto leading-relaxed">
               {single_fix_recommendation.remediation}
             </pre>
           </div>
@@ -240,8 +240,8 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
 
       {/* Correlated Attack Paths Section */}
       {attack_paths.length > 0 && (
-        <div className="bg-[#151821] border border-[#232736] rounded-xl p-6 space-y-4 shadow-pinecone">
-          <div className="flex items-center justify-between border-b border-[#232736] pb-4">
+        <div className="bg-[#12141A] border border-[#22262F] rounded-xl p-6 space-y-4 shadow-pinecone">
+          <div className="flex items-center justify-between border-b border-[#22262F] pb-4">
             <div className="flex items-center space-x-2">
               <Network className="w-4 h-4 text-orange-400" />
               <h3 className="font-bold text-white text-sm">
@@ -255,7 +255,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
             {attack_paths.map((path) => (
               <div
                 key={path.chain_id}
-                className="bg-[#0D0E12] border border-[#232736] hover:border-[#353A4E] rounded-lg p-4 space-y-2.5 transition"
+                className="bg-[#0A0C0F] border border-[#22262F] hover:border-[#353A4E] rounded-lg p-4 space-y-2.5 transition"
               >
                 <div className="flex justify-between items-start">
                   <h4 className="font-semibold text-white text-xs pr-2">{path.name}</h4>
@@ -288,8 +288,8 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
       )}
 
       {/* Pinecone Findings Table Section with Interactive Filtering */}
-      <div className="bg-[#151821] border border-[#232736] rounded-xl overflow-hidden shadow-pinecone">
-        <div className="p-4 border-b border-[#232736] space-y-4">
+      <div className="bg-[#12141A] border border-[#22262F] rounded-xl overflow-hidden shadow-pinecone">
+        <div className="p-4 border-b border-[#22262F] space-y-4">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
             <div>
               <h3 className="font-bold text-white text-sm">Deterministic Compliance Evaluations</h3>
@@ -306,7 +306,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Filter rules by title or ID..."
-                className="w-full bg-[#0D0E12] border border-[#232736] focus:border-blue-500 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none transition"
+                className="w-full bg-[#0A0C0F] border border-[#22262F] focus:border-blue-500 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none transition"
               />
             </div>
           </div>
@@ -314,14 +314,14 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
           {/* Filter Pills */}
           <div className="flex flex-wrap items-center gap-2 text-xs">
             {/* Framework Filter */}
-            <div className="flex items-center space-x-1 bg-[#0D0E12] p-0.5 rounded-lg border border-[#232736]">
+            <div className="flex items-center space-x-1 bg-[#0A0C0F] p-0.5 rounded-lg border border-[#22262F]">
               {['ALL', 'CIS', 'NIST-800-53', 'DISA-STIG'].map((fw) => (
                 <button
                   key={fw}
                   onClick={() => setFrameworkFilter(fw)}
                   className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition ${
                     frameworkFilter === fw
-                      ? 'bg-[#232736] text-white font-semibold'
+                      ? 'bg-[#22262F] text-white font-semibold'
                       : 'text-slate-400 hover:text-white'
                   }`}
                 >
@@ -331,14 +331,14 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
             </div>
 
             {/* Severity Filter */}
-            <div className="flex items-center space-x-1 bg-[#0D0E12] p-0.5 rounded-lg border border-[#232736]">
+            <div className="flex items-center space-x-1 bg-[#0A0C0F] p-0.5 rounded-lg border border-[#22262F]">
               {['ALL', 'CRITICAL', 'HIGH', 'MEDIUM', 'LOW'].map((sev) => (
                 <button
                   key={sev}
                   onClick={() => setSeverityFilter(sev)}
                   className={`px-2 py-1 rounded-md text-[11px] font-medium transition ${
                     severityFilter === sev
-                      ? 'bg-[#232736] text-white font-semibold'
+                      ? 'bg-[#22262F] text-white font-semibold'
                       : 'text-slate-400 hover:text-white'
                   }`}
                 >
@@ -348,14 +348,14 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
             </div>
 
             {/* Status Filter */}
-            <div className="flex items-center space-x-1 bg-[#0D0E12] p-0.5 rounded-lg border border-[#232736]">
+            <div className="flex items-center space-x-1 bg-[#0A0C0F] p-0.5 rounded-lg border border-[#22262F]">
               {['ALL', 'FAIL', 'PASS'].map((st) => (
                 <button
                   key={st}
                   onClick={() => setStatusFilter(st)}
                   className={`px-2 py-1 rounded-md text-[11px] font-medium transition ${
                     statusFilter === st
-                      ? 'bg-[#232736] text-white font-semibold'
+                      ? 'bg-[#22262F] text-white font-semibold'
                       : 'text-slate-400 hover:text-white'
                   }`}
                 >
@@ -367,7 +367,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
         </div>
 
         {/* Findings List */}
-        <div className="divide-y divide-[#232736]/60">
+        <div className="divide-y divide-[#22262F]/60">
           {filteredFindings.length === 0 ? (
             <div className="p-8 text-center text-slate-500 text-xs">
               No compliance rules match the current filters.
@@ -383,7 +383,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
                   <div className="space-y-1 max-w-3xl">
                     <div className="flex items-center space-x-2">
                       <span className="font-mono text-xs font-semibold text-blue-400">{f.rule_id}</span>
-                      <span className="text-[10px] uppercase font-mono px-2 py-0.2 rounded bg-[#0D0E12] text-slate-400 border border-[#232736]">
+                      <span className="text-[10px] uppercase font-mono px-2 py-0.2 rounded bg-[#0A0C0F] text-slate-400 border border-[#22262F]">
                         {f.framework}
                       </span>
                       <span
@@ -422,7 +422,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
                     {f.evidence && f.evidence.line_start && (
                       <button
                         onClick={() => setSelectedFinding(f)}
-                        className="flex items-center space-x-1 text-xs bg-[#0D0E12] hover:bg-[#1F222E] text-slate-300 px-2.5 py-1.5 rounded-lg border border-[#232736] transition font-mono"
+                        className="flex items-center space-x-1 text-xs bg-[#0A0C0F] hover:bg-[#1F222E] text-slate-300 px-2.5 py-1.5 rounded-lg border border-[#22262F] transition font-mono"
                       >
                         <Code className="w-3.5 h-3.5 text-blue-400" />
                         <span>Line {f.evidence.line_start}</span>
@@ -439,8 +439,8 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
       {/* Evidence Modal / Slideover */}
       {selectedFinding && (
         <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
-          <div className="bg-[#151821] border border-[#2D3245] rounded-xl max-w-2xl w-full p-6 space-y-4 shadow-2xl">
-            <div className="flex justify-between items-start border-b border-[#232736] pb-3">
+          <div className="bg-[#12141A] border border-[#2D3245] rounded-xl max-w-2xl w-full p-6 space-y-4 shadow-2xl">
+            <div className="flex justify-between items-start border-b border-[#22262F] pb-3">
               <div>
                 <h3 className="font-bold text-white text-base">Configuration Evidence</h3>
                 <p className="text-xs text-slate-400 font-mono mt-0.5">
@@ -450,7 +450,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
               </div>
               <button
                 onClick={() => setSelectedFinding(null)}
-                className="text-slate-400 hover:text-white text-xs px-2 py-1 rounded hover:bg-[#232736] transition"
+                className="text-slate-400 hover:text-white text-xs px-2 py-1 rounded hover:bg-[#22262F] transition"
               >
                 &times; Close
               </button>
@@ -460,7 +460,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
               <span className="text-[11px] uppercase font-semibold text-[#8D95AB] tracking-wider font-mono">
                 Running Config Snippet:
               </span>
-              <pre className="bg-[#0D0E12] border border-[#232736] rounded-lg p-4 font-mono text-xs text-emerald-400 overflow-x-auto">
+              <pre className="bg-[#0A0C0F] border border-[#22262F] rounded-lg p-4 font-mono text-xs text-emerald-400 overflow-x-auto">
                 {selectedFinding.evidence?.snippet || 'No raw snippet captured.'}
               </pre>
             </div>
@@ -470,7 +470,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
                 <span className="text-[11px] uppercase font-semibold text-[#8D95AB] tracking-wider font-mono">
                   Recommended CLI Fix:
                 </span>
-                <pre className="bg-[#0D0E12] border border-[#232736] rounded-lg p-3 font-mono text-xs text-blue-300 overflow-x-auto">
+                <pre className="bg-[#0A0C0F] border border-[#22262F] rounded-lg p-3 font-mono text-xs text-blue-300 overflow-x-auto">
                   {selectedFinding.remediation}
                 </pre>
               </div>

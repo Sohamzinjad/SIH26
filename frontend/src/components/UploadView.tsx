@@ -222,8 +222,8 @@ export const UploadView: React.FC<UploadViewProps> = ({
             onClick={() => loadPreset('cisco_compliant', 'cisco_hardened.cfg')}
             className={`text-left p-3.5 rounded-xl border transition-all ${
               activePreset === 'cisco_compliant'
-                ? 'bg-[#191D2B] border-emerald-500/50 shadow-sm'
-                : 'bg-[#12141A] border-[#22262F] hover:border-[#353A4E]'
+                ? 'bg-[#1B1E26] border-emerald-500/50 shadow-sm'
+                : 'bg-[#12141A] border-[#22262F] hover:border-[#2C313B]'
             }`}
           >
             <div className="flex items-center justify-between mb-1">
@@ -240,8 +240,8 @@ export const UploadView: React.FC<UploadViewProps> = ({
             onClick={() => loadPreset('cisco_vulnerable', 'cisco_vulnerable.cfg')}
             className={`text-left p-3.5 rounded-xl border transition-all ${
               activePreset === 'cisco_vulnerable'
-                ? 'bg-[#191D2B] border-rose-500/50 shadow-sm'
-                : 'bg-[#12141A] border-[#22262F] hover:border-[#353A4E]'
+                ? 'bg-[#1B1E26] border-rose-500/50 shadow-sm'
+                : 'bg-[#12141A] border-[#22262F] hover:border-[#2C313B]'
             }`}
           >
             <div className="flex items-center justify-between mb-1">
@@ -258,8 +258,8 @@ export const UploadView: React.FC<UploadViewProps> = ({
             onClick={() => loadPreset('fortios_vulnerable', 'fortigate_vuln.cfg')}
             className={`text-left p-3.5 rounded-xl border transition-all ${
               activePreset === 'fortios_vulnerable'
-                ? 'bg-[#191D2B] border-amber-500/50 shadow-sm'
-                : 'bg-[#12141A] border-[#22262F] hover:border-[#353A4E]'
+                ? 'bg-[#1B1E26] border-amber-500/50 shadow-sm'
+                : 'bg-[#12141A] border-[#22262F] hover:border-[#2C313B]'
             }`}
           >
             <div className="flex items-center justify-between mb-1">
@@ -276,8 +276,8 @@ export const UploadView: React.FC<UploadViewProps> = ({
             onClick={() => loadPreset('whitebox_unknown', 'openflow_whitebox.cfg')}
             className={`text-left p-3.5 rounded-xl border transition-all ${
               activePreset === 'whitebox_unknown'
-                ? 'bg-[#191D2B] border-cyan-500/50 shadow-sm'
-                : 'bg-[#12141A] border-[#22262F] hover:border-[#353A4E]'
+                ? 'bg-[#1B1E26] border-cyan-500/50 shadow-sm'
+                : 'bg-[#12141A] border-[#22262F] hover:border-[#2C313B]'
             }`}
           >
             <div className="flex items-center justify-between mb-1">
