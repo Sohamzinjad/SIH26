@@ -351,7 +351,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                             </span>
                             <span 
                               onClick={() => device.latest_audit_id && onSelectAudit(device.latest_audit_id)}
-                              className="font-mono font-medium text-white hover:text-blue-400 cursor-pointer transition text-sm"
+                              className="font-mono font-medium text-white hover:text-emerald-400 cursor-pointer transition text-sm"
                             >
                               {device.hostname}
                             </span>
@@ -431,7 +431,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           <>
                             <button
                               onClick={() => onSelectAudit(device.latest_audit_id!)}
-                              className="text-xs font-medium text-blue-400 hover:text-white px-2.5 py-1 rounded bg-blue-500/10 hover:bg-blue-600 border border-blue-500/30 hover:border-blue-600 transition"
+                              className="text-xs font-medium text-emerald-400 hover:text-white px-2.5 py-1 rounded bg-emerald-500/10 hover:bg-emerald-600 border border-emerald-500/30 hover:border-emerald-600 transition"
                             >
                               Audit Findings
                             </button>
