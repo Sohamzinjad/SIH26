@@ -120,14 +120,14 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
 
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="text-2xl font-bold text-white font-mono tracking-tight">{audit.hostname}</h1>
-            <span className="px-2.5 py-0.5 text-xs font-mono rounded-md bg-[#1F222E] text-slate-300 border border-[#2D3245]">
+            <span className="px-2.5 py-0.5 text-xs font-mono rounded-md bg-[#1A1D24] text-slate-300 border border-[#2C313B]">
               {audit.vendor}
             </span>
             <span className="px-2 py-0.5 text-[11px] font-mono rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
               Deterministic Engine
             </span>
           </div>
-          <p className="text-xs text-[#8D95AB] mt-1.5 font-mono">
+          <p className="text-xs text-[#9AA2B0] mt-1.5 font-mono">
             Evaluated at {new Date(audit.started_at).toLocaleString()} &bull; {findings.length} total controls evaluated
           </p>
         </div>
@@ -136,7 +136,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
         <div className="flex items-center space-x-4">
           <div className="bg-[#12141A] border border-[#22262F] rounded-xl px-4 py-2.5 flex items-center space-x-3 shadow-pinecone">
             <div>
-              <div className="text-[10px] text-[#8D95AB] uppercase font-semibold tracking-wider">Compliance</div>
+              <div className="text-[10px] text-[#9AA2B0] uppercase font-semibold tracking-wider">Compliance</div>
               <div className={`text-2xl font-extrabold font-mono ${
                 audit.score >= 80 ? 'text-emerald-400' : audit.score >= 60 ? 'text-amber-400' : 'text-rose-400'
               }`}>
@@ -183,7 +183,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
             <div className="bg-[#0A0C0F] border border-[#22262F] p-3.5 rounded-lg">
-              <span className="text-[11px] text-[#8D95AB] uppercase tracking-wider font-semibold">Target Control</span>
+              <span className="text-[11px] text-[#9AA2B0] uppercase tracking-wider font-semibold">Target Control</span>
               <div className="font-semibold text-white text-xs mt-1 truncate">
                 {single_fix_recommendation.rule_title}
               </div>
@@ -191,7 +191,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
             </div>
 
             <div className="bg-[#0A0C0F] border border-[#22262F] p-3.5 rounded-lg">
-              <span className="text-[11px] text-[#8D95AB] uppercase tracking-wider font-semibold">Threat Chains Severed</span>
+              <span className="text-[11px] text-[#9AA2B0] uppercase tracking-wider font-semibold">Threat Chains Severed</span>
               <div className="font-bold text-emerald-400 text-lg font-mono mt-0.5">
                 {single_fix_recommendation.paths_broken_count} of {attack_paths.length} chains
               </div>
@@ -201,7 +201,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
             </div>
 
             <div className="bg-[#0A0C0F] border border-[#22262F] p-3.5 rounded-lg">
-              <span className="text-[11px] text-[#8D95AB] uppercase tracking-wider font-semibold">Impact Score Gain</span>
+              <span className="text-[11px] text-[#9AA2B0] uppercase tracking-wider font-semibold">Impact Score Gain</span>
               <div className="font-bold text-amber-400 text-lg font-mono mt-0.5">
                 +{single_fix_recommendation.impact_score} pts
               </div>
@@ -211,12 +211,12 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] uppercase font-semibold text-[#8D95AB] tracking-wider font-mono">
+              <span className="text-[11px] uppercase font-semibold text-[#9AA2B0] tracking-wider font-mono">
                 Exact Remediation Script:
               </span>
               <button
                 onClick={() => handleCopyRemediation(single_fix_recommendation.remediation)}
-                className="flex items-center space-x-1.5 text-xs text-slate-300 hover:text-white bg-[#1F222E] hover:bg-[#2A2F40] px-2.5 py-1 rounded border border-[#2D3245] transition font-mono"
+                className="flex items-center space-x-1.5 text-xs text-slate-300 hover:text-white bg-[#1A1D24] hover:bg-[#2A2F40] px-2.5 py-1 rounded border border-[#2C313B] transition font-mono"
               >
                 {copiedRemediation ? (
                   <>
@@ -263,7 +263,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
                     {path.severity}
                   </span>
                 </div>
-                <p className="text-xs text-[#8D95AB] leading-relaxed">{path.narrative}</p>
+                <p className="text-xs text-[#9AA2B0] leading-relaxed">{path.narrative}</p>
 
                 <div className="border-t border-[#1F2330] pt-2 space-y-1">
                   <div className="text-[11px] text-slate-400 flex items-center space-x-1 font-mono">
@@ -293,7 +293,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
             <div>
               <h3 className="font-bold text-white text-sm">Deterministic Compliance Evaluations</h3>
-              <p className="text-[11px] text-[#8D95AB]">
+              <p className="text-[11px] text-[#9AA2B0]">
                 Showing {filteredFindings.length} of {findings.length} evaluated rules
               </p>
             </div>
@@ -401,7 +401,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
                       </span>
                     </div>
                     <h4 className="text-xs font-semibold text-white tracking-tight">{f.title}</h4>
-                    <p className="text-[11px] text-[#8D95AB] leading-relaxed">{f.explanation}</p>
+                    <p className="text-[11px] text-[#9AA2B0] leading-relaxed">{f.explanation}</p>
                   </div>
 
                   <div className="flex items-center space-x-4 flex-shrink-0">
@@ -422,7 +422,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
                     {f.evidence && f.evidence.line_start && (
                       <button
                         onClick={() => setSelectedFinding(f)}
-                        className="flex items-center space-x-1 text-xs bg-[#0A0C0F] hover:bg-[#1F222E] text-slate-300 px-2.5 py-1.5 rounded-lg border border-[#22262F] transition font-mono"
+                        className="flex items-center space-x-1 text-xs bg-[#0A0C0F] hover:bg-[#1A1D24] text-slate-300 px-2.5 py-1.5 rounded-lg border border-[#22262F] transition font-mono"
                       >
                         <Code className="w-3.5 h-3.5 text-blue-400" />
                         <span>Line {f.evidence.line_start}</span>
@@ -439,7 +439,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
       {/* Evidence Modal / Slideover */}
       {selectedFinding && (
         <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
-          <div className="bg-[#12141A] border border-[#2D3245] rounded-xl max-w-2xl w-full p-6 space-y-4 shadow-2xl">
+          <div className="bg-[#12141A] border border-[#2C313B] rounded-xl max-w-2xl w-full p-6 space-y-4 shadow-2xl">
             <div className="flex justify-between items-start border-b border-[#22262F] pb-3">
               <div>
                 <h3 className="font-bold text-white text-base">Configuration Evidence</h3>
@@ -457,7 +457,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
             </div>
 
             <div className="space-y-1">
-              <span className="text-[11px] uppercase font-semibold text-[#8D95AB] tracking-wider font-mono">
+              <span className="text-[11px] uppercase font-semibold text-[#9AA2B0] tracking-wider font-mono">
                 Running Config Snippet:
               </span>
               <pre className="bg-[#0A0C0F] border border-[#22262F] rounded-lg p-4 font-mono text-xs text-emerald-400 overflow-x-auto">
@@ -467,7 +467,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
 
             {selectedFinding.remediation && (
               <div className="space-y-1">
-                <span className="text-[11px] uppercase font-semibold text-[#8D95AB] tracking-wider font-mono">
+                <span className="text-[11px] uppercase font-semibold text-[#9AA2B0] tracking-wider font-mono">
                   Recommended CLI Fix:
                 </span>
                 <pre className="bg-[#0A0C0F] border border-[#22262F] rounded-lg p-3 font-mono text-xs text-blue-300 overflow-x-auto">
