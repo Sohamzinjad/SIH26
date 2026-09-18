@@ -20,14 +20,16 @@ import {
   ArrowLeft,
   Share2,
   Terminal,
-  FileCheck
+  FileCheck,
+  History
 } from 'lucide-react';
 
 interface AuditDetailViewProps {
   auditId: number;
+  onViewDeviceHistory?: (deviceId: number) => void;
 }
 
-export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => {
+export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onViewDeviceHistory }) => {
   const [detail, setDetail] = useState<AuditDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -150,6 +152,15 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId }) => 
             </div>
           </div>
 
+          {audit.device_id != null && onViewDeviceHistory && (
+            <button
+              onClick={() => onViewDeviceHistory(audit.device_id!)}
+              className="flex items-center space-x-2 border border-[#2C313B] hover:border-emerald-500/50 hover:bg-emerald-500/5 text-slate-200 font-medium px-4 py-2.5 rounded-lg text-xs transition"
+            >
+              <History className="w-3.5 h-3.5 text-emerald-400" />
+              <span>History & Drift</span>
+            </button>
+          )}
           <a
             href={getReportUrl(audit.id)}
             target="_blank"
