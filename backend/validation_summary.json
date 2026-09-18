@@ -1,0 +1,108 @@
+{
+  "all_break_fixes_isolated": true,
+  "all_negatives_fire_nothing": true,
+  "all_positives_fire_own_chain_only": true,
+  "chain_count": 8,
+  "chains": {
+    "CHAIN-NET-CRED-EXPOSURE": {
+      "break_chain_fix_isolated": true,
+      "break_rule_id": "CIS-CISCO-1.1.3",
+      "expected_negative_fired": [],
+      "expected_positive_fired": [
+        "CHAIN-NET-CRED-EXPOSURE"
+      ],
+      "negative_does_not_fire": true,
+      "negative_fixture": "CHAIN-NET-CRED-EXPOSURE_negative.cfg",
+      "positive_fires_as_expected": true,
+      "positive_fixture": "CHAIN-NET-CRED-EXPOSURE_positive.cfg"
+    },
+    "CHAIN-NET-MGMT-TAKEOVER": {
+      "break_chain_fix_isolated": true,
+      "break_rule_id": "CIS-CISCO-1.1.8",
+      "expected_negative_fired": [],
+      "expected_positive_fired": [
+        "CHAIN-NET-MGMT-TAKEOVER"
+      ],
+      "negative_does_not_fire": true,
+      "negative_fixture": "CHAIN-NET-MGMT-TAKEOVER_negative.cfg",
+      "positive_fires_as_expected": true,
+      "positive_fixture": "CHAIN-NET-MGMT-TAKEOVER_positive.cfg"
+    },
+    "CHAIN-NET-SNMP-RECON-WRITE": {
+      "break_chain_fix_isolated": true,
+      "break_rule_id": "CIS-CISCO-1.4.1",
+      "expected_negative_fired": [],
+      "expected_positive_fired": [
+        "CHAIN-NET-SNMP-RECON-WRITE"
+      ],
+      "negative_does_not_fire": true,
+      "negative_fixture": "CHAIN-NET-SNMP-RECON-WRITE_negative.cfg",
+      "positive_fires_as_expected": true,
+      "positive_fixture": "CHAIN-NET-SNMP-RECON-WRITE_positive.cfg"
+    },
+    "CHAIN-NET-SPOOFING-BYPASS": {
+      "break_chain_fix_isolated": true,
+      "break_rule_id": "CIS-CISCO-1.5.1",
+      "expected_negative_fired": [],
+      "expected_positive_fired": [
+        "CHAIN-NET-SPOOFING-BYPASS"
+      ],
+      "negative_does_not_fire": true,
+      "negative_fixture": "CHAIN-NET-SPOOFING-BYPASS_negative.cfg",
+      "positive_fires_as_expected": true,
+      "positive_fixture": "CHAIN-NET-SPOOFING-BYPASS_positive.cfg"
+    },
+    "CHAIN-NET-WEB-EXPLOITATION": {
+      "break_chain_fix_isolated": true,
+      "break_rule_id": "CIS-CISCO-1.2.1",
+      "expected_negative_fired": [],
+      "expected_positive_fired": [
+        "CHAIN-NET-WEB-EXPLOITATION"
+      ],
+      "negative_does_not_fire": true,
+      "negative_fixture": "CHAIN-NET-WEB-EXPLOITATION_negative.cfg",
+      "positive_fires_as_expected": true,
+      "positive_fixture": "CHAIN-NET-WEB-EXPLOITATION_positive.cfg"
+    },
+    "CHAIN-WB-ACCOUNT-COMPROMISE": {
+      "break_chain_fix_isolated": true,
+      "break_rule_id": "NIST-IA-5",
+      "expected_negative_fired": [],
+      "expected_positive_fired": [
+        "CHAIN-WB-ACCOUNT-COMPROMISE"
+      ],
+      "negative_does_not_fire": true,
+      "negative_fixture": "CHAIN-WB-ACCOUNT-COMPROMISE_negative.cfg",
+      "positive_fires_as_expected": true,
+      "positive_fixture": "CHAIN-WB-ACCOUNT-COMPROMISE_positive.cfg"
+    },
+    "CHAIN-WB-MGMT-TAKEOVER": {
+      "break_chain_fix_isolated": true,
+      "break_rule_id": "NIST-AC-17",
+      "expected_negative_fired": [],
+      "expected_positive_fired": [
+        "CHAIN-WB-MGMT-TAKEOVER"
+      ],
+      "negative_does_not_fire": true,
+      "negative_fixture": "CHAIN-WB-MGMT-TAKEOVER_negative.cfg",
+      "positive_fires_as_expected": true,
+      "positive_fixture": "CHAIN-WB-MGMT-TAKEOVER_positive.cfg"
+    },
+    "CHAIN-WB-SNMP-RECON-WRITE": {
+      "break_chain_fix_isolated": true,
+      "break_rule_id": "NIST-AC-3",
+      "expected_negative_fired": [],
+      "expected_positive_fired": [
+        "CHAIN-WB-SNMP-RECON-WRITE"
+      ],
+      "negative_does_not_fire": true,
+      "negative_fixture": "CHAIN-WB-SNMP-RECON-WRITE_negative.cfg",
+      "positive_fires_as_expected": true,
+      "positive_fixture": "CHAIN-WB-SNMP-RECON-WRITE_positive.cfg"
+    }
+  },
+  "generated_iso": "2026-09-18T07:15:01.563146+00:00",
+  "method": "Pre-registered attack-chain validation. expected_chain_verdicts.json was written and committed BEFORE the test that checks it (git-history ordering is asserted by that test). The verdicts are NOT derived from any engine run: each chain's positive fixture must set exactly its own chain's prerequisite findings (rule fails >= min_matches), and each negative must be the same config with ONLY the break_rule_id finding remediated. Verdicts are assertions of intent; file/engine behavior is only validated against them, never silently adjusted to match.",
+  "total_chains_firing_on_positive": 8,
+  "verdicts_source": "backend/tests/expected_chain_verdicts.json"
+}
