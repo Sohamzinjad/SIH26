@@ -74,7 +74,9 @@ class RuleNISTAC17(ComplianceRule):
         if config.crypto.telnet_enabled:
             return CheckResult(passed=False, explanation="Cleartext Telnet remote access is enabled.")
         for vty in config.management.vty_lines:
-            if "telnet" in vty.transport_input or "all" in vty.transport_input:
+            # Empty transport_input means the platform default (telnet+ssh) is in
+            # effect on Cisco IOS, so cleartext remote access is still permitted.
+            if not vty.transport_input or "telnet" in vty.transport_input or "all" in vty.transport_input:
                 return CheckResult(passed=False, evidence=vty.ref, explanation=f"Line {vty.range} permits unencrypted remote access.")
         return CheckResult(passed=True, explanation="All remote access paths require encrypted protocols.")
 
