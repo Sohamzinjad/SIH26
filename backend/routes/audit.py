@@ -7,6 +7,7 @@ from backend.database import get_db
 from backend.models.device import Device, Audit, Finding, AttackPath
 from backend.models.mapping import AIMapping
 from backend.models.audit_trail import AuditTrailEntry
+from backend.models.audit_trail_chain import get_latest_hash, compute_entry_hash
 from backend.schemas.api import AuditUploadResponse, AuditDetailResponse
 from backend.schemas.finding import FindingDTO, AttackPathDTO, AuditSummaryDTO, EvidenceModel
 from backend.parsers.vendor_detect import detect_vendor

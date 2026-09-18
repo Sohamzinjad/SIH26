@@ -1,9 +1,11 @@
 import ipaddress
 import re
+from datetime import datetime
 from typing import Optional, Dict, Any
 from sqlalchemy.orm import Session
 from backend.models.mapping import MappingCache, AIMapping
 from backend.models.audit_trail import AuditTrailEntry
+from backend.models.audit_trail_chain import get_latest_hash, compute_entry_hash
 from backend.schemas.neutral_config import (
     NormalizedConfig, InterfaceConfig, AuthConfig, SNMPConfig,
     SNMPCommunity, CryptoConfig, ManagementAccess, VTYLine, LineRef
@@ -39,6 +41,8 @@ def save_approved_mapping(
         db.add(cache_entry)
 
     # Record in audit trail
+    prev_hash = get_latest_hash(db)
+    now = datetime.utcnow()
     trail = AuditTrailEntry(
         action="MAPPING_APPROVED",
         actor=approved_by,
@@ -48,6 +52,17 @@ def save_approved_mapping(
             "vendor": vendor_name
         }
     )
+    trail.created_at = now
+    trail.entry_hash = compute_entry_hash(
+        prev_hash,
+        trail.action,
+        trail.actor,
+        trail.target_type,
+        trail.target_id,
+        trail.details_json,
+        trail.created_at,
+    )
+    trail.prev_hash = prev_hash
     db.add(trail)
     db.commit()
     db.refresh(cache_entry)
