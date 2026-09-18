@@ -58,6 +58,12 @@ def _add_additive_columns():
             ("waived_by", "VARCHAR(100)"),
             ("waiver_justification", "TEXT"),
         ],
+        # Tamper-evident audit trail chain (existing rows persist with NULL
+        # hashes; every new write backfills its own + chains onto the latest).
+        "audit_trail": [
+            ("entry_hash", "VARCHAR(64)"),
+            ("prev_hash", "VARCHAR(64)"),
+        ],
     }
     dialect = engine.dialect.name
     with engine.begin() as conn:
