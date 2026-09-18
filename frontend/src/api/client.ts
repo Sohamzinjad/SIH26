@@ -1,4 +1,4 @@
-import { DashboardOverview, AuditDetail, AIMapping, FleetSummary } from '../types';
+import { DashboardOverview, AuditDetail, AIMapping, FleetSummary, DeviceHistoryResponse, DeviceDriftResponse } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
@@ -104,5 +104,17 @@ export async function uploadFleetBatch(files: File[]): Promise<FleetBatchRespons
 export async function fetchFleetSummary(): Promise<FleetSummary> {
   const res = await fetch(`${API_BASE}/api/fleet/summary`);
   if (!res.ok) throw new Error("Failed to load fleet summary");
+  return res.json();
+}
+
+export async function fetchDeviceHistory(deviceId: number): Promise<DeviceHistoryResponse> {
+  const res = await fetch(`${API_BASE}/api/devices/${deviceId}/history`);
+  if (!res.ok) throw new Error('Failed to load device history');
+  return res.json();
+}
+
+export async function fetchDeviceDrift(deviceId: number): Promise<DeviceDriftResponse> {
+  const res = await fetch(`${API_BASE}/api/devices/${deviceId}/drift`);
+  if (!res.ok) throw new Error('Failed to load device drift');
   return res.json();
 }

@@ -143,3 +143,54 @@ export interface FleetSummary {
   by_rule: FleetRuleAggregate[];
   by_chain: FleetAttackChainAggregate[];
 }
+
+export interface DeviceRuleRun {
+  rule_id: string;
+  status: 'pass' | 'fail';
+  severity: string;
+}
+
+export interface DeviceAuditRecord {
+  audit_id: number;
+  started_at: string;
+  completed_at?: string | null;
+  vendor: string;
+  compliance_score: number;
+  status: string;
+  fail_count: number;
+  total_count: number;
+  per_rule: DeviceRuleRun[];
+}
+
+export interface DeviceHistoryResponse {
+  device_id: number;
+  hostname: string;
+  audits: DeviceAuditRecord[];
+}
+
+export type DriftTransition = 'same' | 'improved' | 'worsened' | 'new' | 'disappeared';
+
+export interface DeviceDriftRule {
+  rule_id: string;
+  title?: string | null;
+  framework?: string | null;
+  previous_status?: string | null;
+  current_status?: string | null;
+  transition: DriftTransition;
+}
+
+export interface DeviceDriftResponse {
+  device_id: number;
+  hostname: string;
+  comparable: boolean;
+  detail: string;
+  previous_audit_id?: number | null;
+  current_audit_id?: number | null;
+  drift_score: number;
+  same_count: number;
+  improved_count: number;
+  worsened_count: number;
+  new_count: number;
+  disappeared_count: number;
+  rules: DeviceDriftRule[];
+}
