@@ -15,40 +15,31 @@ Design contract (mirrors the repo's preregistration discipline):
     every reference carries a `caveat` string that the product UI MUST surface
     verbatim next to the reference.
 
-NOTE on import discipline: this package's `__init__` intentionally performs a
-LAZY re-export of `backend.enrichment.cve` (PEP 562 module ``__getattr__``).
-Eagerly importing `cve` here would create a circular import:
-  backend/schemas/finding.py  ->  backend.enrichment.schemas
-  backend.enrichment.cve      ->  backend.schemas.finding
-because `cve` imports `FindingDTO` while `finding` is importing the enrichment
-schemas. The laziness keeps the additive `cves` field usable on FindingDTO
-without forcing the whole enrichment pipeline to load at schema-import time.
+Import discipline: `backend.schemas.finding` (FindingDTO) references
+`CVEReferenceDTO` from this package, and `backend.enrichment.cve` references
+`FindingDTO` — a two-node cycle. To keep both importable (this is not an
+enrichment API barrier; it is a plain Python import cycle), the submodules do
+NOT eagerly import each other. `FindingDTO` carries `cves` as an
+`Optional[List["CVEReferenceDTO"]] = None` (stringized, additive-only) and
+lazily resolves the type via `from __future__ import annotations`; the public
+`enrich_findings`/`load_cve_cache` entrypoints are imported by consumers
+(e.g. backend/tests/test_cve_enrichment.py and the audit route) from
+`backend.enrichment.cve` directly, keeping schema imports side-effect-free.
 """
 
-from typing import Any, Dict, List
-
+from typing import List, Optional
 from backend.enrichment.schemas import CVEReferenceDTO
 
 __all__ = ["CVEReferenceDTO", "enrich_findings", "load_cve_cache"]
 
-_imported = False
 
+def enrich_findings(findings: List["FindingDTO"]) -> List["FindingDTO"]:
+    """Additive-only: return enriched copies that add an optional `cves` list.
 
-def _ensure_imported() -> None:
-    global _imported
-    if not _imported:
-        from backend.enrichment import cve as _cve  # circular-safe lazy load
-        globals()["enrich_findings"] = _cve.enrich_findings
-        globals()["load_cve_cache"] = _cve.enrich_findings  # placeholder, see __getattr__
-        globals()["_cve_mod"] = _cve
-        _imported = True
-
-
-def __getattr__(name: str) -> Any:
-    if name in ("enrich_findings", "load_cve_cache"):
-        _ensure_imported()
-        mod = globals()["_cve_mod"]
-        if name == "enrich_findings":
-            return mod.enrich_findings
-        return mod.load_cve_cache
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    Never mutates the input; never changes severity/weight/status/evidence/
+    remediation/explanation or the audit score/verdicts; only adds an
+    optional `cves` list to FAILing findings whose rule_id is in the offline
+    cache. See backend/enrichment/cve.py for the implementation + contract.
+    """
+    from backend.enrichment.cve import enrich_findings as _impl  # lazy, cycle-safe
+    return _impl(findings)
