@@ -6,6 +6,7 @@ from backend.database import get_db
 from backend.models.device import Finding
 from backend.models.audit_trail import AuditTrailEntry
 from backend.schemas.finding import FindingDTO, EvidenceModel, WaiveFindingRequest
+from backend.auth import require_api_key
 
 router = APIRouter(prefix="/api/findings", tags=["Findings"])
 
@@ -52,12 +53,15 @@ def waive_finding(
     finding_id: int,
     request: WaiveFindingRequest,
     db: Session = Depends(get_db),
+    _auth: None = Depends(require_api_key),
 ):
     """Mark a finding as waived with justification, reviewer, and timestamp.
 
     The waiver is REAL persisted state (waived_at / waived_by /
     waiver_justification on the Finding row) — a finding only counts as
-    waived when genuinely waived through this endpoint, never by default."""
+    waived when genuinely waived through this endpoint, never by default.
+
+    identity: requires API key (401 if disabled-key mismatch)"""
     f = db.query(Finding).filter(Finding.id == finding_id).first()
     if not f:
         raise HTTPException(status_code=404, detail=f"Finding {finding_id} not found")
@@ -86,8 +90,11 @@ def waive_finding(
 def unwaive_finding(
     finding_id: int,
     db: Session = Depends(get_db),
+    _auth: None = Depends(require_api_key),
 ):
-    """Revoke a previous waiver by clearing the real waiver columns."""
+    """Revoke a previous waiver by clearing the real waiver columns.
+
+    identity: requires API key (401 if disabled-key mismatch)"""
     f = db.query(Finding).filter(Finding.id == finding_id).first()
     if not f:
         raise HTTPException(status_code=404, detail=f"Finding {finding_id} not found")

@@ -10,6 +10,7 @@ from backend.schemas.api import AIMappingResponse, AIMappingApprovalRequest, Aud
 from backend.ai.fingerprint_cache import save_approved_mapping, build_normalized_config_from_mapping
 from backend.rules.engine import engine as rule_engine
 from backend.correlation.attack_paths import correlate_attack_paths
+from backend.auth import require_api_key
 
 router = APIRouter(prefix="/api/mappings", tags=["AI Mappings"])
 
@@ -34,8 +35,12 @@ def get_pending_mappings(db: Session = Depends(get_db)):
 def approve_mapping(
     mapping_id: int,
     req: AIMappingApprovalRequest,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _auth: None = Depends(require_api_key),
 ):
+    """Approve an AI mapping proposal and deterministically re-audit.
+
+    identity: requires API key (401 if disabled-key mismatch)"""
     ai_map = db.query(AIMapping).filter(AIMapping.id == mapping_id).first()
     if not ai_map:
         raise HTTPException(status_code=404, detail="Mapping proposal not found")
@@ -127,8 +132,12 @@ def approve_mapping(
 def reject_mapping(
     mapping_id: int,
     rejected_by: str = "analyst",
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _auth: None = Depends(require_api_key),
 ):
+    """Reject an AI mapping proposal, recording an attributable audit trail.
+
+    identity: requires API key (401 if disabled-key mismatch)"""
     ai_map = db.query(AIMapping).filter(AIMapping.id == mapping_id).first()
     if not ai_map:
         raise HTTPException(status_code=404, detail="Mapping proposal not found")
