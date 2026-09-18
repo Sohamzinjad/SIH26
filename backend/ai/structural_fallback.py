@@ -284,22 +284,46 @@ def _extract_snmp(config_text: str, blocks: List[_LineBlock]) -> Dict[str, Any]:
     return {"enabled": enabled, "communities": communities}
 
 
+def _kv_enabled(config_text: str, keys: List[str]) -> Optional[bool]:
+    """Returns True/False when a `key = "enabled"/"disabled"` style setting is found."""
+    for m in re.finditer(r"([a-zA-Z_\-\.]+)\s*=\s*[\"\'](enabled|disabled|enable|disable)[\"\']", config_text):
+        for key in keys:
+            if re.search(rf"(^|[_\-\s]){re.escape(key)}($|[_\-\s])", m.group(1)):
+                return m.group(2).startswith("en")
+    return None
+
+
 def _extract_crypto(config_text: str) -> Dict[str, Any]:
     low = config_text.lower()
-    telnet = bool(re.search(r"telnet", low)) and not bool(re.search(r"no\s+telnet|telnet\s+disable|set\s+telnet\s+disable|transport input none", low))
-    http = bool(re.search(r"http[-_ ]?server|http_server|http\b(?![s])", low)) and not bool(
-        re.search(r"no\s+ip\s+http\s+server|http\s+disable|set\s+http\s+disable", low)
-    )
-    https = bool(re.search(r"https|http[-_ ]?secure-server|set\s+https\s+enable", low)) and not bool(
-        re.search(r"no\s+https|https\s+disable", low)
-    )
-    ssh = bool(re.search(r"ssh|ssh2|sshv2|secure[-_ ]?shell|set\s+admin-ssh\s+enable|set\s+ssh\s+enable", low)) and not bool(
-        re.search(r"no\s+ssh|ssh\s+disable|set\s+ssh\s+disable", low)
-    )
+
+    ssh_kv = _kv_enabled(config_text, ["ssh", "admin_ssh"])
+    telnet_kv = _kv_enabled(config_text, ["telnet", "admin_telnet", "console_telnet"])
+    http_kv = _kv_enabled(config_text, ["http", "http_admin", "http_server"])
+    https_kv = _kv_enabled(config_text, ["https", "https_admin", "https_server"])
+
+    ssh = bool(re.search(r"\bssh\b|ssh2|sshv2|secure[-_ ]?shell|set\s+admin-ssh\s+enable|ip\s+ssh\s+version", low))
+    telnet = bool(re.search(r"telnet|set\s+admin-telnet\s+enable", low))
+    http = bool(re.search(r"ip\s+http\s+server|http_server|http[-_ ]?admin|http\s+server|set\s+http\s+enable|set\s+webadmin\s+http", low))
+    https = bool(re.search(r"https|ip\s+http\s+secure-server|http[-_ ]?secure-server|set\s+https\s+enable|webadmin\s+https", low))
+
+    if ssh_kv is not None:
+        ssh = ssh_kv
+    if telnet_kv is not None:
+        telnet = telnet_kv
+    if http_kv is not None:
+        http = http_kv
+    if https_kv is not None:
+        https = https_kv
+
+    if re.search(r"no\s+ip\s+http\s+server|set\s+http\s+disable|http\s+disabled", low):
+        http = False
+    if re.search(r"no\s+ssh|set\s+ssh\s+disable|ssh\s+disabled", low):
+        ssh = False
+
     return {
-        "ssh_enabled": ssh and not http,
-        "telnet_enabled": telnet and not ssh,
-        "http_enabled": http and not https,
+        "ssh_enabled": ssh,
+        "telnet_enabled": telnet,
+        "http_enabled": http,
         "https_enabled": https,
     }
 
