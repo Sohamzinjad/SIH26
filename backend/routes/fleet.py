@@ -52,6 +52,9 @@ from backend.schemas.api import (
     FleetAttackChainAggregate,
 )
 
+ZIP_SIZE_CAP = 50 * 1024 * 1024
+ZIP_MAX_MEMBERS = 5000
+
 router = APIRouter(prefix="/api/fleet", tags=["Fleet"])
 
 
@@ -180,17 +183,24 @@ async def _collect_files(files: List[UploadFile], zip_files: List[UploadFile]) -
     for up in files:
         raw = await up.read()
         collected.append((up.filename or "config.cfg", raw.decode("utf-8", errors="replace")))
-    for zp in zip_files:
+for zp in zip_files:
         blob = await zp.read()
         try:
             archive = zipfile.ZipFile(io.BytesIO(blob))
         except zipfile.BadZipFile:
             raise HTTPException(status_code=400, detail=f"{zp.filename} is not a valid zip")
+        if len(archive.namelist()) > ZIP_MAX_MEMBERS:
+            raise HTTPException(status_code=400, detail=f"{zp.filename} exceeds zip member cap ({ZIP_MAX_MEMBERS})")
+        cumulative_size = 0
         for member in archive.namelist():
             if member.endswith("/") or member.startswith("__MACOSX"):
                 continue
             fname = member.rsplit("/", 1)[-1]
-            collected.append((fname, archive.read(member).decode("utf-8", errors="replace")))
+            data = archive.read(member)
+            cumulative_size += len(data)
+            if cumulative_size > ZIP_SIZE_CAP:
+                raise HTTPException(status_code=400, detail=f"{zp.filename} exceeds cumulative decompressed size cap ({ZIP_SIZE_CAP} bytes)")
+            collected.append((fname, data.decode("utf-8", errors="replace")))
     return collected
 
 
