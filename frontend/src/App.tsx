@@ -7,6 +7,7 @@ import { MappingsView } from './components/MappingsView';
 import { FleetView } from './components/FleetView';
 import { DeviceHistoryView } from './components/DeviceHistoryView';
 import { AttackPathGraph } from './components/AttackPathGraph';
+import { AuditTrailView } from './components/AuditTrailView';
 import { fetchDashboardOverview, fetchPendingMappings } from './api/client';
 import { DashboardOverview } from './types';
 import { ShieldCheck, ExternalLink, Activity, Terminal, Lock } from 'lucide-react';
@@ -121,6 +122,9 @@ export const App: React.FC = () => {
         )}
 {currentTab === 'mappings' && (
           <MappingsView onMappingApproved={handleMappingApproved} />
+        )}
+        {currentTab === 'audit-trail' && (
+          <AuditTrailView />
         )}
       </main>
 
