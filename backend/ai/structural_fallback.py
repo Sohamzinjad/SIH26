@@ -17,6 +17,9 @@ def _cidr_or_pair(value: str) -> Optional[tuple[Optional[str], Optional[str]]]:
     value = value.strip().strip('"\'').rstrip(",").rstrip(";")
     if not value or value.lower() in {"dhcp", "none", "auto", "null"}:
         return None
+    if ":" in value:
+        parts = value.split("/")
+        return parts[0], (f"/{parts[1]}" if len(parts) == 2 else None)
     m = re.match(r"^([\d.]+)\s*/\s*(\d{1,2})$", value)
     if m:
         try:
@@ -114,7 +117,8 @@ def _looks_like_interface(name: str) -> bool:
     low = name.lower()
     return any(
         token in low
-        for token in ("interface", "network.port", "port-", "eth", "ge-", "gigabitethernet",
+        for token in ("interface", "network.port", "radio", "mesh.radio", "wlan", "wireless",
+                      "port-", "eth", "ge-", "gigabitethernet",
                       "fastethernet", "tengig", "xe-", "ae", "vlan", "lo0", "loopback",
                       "intf", "port")
     )
@@ -127,12 +131,12 @@ def _block_text(block: _LineBlock) -> str:
 def _extract_hostname(config_text: str, blocks: List[_LineBlock]) -> Optional[str]:
     patterns = [
         r"^(?:set\s+)?hostname(?:\s+setting)?\s+[\"\']?([\w.\-]+)",
-        r"(?:device_identifier|device-name|host-name|sysName|node_name)\s*[:=]?\s*[\"\']?([\w.\-]+)",
+        r"(?:device_identifier|identity|device-name|host-name|sysName|node_name)\s*[:=]?\s*[\"\']?([\w.\-]+)",
         r"^set\s+([\w.\-]+)\s*$",
     ]
     for pat in patterns[:2]:
         m = re.search(pat, config_text, re.IGNORECASE | re.MULTILINE)
-        if m and m.group(1).lower() not in {"router", "switch", "firewall", "unknown"}:
+        if m and m.group(1).lower() not in {"router", "switch", "firewall", "unknown", "mesh"}:
             return m.group(1)
     for block in blocks:
         if not block.name:
@@ -252,7 +256,7 @@ def _extract_snmp(config_text: str, blocks: List[_LineBlock]) -> Dict[str, Any]:
         if "rw" in clow or "read-write" in clow or "read_write" in clow or "write" in clow:
             perm = "rw"
         for m in re.finditer(
-            r"(?:community|query_identifier|query_id|\bname)\s*=\s*[\"\']?([\w.\-]+)[\"\']?",
+            r"(?:community(?:_string|_name|_id)?|query_identifier|query_id|\bname)\s*=\s*[\"\']?([\w.\-]+)[\"\']?",
             combined, re.IGNORECASE
         ):
             name = m.group(1)
