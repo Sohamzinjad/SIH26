@@ -1,4 +1,4 @@
-import { DashboardOverview, AuditDetail, AIMapping, FleetSummary, DeviceHistoryResponse, DeviceDriftResponse } from '../types';
+import { DashboardOverview, AuditDetail, AIMapping, FleetSummary, DeviceHistoryResponse, DeviceDriftResponse, AuditTrailVerifyResponse } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
 

@@ -204,3 +204,10 @@ export interface DeviceDriftResponse {
   disappeared_count: number;
   rules: DeviceDriftRule[];
 }
+
+export interface AuditTrailVerifyResponse {
+  verified: boolean;
+  total_entries: number;
+  first_broken_entry_id: number | null;
+  first_broken_reason: string | null;
+}
