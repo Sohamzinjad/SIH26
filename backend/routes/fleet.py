@@ -270,8 +270,19 @@ def fleet_summary(db: Session = Depends(get_db)):
         .filter(AIMapping.approved_by.isnot(None), AIMapping.audit_id.isnot(None))
         .count()
     )
+        # governance N-of-M: audits a HUMAN approved (approved_by NOT NULL on
+    # the persisted AI mapping) ÷ audits that exist — REAL approved rows,
+    # computed fresh every request, never a hardcoded number.
+    {
+        human_approved = (
+            db.query(Mapping)
+            .filter(Mapping.approved_by.isnot(None))
+            .count()
+        )
+    }
     return FleetSummaryResponse(
         total_devices=len(audits),
         by_rule=rule_aggs,
+        human_approved_audits=human_approved,
         by_chain=chain_aggs,
     )
