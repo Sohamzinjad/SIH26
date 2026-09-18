@@ -71,6 +71,25 @@ class FleetDeviceResult(BaseModel):
     error: Optional[str] = None
 
 
+class FleetDeviceResult(BaseModel):
+    """Per-file batch outcome — additive, unused by any pre-existing endpoint."""
+    audit_id: int
+    device_id: int
+    hostname: str
+    vendor: str
+    filename: str
+    status: str                        # COMPLETED | PENDING_AI_MAPPING
+    compliance_score: float
+    total_findings: int
+    failed_findings: int
+    attack_paths_count: int
+    ai_mapping_pending: bool
+    detection_method: str
+    mapping_source: str
+    latency_ms: float
+    error: Optional[str] = None
+
+
 class FleetBatchResponse(BaseModel):
     """Batch run: one FleetDeviceResult per uploaded file."""
     total_files: int
