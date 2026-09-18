@@ -44,7 +44,13 @@ from backend.parsers.vendor_detect import detect_vendor
 from backend.parsers import get_parser_for_vendor
 from backend.rules.engine import engine as rule_engine
 from backend.correlation.attack_paths import correlate_attack_paths
-from backend.schemas.api import FleetBatchResponse, FleetDeviceResult, FleetSummaryResponse
+from backend.schemas.api import (
+    FleetBatchResponse,
+    FleetDeviceResult,
+    FleetSummaryResponse,
+    FleetRuleAggregate,
+    FleetAttackChainAggregate,
+)
 
 router = APIRouter(prefix="/api/fleet", tags=["Fleet"])
 
