@@ -265,7 +265,7 @@ def fleet_summary(db: Session = Depends(get_db)):
         for c in present_by_chain
     ]
 
-        # governance signal — REAL persisted rows, never a hardcoded number:
+    # governance signal — REAL persisted rows, never a hardcoded number:
     # human-approved = audit AI mappings a HUMAN approved (approved_by NOT
     # NULL) vs total = audits considered in this fleet summary (all COMPLETED
     # audits attached to a device).
