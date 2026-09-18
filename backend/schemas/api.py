@@ -49,3 +49,81 @@ class HealthResponse(BaseModel):
     database_backend: str
     ollama_connected: bool
     ollama_model: str
+
+
+class FleetDeviceResult(BaseModel):
+    """Per-file outcome from a batch run — mirrors AuditUploadResponse fields
+    so the fleet table renders exactly what the single-file detail view shows."""
+    audit_id: int
+    device_id: int
+    hostname: str
+    vendor: str
+    filename: str
+    status: str                      # "COMPLETED" | "PENDING_AI_MAPPING"
+    compliance_score: float
+    total_findings: int
+    failed_findings: int
+    attack_paths_count: int
+    ai_mapping_pending: bool
+    detection_method: str
+    mapping_source: str
+    latency_ms: float
+    error: Optional[str] = None
+
+
+class FleetBatchResponse(BaseModel):
+    """Batch run: one FleetDeviceResult per uploaded file."""
+    total_files: int
+    completed_count: int
+    pending_count: int
+    failed_count: int
+    results: List[FleetDeviceResult]
+
+
+class FleetRuleAggregate(BaseModel):
+    """Cross-device aggregate for a single rule, computed from REAL findings."""
+    rule_id: str
+    title: str
+    severity: str
+    devices_present: int   # devices whose audit scanned this rule
+    devices_failing: int   # devices where this rule is a FAIL
+    framework: str
+
+
+class FleetAttackChainAggregate(BaseModel):
+    """Cross-device aggregate for a single attack chain (correlated path)."""
+    chain_id: str
+    name: str
+    severity: str
+    devices_present: int   # devices whose audit produced this chain
+    devices_firing: int    # devices where the chain is active (is_active=1)
+    break_rule_id: str
+
+
+class FleetRuleAggregate(BaseModel):
+    """N of M devices currently FAILING a specific rule, computed from real
+    per-device audit records (never a hardcoded number)."""
+    rule_id: str
+    title: str
+    severity: str
+    framework: str
+    devices_present: int   # devices whose audit ran and covered this rule
+    devices_failing: int   # devices where this rule's finding status == "fail"
+    compliance_pct: float  # 100.0 * (1 - devices_failing / devices_present)
+
+
+class FleetAttackChainAggregate(BaseModel):
+    """N of M devices with a specific correlated attack chain currently active."""
+    chain_id: str
+    name: str
+    severity: str
+    devices_present: int   # devices whose audit produced this chain
+    devices_active: int    # devices where is_active == 1 (real attack path firing)
+    firing_pct: float
+
+
+class FleetSummaryResponse(BaseModel):
+    """Fleet-wide N-of-M aggregates (rules + attack chains) over real audits."""
+    total_devices: int
+    by_rule: List[FleetRuleAggregate]
+    by_chain: List[FleetAttackChainAggregate]
