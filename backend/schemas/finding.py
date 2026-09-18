@@ -22,6 +22,7 @@ class FindingDTO(BaseModel):
     remediation: Optional[str] = None
     explanation: Optional[str] = None
     cves: Optional[List["CVEReferenceDTO"]] = None  # additive-only enrichment
+    cves: Optional[List["CVEReferenceDTO"]] = None  # additive-only enrichment
 
 class AttackPathDTO(BaseModel):
     id: Optional[int] = None
