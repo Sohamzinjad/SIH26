@@ -136,3 +136,18 @@ export async function unwaiveFinding(findingId: number): Promise<any> {
   if (!res.ok) throw new Error('Failed to remove waiver');
   return res.json();
 }
+
+export async function fetchAuditTrailVerify(): Promise<AuditTrailVerifyResponse> {
+  const res = await fetch(`${API_BASE}/api/audit-trail/verify`);
+  if (!res.ok) throw new Error('Failed to verify audit trail');
+  return res.json();
+}
+
+export async function demoTamperAuditTrail(): Promise<any> {
+  const res = await fetch(`${API_BASE}/api/audit-trail/demo-tamper`, { method: 'POST' });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: 'Demo tamper failed' }));
+    throw new Error(err.detail || 'Demo tamper failed');
+  }
+  return res.json();
+}
