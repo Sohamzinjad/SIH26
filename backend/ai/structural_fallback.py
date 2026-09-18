@@ -226,9 +226,10 @@ def _extract_auth(config_text: str) -> Dict[str, Any]:
         if "admin" not in weak:
             weak.append("admin")
     encryption = bool(
-        re.search(r"password-encryption|password_encryption|enable secret|\bsecret\s+[0-9a-f]|encrypted", low)
+        re.search(r"password-encryption|password_encryption|service password-encryption|\benable secret|\bsecret\s+[0-9a-f]{9,}|\bpassword .*? encrypted", low)
     )
-    encryption = encryption and not bool(re.search(r"enable password|password\s+\S+\s+0\s", low))
+    if "unencrypted" in low or "plaintext" in low or "in clear" in low or "password123" in low:
+        encryption = False
     return {
         "aaa_enabled": aaa,
         "weak_or_default_users": weak,
@@ -254,7 +255,7 @@ def _extract_snmp(config_text: str, blocks: List[_LineBlock]) -> Dict[str, Any]:
         if "rw" in clow or "read-write" in clow or "read_write" in clow or "write" in clow:
             perm = "rw"
         for m in re.finditer(
-            r"(?:community|query_identifier|query_id|\bname)\s*=\s*[\"\']?([\w.\-]+?)[\"\']?",
+            r"(?:community|query_identifier|query_id|\bname)\s*=\s*[\"\']?([\w.\-]+)[\"\']?",
             combined, re.IGNORECASE
         ):
             name = m.group(1)
