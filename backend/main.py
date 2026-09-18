@@ -10,6 +10,7 @@ from backend.routes import (
     reports_router,
     dashboard_router,
     fleet_router,
+    devices_router,
 )
 from backend.schemas.api import HealthResponse
 
@@ -61,3 +62,4 @@ app.include_router(mappings_router)
 app.include_router(reports_router)
 app.include_router(dashboard_router)
 app.include_router(fleet_router)
+app.include_router(devices_router)
