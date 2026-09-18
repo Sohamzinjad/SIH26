@@ -15,6 +15,7 @@ from backend.rules.engine import engine as rule_engine
 from backend.correlation.attack_paths import correlate_attack_paths
 from backend.correlation.remediation import compute_single_key_fix
 from backend.ai.ollama_client import ollama_client
+from backend.ai.structural_fallback import extract_structural_mapping
 from backend.ai.fingerprint_cache import lookup_cached_mapping, build_normalized_config_from_mapping
 
 router = APIRouter(prefix="/api/audit", tags=["Audit"])
@@ -48,7 +49,19 @@ async def upload_config_and_audit(
             detection_method = "fingerprint_cache"
             mapping_source = "fingerprint_cache"
             mapping_latency_ms = 0.0
-            normalized = build_normalized_config_from_mapping(cached_mapping, config_text, fname)
+            # The fingerprint is structural (dialect-level), so two devices with the
+            # same dialect share a cache entry. The cached mapping supplies the
+            # ANALYST-APPROVED semantics (auth/snmp/crypto decisions), but the
+            # value-bearing fields (hostname, interface addresses) MUST be
+            # re-derived from this device's actual config text, or we would report
+            # the previous device's identity.
+            fresh = extract_structural_mapping(config_text)
+            cache_effective = dict(cached_mapping)
+            if fresh.get("hostname"):
+                cache_effective["hostname"] = fresh["hostname"]
+            if fresh.get("interfaces"):
+                cache_effective["interfaces"] = fresh["interfaces"]
+            normalized = build_normalized_config_from_mapping(cache_effective, config_text, fname)
         else:
             # AI-assisted Proposal Path (Human-in-the-loop)
             t_map = time.perf_counter()
