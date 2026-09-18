@@ -2,6 +2,12 @@ import pytest
 from backend.parsers.cisco_ios import CiscoIOSParser
 from backend.parsers.fortios import FortiOSParser
 from backend.rules.engine import engine
+from backend.ai.structural_fallback import extract_structural_mapping
+from backend.ai.fingerprint_cache import build_normalized_config_from_mapping
+
+def _whitebox_builder(content, filename):
+    proposal = extract_structural_mapping(content)
+    return build_normalized_config_from_mapping(proposal, content, filename)
 
 LABELLED_CORPUS = [
     {
@@ -19,6 +25,13 @@ LABELLED_CORPUS = [
         "must_fail": ["CIS-CISCO-1.1.1", "CIS-CISCO-1.1.6", "CIS-CISCO-1.4.1", "CIS-CISCO-1.2.1"]
     },
     {
+        "file": "backend/sample_configs/cisco_partially_compliant.cfg",
+        "vendor": "cisco_ios",
+        "expected_posture": "partially_compliant",
+        "must_pass": ["CIS-CISCO-1.1.1", "CIS-CISCO-1.1.2", "CIS-CISCO-1.1.3", "CIS-CISCO-1.3.1", "CIS-CISCO-1.5.1"],
+        "must_fail": ["CIS-CISCO-1.1.6", "CIS-CISCO-1.1.8", "CIS-CISCO-1.4.1", "CIS-CISCO-1.4.2"]
+    },
+    {
         "file": "backend/sample_configs/fortios_compliant.cfg",
         "vendor": "fortios",
         "expected_posture": "compliant",
@@ -31,6 +44,20 @@ LABELLED_CORPUS = [
         "expected_posture": "non_compliant",
         "must_pass": [],
         "must_fail": ["CIS-FORTI-1.1.1", "CIS-FORTI-1.1.2", "CIS-FORTI-1.3.1"]
+    },
+    {
+        "file": "backend/sample_configs/fortios_partially_compliant.cfg",
+        "vendor": "fortios",
+        "expected_posture": "partially_compliant",
+        "must_pass": ["CIS-FORTI-1.1.2"],
+        "must_fail": ["CIS-FORTI-1.1.1", "CIS-FORTI-1.1.3", "CIS-FORTI-1.3.1"]
+    },
+    {
+        "file": "backend/sample_configs/unknown_whitebox.cfg",
+        "vendor": "whitebox_fallback",
+        "expected_posture": "non_compliant",
+        "must_pass": [],
+        "must_fail": ["NIST-AC-17", "NIST-AC-3", "NIST-IA-5", "NIST-AU-2"]
     }
 ]
 
@@ -47,8 +74,13 @@ def test_labelled_corpus_evaluation():
         with open(item["file"]) as f:
             content = f.read()
 
-        parser = cisco_p if item["vendor"] == "cisco_ios" else forti_p
-        cfg = parser.parse(content, filename=item["file"])
+        if item["vendor"] == "cisco_ios":
+            cfg = cisco_p.parse(content, filename=item["file"])
+        elif item["vendor"] == "fortios":
+            cfg = forti_p.parse(content, filename=item["file"])
+        else:
+            cfg = _whitebox_builder(content, item["file"])
+
         score, findings, _, _, _ = engine.audit(cfg)
 
         finding_map = {f.rule_id: f.status for f in findings}
@@ -76,3 +108,18 @@ def test_labelled_corpus_evaluation():
 
     assert detection_rate >= 95.0, f"Detection rate too low: {detection_rate}%"
     assert false_positive_rate <= 5.0, f"False positive rate too high: {false_positive_rate}%"
+
+def test_structural_fallback_is_derived_from_input():
+    """Two distinct unknown-vendor configs must yield distinct real values (not fixed sample data)."""
+    cfg_a = open("backend/sample_configs/unknown_whitebox.cfg").read()
+    cfg_b = cfg_a.replace("172.16.10.1", "192.168.200.7").replace("admin", "operator").replace("telnet", "ssh")
+
+    m_a = extract_structural_mapping(cfg_a)
+    m_b = extract_structural_mapping(cfg_b)
+
+    ip_a = {i["name"] for i in m_a["interfaces"]}
+    assert any(i["ip_address"] == "172.16.10.1" for i in m_a["interfaces"])
+    assert any(i["ip_address"] == "192.168.200.7" for i in m_b["interfaces"])
+    assert m_a["hostname"] == m_b["hostname"]  # hostname unchanged => config-derived, expected
+    assert "admin" in m_a["auth"]["weak_or_default_users"]
+    assert m_b["auth"]["weak_or_default_users"] and "operator" in m_b["auth"]["weak_or_default_users"]
