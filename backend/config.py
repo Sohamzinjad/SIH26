@@ -17,7 +17,13 @@ class Settings(BaseSettings):
     OLLAMA_URL: str = os.getenv("OLLAMA_URL", "http://localhost:11434")
     OLLAMA_MODEL: str = os.getenv("OLLAMA_MODEL", "llama3.2:3b")
     OLLAMA_TIMEOUT_SECONDS: int = 45
-    
+
+    # Tamper-evidence demo toggle (default OFF = no attack surface in prod).
+    # When true, POST /api/audit-trail/demo-tamper mutates the newest audit
+    # trail entry WITHOUT recomputing its hash so /api/audit-trail/verify
+    # demonstrably fails the chain.
+    AUDIT_TRAIL_DEMO_ENABLED: bool = False
+
     # CORS
     CORS_ORIGINS: List[str] = [
         "http://localhost:3000",
