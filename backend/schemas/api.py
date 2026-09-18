@@ -82,25 +82,6 @@ class FleetBatchResponse(BaseModel):
 
 
 class FleetRuleAggregate(BaseModel):
-    """Cross-device aggregate for a single rule, computed from REAL findings."""
-    rule_id: str
-    title: str
-    severity: str
-    devices_present: int   # devices whose audit scanned this rule
-    devices_failing: int   # devices where this rule is a FAIL
-    framework: str
-
-
-class FleetAttackChainAggregate(BaseModel):
-    """Cross-device aggregate for a single attack chain (correlated path)."""
-    chain_id: str
-    name: str
-    severity: str
-    devices_present: int   # devices whose audit produced this chain
-    devices_firing: int    # devices where the chain is active (is_active=1)
-    break_rule_id: str
-
-
     """N of M devices currently FAILING a specific rule, computed from real
     per-device audit records (never a hardcoded number)."""
     rule_id: str
@@ -112,6 +93,7 @@ class FleetAttackChainAggregate(BaseModel):
     compliance_pct: float  # 100.0 * (1 - devices_failing / devices_present)
 
 
+class FleetAttackChainAggregate(BaseModel):
     """N of M devices with a specific correlated attack chain currently active."""
     chain_id: str
     name: str
@@ -122,8 +104,10 @@ class FleetAttackChainAggregate(BaseModel):
 
 
 class FleetSummaryResponse(BaseModel):
-    """Fleet-wide N-of-M aggregates (rules + attack chains) over real audits."""
+    """Fleet-wide N-of-M aggregates (rules + attack chains) + REAL governance
+    signal (human-approved ÷ total audits) computed from persisted rows."""
     total_devices: int
+    total_audits: int = 0
     human_approved_audits: int = 0
     by_rule: List[FleetRuleAggregate]
     by_chain: List[FleetAttackChainAggregate]

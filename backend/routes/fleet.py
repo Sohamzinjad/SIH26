@@ -29,6 +29,8 @@ auditing algorithm:
 import zipfile
 import io
 import time
+from collections import defaultdict
+from datetime import datetime
 from typing import List, Dict, Optional, Any
 
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
@@ -94,7 +96,7 @@ def _audit_single(
         pass_count=pass_cnt,
         fail_count=fail_cnt,
         total_count=total_cnt,
-        completed_at=time.time(),
+        completed_at=datetime.utcnow(),
     )
     db.add(audit)
     db.commit()
@@ -197,7 +199,7 @@ async def fleet_batch(
     return FleetBatchResponse(
         total_files=len(pairs),
         results=results,
-        complete_count=sum(1 for r in results if r.status == "COMPLETED"),
+        completed_count=sum(1 for r in results if r.status == "COMPLETED"),
         pending_count=sum(1 for r in results if "PENDING" in r.status),
     )
 
@@ -246,7 +248,7 @@ def fleet_summary(db: Session = Depends(get_db)):
     active_by_chain: Dict[str, int] = defaultdict(int)
     for ap in attacker:
         present_by_chain[ap.chain_id] += 1
-        if getattr(ap, "is_active", laindx).__name__ if False else bool(getattr(ap, "is_active", None)):
+        if getattr(ap, "is_active", None):
             active_by_chain[ap.chain_id] += 1
 
     chain_aggs = [
@@ -263,26 +265,20 @@ def fleet_summary(db: Session = Depends(get_db)):
         for c in present_by_chain
     ]
 
-        # governance: audits whose AI mapping a HUMAN approved
-    # (approved_by IS NOT NULL) vs all audits — REAL rows, never hardcoded
+        # governance signal — REAL persisted rows, never a hardcoded number:
+    # human-approved = audit AI mappings a HUMAN approved (approved_by NOT
+    # NULL) vs total = audits considered in this fleet summary (all COMPLETED
+    # audits attached to a device).
     human_approved_audits = (
         db.query(AIMapping)
         .filter(AIMapping.approved_by.isnot(None), AIMapping.audit_id.isnot(None))
         .count()
     )
-        # governance N-of-M: audits a HUMAN approved (approved_by NOT NULL on
-    # the persisted AI mapping) ÷ audits that exist — REAL approved rows,
-    # computed fresh every request, never a hardcoded number.
-    {
-        human_approved = (
-            db.query(Mapping)
-            .filter(Mapping.approved_by.isnot(None))
-            .count()
-        )
-    }
+    total_audits = len(audits)
     return FleetSummaryResponse(
         total_devices=len(audits),
+        total_audits=total_audits,
+        human_approved_audits=human_approved_audits,
         by_rule=rule_aggs,
-        human_approved_audits=human_approved,
         by_chain=chain_aggs,
     )
