@@ -3,6 +3,8 @@ from pydantic import BaseModel
 from datetime import datetime
 from backend.enrichment.schemas import CVEReferenceDTO
 
+__all__ = ["FindingDTO", "FindingDTOBuilder", "EvidenceModel"]
+
 class EvidenceModel(BaseModel):
     line_start: Optional[int] = None
     line_end: Optional[int] = None
