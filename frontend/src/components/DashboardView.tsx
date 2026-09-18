@@ -105,6 +105,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <span className="text-xs font-normal font-mono px-2 py-0.5 rounded-full bg-[#1A1D24] text-slate-400 border border-[#2C313B]">
               {devices.length} Total
             </span>
+            {typeof data?.human_approved_audits === 'number' && (
+              <span className="inline-flex items-center gap-1.5 text-xs font-normal font-mono px-2 py-0.5 rounded-full bg-[#0A2018] text-emerald-400 border border-emerald-500/30">
+                <ShieldCheck className="w-3 h-3" />
+                {data.human_approved_audits} of {data.total_audits ?? 0} audits human-approved
+              </span>
+            )}
           </h1>
           <p className="text-xs text-[#9AA2B0] mt-1 max-w-2xl">
             Deterministic security compliance auditing for multi-vendor network devices. Evaluates running configs against CIS, NIST SP 800-53, and DISA STIG controls.

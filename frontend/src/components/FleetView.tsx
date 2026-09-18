@@ -10,7 +10,7 @@ import {
   FleetAttackChainAggregate,
 } from '../types';
 import type { FleetSummary } from '../types';
-import { Upload, Loader2, CheckCircle2, AlertTriangle, XCircle, Layers, ShieldAlert, ArrowLeft } from 'lucide-react';
+import { Upload, Loader2, CheckCircle2, AlertTriangle, XCircle, Layers, ShieldAlert, ShieldCheck, ArrowLeft } from 'lucide-react';
 
 interface FleetViewProps {
   onBatchCompleted?: (batch: FleetBatchResponse) => void;
