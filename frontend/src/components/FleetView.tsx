@@ -210,6 +210,21 @@ export const FleetView: React.FC<FleetViewProps> = ({ onBatchCompleted, onBatchF
         </div>
       )}
 
+      {/* Governance trust signal — real persisted rows, never a hardcoded number */}
+      {summary && typeof summary.human_approved_audits === 'number' && (
+        <div className="bg-[#0A2018] border border-emerald-500/30 rounded-xl px-6 py-4 flex items-center gap-3">
+          <ShieldCheck className="w-4 h-4 text-emerald-400" />
+          <span className="text-sm text-slate-200">
+            Governance: <span className="font-mono font-bold text-emerald-400">{summary.human_approved_audits}</span> of{' '}
+            <span className="font-mono font-bold text-[#F4F6FB]">{summary.total_audits ?? summary.total_devices}</span>{' '}
+            audits <span className="text-slate-400">human-approved</span>
+          </span>
+          <span className="ml-auto text-xs text-slate-500 font-mono">
+            approved_by NOT NULL on AI mappings
+          </span>
+        </div>
+      )}
+
       {/* Root-cause summary note (external-governance style) */}
       <div className="flex items-center gap-2 text-xs text-slate-500">
         <ArrowLeft className="w-3.5 h-3.5 cursor-pointer" />

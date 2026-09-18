@@ -15,6 +15,10 @@ export interface Finding {
   evidence?: Evidence;
   remediation?: string;
   explanation?: string;
+  waived?: boolean;
+  waived_at?: string | null;
+  waived_by?: string | null;
+  waiver_justification?: string | null;
 }
 
 export interface AttackPath {
@@ -60,6 +64,9 @@ export interface AuditDetail {
   findings: Finding[];
   attack_paths: AttackPath[];
   single_fix_recommendation?: SingleFixRecommendation;
+  effective_score?: number | null;
+  effective_fail_count?: number | null;
+  effective_total_count?: number | null;
 }
 
 export interface AIMapping {
@@ -81,6 +88,7 @@ export interface DashboardOverview {
   high_failures: number;
   active_attack_chains: number;
   pending_ai_proposals: number;
+  human_approved_audits?: number;
   devices: Array<{
     id: number;
     hostname: string;
@@ -140,6 +148,8 @@ export interface FleetAttackChainAggregate {
 
 export interface FleetSummary {
   total_devices: number;
+  total_audits?: number;
+  human_approved_audits?: number;
   by_rule: FleetRuleAggregate[];
   by_chain: FleetAttackChainAggregate[];
 }

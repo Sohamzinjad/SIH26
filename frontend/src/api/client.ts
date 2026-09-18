@@ -118,3 +118,21 @@ export async function fetchDeviceDrift(deviceId: number): Promise<DeviceDriftRes
   if (!res.ok) throw new Error('Failed to load device drift');
   return res.json();
 }
+
+export async function waiveFinding(findingId: number, justification: string, waivedBy: string): Promise<any> {
+  const res = await fetch(`${API_BASE}/api/findings/${findingId}/waive`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ justification, waived_by: waivedBy }),
+  });
+  if (!res.ok) throw new Error('Failed to waive finding');
+  return res.json();
+}
+
+export async function unwaiveFinding(findingId: number): Promise<any> {
+  const res = await fetch(`${API_BASE}/api/findings/${findingId}/unwaive`, {
+    method: 'POST',
+  });
+  if (!res.ok) throw new Error('Failed to remove waiver');
+  return res.json();
+}
