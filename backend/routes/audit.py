@@ -103,6 +103,8 @@ async def upload_config_and_audit(
             db.add(ai_map)
 
             # Audit Trail
+            prev_hash = get_latest_hash(db)
+            now = datetime.utcnow()
             trail = AuditTrailEntry(
                 action="MAPPING_PROPOSED",
                 actor="ollama_ai_agent",
@@ -111,6 +113,17 @@ async def upload_config_and_audit(
                 details_json={"fingerprint": fingerprint, "vendor": ai_map.vendor_guessed,
                               "mapping_source": mapping_source, "mapping_latency_ms": mapping_latency_ms}
             )
+            trail.created_at = now
+            trail.entry_hash = compute_entry_hash(
+                prev_hash,
+                trail.action,
+                trail.actor,
+                trail.target_type,
+                trail.target_id,
+                trail.details_json,
+                trail.created_at,
+            )
+            trail.prev_hash = prev_hash
             db.add(trail)
             db.commit()
             db.refresh(ai_map)
@@ -215,6 +228,8 @@ async def upload_config_and_audit(
         db.add(db_path)
 
     # Save Audit Trail
+    prev_hash = get_latest_hash(db)
+    now = datetime.utcnow()
     trail = AuditTrailEntry(
         action="AUDIT_RUN",
         actor="system",
@@ -224,6 +239,17 @@ async def upload_config_and_audit(
                       "mapping_source": mapping_source, "mapping_latency_ms": mapping_latency_ms,
                       "total_latency_ms": total_latency_ms}
     )
+    trail.created_at = now
+    trail.entry_hash = compute_entry_hash(
+        prev_hash,
+        trail.action,
+        trail.actor,
+        trail.target_type,
+        trail.target_id,
+        trail.details_json,
+        trail.created_at,
+    )
+    trail.prev_hash = prev_hash
     db.add(trail)
     db.commit()
 

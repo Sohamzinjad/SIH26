@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from backend.database import get_db
 from backend.models.device import Finding
 from backend.models.audit_trail import AuditTrailEntry
+from backend.models.audit_trail_chain import get_latest_hash, compute_entry_hash
 from backend.schemas.finding import FindingDTO, EvidenceModel, WaiveFindingRequest
 from backend.auth import require_api_key
 
@@ -70,6 +71,7 @@ def waive_finding(
     f.waived_at = now
     f.waived_by = request.waived_by
     f.waiver_justification = request.justification
+    prev_hash = get_latest_hash(db)
     db.add(AuditTrailEntry(
         action="FINDING_WAIVED",
         actor=request.waived_by,
@@ -80,6 +82,17 @@ def waive_finding(
             "posed_at": now.isoformat(),
             "justification": request.justification,
         },
+        created_at=now,
+        entry_hash=compute_entry_hash(
+            prev_hash,
+            "FINDING_WAIVED",
+            request.waived_by,
+            "finding",
+            f.id,
+            {"rule_id": f.rule_id, "posed_at": now.isoformat(), "justification": request.justification},
+            now,
+        ),
+        prev_hash=prev_hash,
     ))
     db.commit()
     db.refresh(f)
@@ -99,6 +112,8 @@ def unwaive_finding(
     if not f:
         raise HTTPException(status_code=404, detail=f"Finding {finding_id} not found")
 
+    now = datetime.utcnow()
+    prev_hash = get_latest_hash(db)
     db.add(AuditTrailEntry(
         action="FINDING_UNWAIVED",
         actor="analyst",
@@ -109,6 +124,17 @@ def unwaive_finding(
             "revoked_at": datetime.utcnow().isoformat(),
             "previously_waived_by": f.waived_by,
         },
+        created_at=now,
+        entry_hash=compute_entry_hash(
+            prev_hash,
+            "FINDING_UNWAIVED",
+            "analyst",
+            "finding",
+            f.id,
+            {"rule_id": f.rule_id, "revoked_at": datetime.utcnow().isoformat(), "previously_waived_by": f.waived_by},
+            now,
+        ),
+        prev_hash=prev_hash,
     ))
     f.waived_at = None
     f.waived_by = None
