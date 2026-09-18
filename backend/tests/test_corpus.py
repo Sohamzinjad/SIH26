@@ -58,6 +58,13 @@ LABELLED_CORPUS = [
         "expected_posture": "non_compliant",
         "must_pass": [],
         "must_fail": ["NIST-AC-17", "NIST-AC-3", "NIST-IA-5", "NIST-AU-2"]
+    },
+    {
+        "file": "backend/sample_configs/unknown_mesh_node.cfg",
+        "vendor": "whitebox_fallback",
+        "expected_posture": "non_compliant",
+        "must_pass": [],
+        "must_fail": ["NIST-AC-17", "NIST-AC-3", "NIST-IA-5", "NIST-AU-2"]
     }
 ]
 
