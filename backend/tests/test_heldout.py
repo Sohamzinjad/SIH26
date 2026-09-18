@@ -198,3 +198,28 @@ def test_heldout_real_world_configs():
 
     assert detection_rate >= 95.0, f"Held-out detection rate too low: {detection_rate}%"
     assert fpr <= 5.0, f"Held-out false positive rate too high: {fpr}%"
+
+def test_dialect_cache_does_not_reuse_device_identity():
+    """Two devices sharing a structural dialect (same fingerprint) must NOT
+    inherit the first device's cached hostname/IPs. Cache supplies approved
+    semantics; value-bearing fields come fresh from the current config."""
+    base = open("backend/sample_configs/unknown_mesh_node.cfg").read()
+    variant = (base.replace("BRANCH-MESH-09", "BRANCH-LAB-77")
+                   .replace("10.88.0.14", "10.99.0.17"))
+
+    _, _, fp_a = detect_vendor(base)
+    _, _, fp_b = detect_vendor(variant)
+    assert fp_a == fp_b, "test premise: both configs share a structural fingerprint"
+
+    cached = extract_structural_mapping(base)  # simulates approved cache entry
+    fresh = extract_structural_mapping(variant)  # simulates current device text
+
+    cache_effective = dict(cached)
+    cache_effective["hostname"] = fresh["hostname"]
+    cache_effective["interfaces"] = fresh["interfaces"]
+    cfg = build_normalized_config_from_mapping(cache_effective, variant, "variant.cfg")
+
+    assert cfg.hostname == "BRANCH-LAB-77", "cache must not leak the first device's hostname"
+    ips = {i.ip_address for i in cfg.interfaces}
+    assert "10.99.0.17" in ips, f"cache must use the current device's IPs, got {ips}"
+    assert "10.88.0.14" not in ips, "stale cached IP leaked into a same-dialect device"

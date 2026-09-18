@@ -81,16 +81,72 @@ $$\text{Compliance Score} = \left(\frac{\sum \text{Weights of Passing Checks}}{\
 
 ## 📊 Corpus Evaluation & Accuracy Metrics
 
-The system was evaluated against a labelled ground-truth corpus containing hardened configurations, vulnerable configurations, and unfamiliar white-box devices:
+### Held-Out Real-World Corpus (not tuned against)
+Beyond the hand-authored pipeline fixtures, the engine is evaluated on an
+**independent held-out set**: five unmodified, sanitized Cisco IOS
+`show running-config` files from the public [Batfish "Example Network"
+(campus topology)](https://github.com/batfish/batfish) (Apache-2.0). These are
+real enterprise configs written by the Batfish maintainers, *not* crafted to
+fit this project's rules. Ground-truth labels were derived by human reading of
+each config's actual text, independently of the engine.
+
+```
+================ HELD-OUT (REAL-WORLD) METRICS ================
+Configs: 5  (Batfish public Cisco IOS running-configs)
+True Positive (expected-pass, got-pass):       15
+True Negative (expected-fail, got-fail):       42
+False Positive (expected-pass, got-fail):      0
+False Negative (expected-fail, got-pass):      0
+Detection Rate (Recall):                       100.0%
+False Positive Rate (FPR):                     0.0%
+By Severity:
+  critical  detection=100.0%  FPR=  0.0%   (tp=1 tn=13 fp=0 fn=0)
+  high      detection=100.0%  FPR=  0.0%   (tp=9 tn=23 fp=0 fn=0)
+  medium    detection=100.0%  FPR=  0.0%   (tp=0 tn= 5 fp=0 fn=0)
+  low       detection=100.0%  FPR=  0.0%   (tp=5 tn= 1 fp=0 fn=0)
+===============================================================
+```
+
+### Labelled Pipeline Corpus (incl. partially-compliant cases)
+The engine is also scored on the labelled corpus covering the *harder* bar of
+**partially compliant** configs — not just compliant/non-compliant extremes:
 
 ```
 ================ CORPUS EVALUATION METRICS ================
+# Configs: 8
 True Detection Rate (Recall): 100.0%
-False Positive Rate (FPR):    0.0%
-False Negative Rate (FNR):    0.0%
-Total Automated Rules:        14 Baseline Rules Verified
+False Positive Rate (FPR):     0.0%
+Total Controls Verified:       35
+Per Config (score | TP TN FP FN):
+  100.0%  4 0 0 0  cisco_compliant.cfg
+    0.0%  0 4 0 0  cisco_non_compliant.cfg
+   62.1%  5 4 0 0  cisco_partially_compliant.cfg
+   71.9%  3 0 0 0  fortios_compliant.cfg
+    6.2%  0 3 0 0  fortios_non_compliant.cfg
+   46.9%  1 3 0 0  fortios_partially_compliant.cfg
+    0.0%  0 4 0 0  unknown_whitebox.cfg
+    0.0%  0 4 0 0  unknown_mesh_node.cfg
+By Severity Tier:
+  critical  detection=100.0%  FPR=  0.0%   (tp=7 tn=10 fp=0 fn=0)
+  high      detection=100.0%  FPR=  0.0%   (tp=3 tn=10 fp=0 fn=0)
+  medium    detection=100.0%  FPR=  0.0%   (tp=3 tn= 2 fp=0 fn=0)
+  low       detection=100.0%  FPR=  0.0%   (tp=0 tn= 0 fp=0 fn=0)
 ===========================================================
 ```
+
+`pytest backend/tests/ -v -s` prints both tables live.
+
+### Honest Scope of the Offline Fallback Confidence
+The structural fallback's confidence (`0.42` base, `+0.09` per populated signal
+category, capped at `0.92`) is a **heuristic, not a statistically calibrated
+probability** — there is no labelled human-approval corpus to fit it against
+yet. What *is* verified (`backend/tests/test_calibration.py`):
+- every value emitted by the fallback is a literal substring of the real config
+  text (0 synthetic values; verified 9/9 across unknown-vendor fixtures), and
+- it is deterministic across repeated parses.
+
+Interpret confidence as an *ordinal* signal ("more independent evidence found"),
+never as a probability of correctness.
 
 ---
 
