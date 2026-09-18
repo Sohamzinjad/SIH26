@@ -108,9 +108,9 @@ def device_drift(device_id: int, db: Session = Depends(get_db)):
             rules=[],
         )
 
-    # audits are ordered newest-first, so [0] is latest and [-2] is the
-    # previous one (the two most recent real audits of this device).
-    earlier, latest = audits[-2], audits[0]
+    # audits are ordered newest-first, so [0] is the latest audit and [1] is
+    # the previous one (the two most recent real audits of this device).
+    earlier, latest = audits[1], audits[0]
     prev_map = _status_map(db, earlier.id)
     curr_map = _status_map(db, latest.id)
     latest_findings = {f.rule_id: f for f in _findings(db, latest.id)}
