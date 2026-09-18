@@ -5,6 +5,7 @@ from backend.routes.reports import router as reports_router
 from backend.routes.dashboard import router as dashboard_router
 from backend.routes.fleet import router as fleet_router
 from backend.routes.devices import router as devices_router
+from backend.routes.audit_trail import router as audit_trail_router
 
 __all__ = [
     "audit_router",
@@ -14,4 +15,5 @@ __all__ = [
     "dashboard_router",
     "fleet_router",
     "devices_router",
+    "audit_trail_router",
 ]
