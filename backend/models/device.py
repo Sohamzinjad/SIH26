@@ -53,6 +53,12 @@ class Finding(Base):
     explanation = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
+    # Governance waiver fields (additive, nullable — set ONLY via the waive
+    # endpoint; a finding is waived only when waived_at IS NOT NULL).
+    waived_at = Column(DateTime, nullable=True)
+    waived_by = Column(String(100), nullable=True)
+    waiver_justification = Column(Text, nullable=True)
+
     audit = relationship("Audit", back_populates="findings")
 
 class AttackPath(Base):
