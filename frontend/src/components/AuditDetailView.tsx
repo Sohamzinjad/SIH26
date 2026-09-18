@@ -432,10 +432,13 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onVie
           ) : (
             filteredFindings.map((f) => {
               const isFailed = f.status === 'fail';
+              const isWaived = !!f.waived;
               return (
                 <div
                   key={f.rule_id}
-                  className="p-4 hover:bg-[#1A1D24]/80 transition flex flex-col md:flex-row justify-between items-start md:items-center gap-4 group"
+                  className={`p-4 hover:bg-[#1A1D24]/80 transition flex flex-col md:flex-row justify-between items-start md:items-center gap-4 group ${
+                    isWaived ? 'bg-amber-500/[0.05] border-l-2 border-amber-400/70' : ''
+                  }`}
                 >
                   <div className="space-y-1 max-w-3xl">
                     <div className="flex items-center space-x-2">
@@ -456,15 +459,37 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onVie
                       >
                         {f.severity}
                       </span>
+                      {isWaived && (
+                        <span className="text-[10px] font-bold uppercase font-mono px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-300 border border-amber-400/40">
+                          Waived
+                        </span>
+                      )}
                     </div>
                     <h4 className="text-xs font-semibold text-white tracking-tight">{f.title}</h4>
                     <p className="text-[11px] text-[#9AA2B0] leading-relaxed">{f.explanation}</p>
+                    {isWaived && (
+                      <div className="mt-2 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2 space-y-1">
+                        <div className="text-[10px] font-mono text-amber-300">
+                          WAIVER — by <span className="font-bold">{f.waived_by || 'unknown'}</span>
+                          {f.waived_at ? <> at {new Date(f.waived_at).toLocaleString()}</> : null}
+                        </div>
+                        {f.waiver_justification && (
+                          <div className="text-[11px] text-slate-300 leading-relaxed">
+                            &ldquo;{f.waiver_justification}&rdquo;
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex items-center space-x-4 flex-shrink-0">
                     {/* Status Pill */}
                     <div className="flex items-center space-x-1.5">
-                      {isFailed ? (
+                      {isWaived ? (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/10 text-amber-300 border border-amber-500/20">
+                          WAIVED
+                        </span>
+                      ) : isFailed ? (
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">
                           FAIL
                         </span>
@@ -474,6 +499,27 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onVie
                         </span>
                       )}
                     </div>
+
+                    {/* Governance Waiver / Unwaiver Actions */}
+                    {isFailed && f.id && !isWaived && (
+                      <button
+                        onClick={() => setWaiverTarget(f)}
+                        className="flex items-center space-x-1 text-xs bg-[#0A0C0F] hover:bg-amber-500/10 text-amber-300 px-2.5 py-1.5 rounded-lg border border-[#22262F] hover:border-amber-500/40 transition font-mono"
+                      >
+                        <ShieldCheck className="w-3.5 h-3.5" />
+                        <span>Waive</span>
+                      </button>
+                    )}
+                    {isWaived && f.id && (
+                      <button
+                        onClick={() => applyUnwaive(f)}
+                        disabled={waiverBusy}
+                        className="flex items-center space-x-1 text-xs bg-[#0A0C0F] hover:bg-rose-500/10 text-rose-300 px-2.5 py-1.5 rounded-lg border border-[#22262F] hover:border-rose-500/40 transition font-mono disabled:opacity-40"
+                      >
+                        <XCircle className="w-3.5 h-3.5" />
+                        <span>Unwaive</span>
+                      </button>
+                    )}
 
                     {/* Evidence Snippet Trigger */}
                     {f.evidence && f.evidence.line_start && (
