@@ -5,60 +5,42 @@ Design contract (mirrors the repo's preregistration discipline):
   * Additive: enrichment NEVER changes a finding's severity, weight, status,
     evidence, remediation, explanation, or the audit score. It only *adds* an
     optional `cves` list to a finding DTO. Enriching the same set of findings
-    must always produce a byte-identical (score, verdicts, counts) result.
-  * Offline & verifiable: references come from a committed local cache
+    must always produce a byte-identical (score, verdicts, counts, severities,
+    weights) result -- enrichment and scoring are independent and order-free.
+  * Offline & verifiable: CVE references come from a committed local cache
     (backend/cve_cache.json) built deterministically by
-    backend/scripts/build_cve_cache.py. No network calls, no live API. CVE ids
-    are real, NVD/Cisco-verifiable ids. Version applicability is NOT asserted
-    here: enrichment is heuristic against the *configuration findings* only,
-    and every reference carries a caveat string that the product UI must show.
-  * Preregistered: cve_cache.json (the data the test validates) must be
-    committed before the validating test, asserted via git ancestry in
-    backend/tests/test_cve_enrichment.py - mirroring the chain-verdicts order.
+    backend/scripts/build_cve_cache.py. No network calls, no live API, no
+    invented ids. Every CVE id is a real, NVD/Cisco-verifiable id.
+  * Heuristic & caveated: enrichment maps a *configuration finding* to a real,
+    published advisory whose documented precondition matches the configuration
+    condition the finding flags. It NEVER asserts the audited device's own
+    version is confirmed exploitable. Every reference carries a `caveat`
+    string that the product UI MUST surface verbatim next to the reference.
+  * Preregistered: cve_cache.json (the data the validating test checks) must
+    be committed before the test, asserted via git ancestry in
+    backend/tests/test_cve_enrichment.py -- mirroring the chain-verdicts order.
 """
 
 from typing import Dict, List, Optional
+from pydantic import BaseModel, Field
 from backend.schemas.finding import FindingDTO
+from backend.enrichment.schemas import CVEReferenceDTO
 
 CVE_CACHE_PATH = pathlib.Path(__file__).resolve().parent.parent / "cve_cache.json"
+CVE_TARGET_RULES = ("CIS-CISCO-1.4.1", "CIS-CISCO-1.4.2", "CIS-CISCO-1.4.3")
 
-class CVEReferenceDTO(BaseModel):
-    cve_id: str
-    rule_id: str
-    title: str
-    cvss_base: float
-    source: str          # e.g. "Cisco Security Advisory / NVD"
-    url: str
-    caveat: str          # MUST be surfaced by the product UI next to the ref
 
-    @classmethod
-    def from_cache(cls, rule_id: str, entry: dict) -> "CVEReferenceDTO":
-        return cls(
-            cve_id=entry["cve_id"],
-            rule_id=rule_id,
-            title=entry.get("title", entry["cve_id"]),
-            cvss_base=float(entry.get("cvss_base", 0.0)),
-            source=entry.get("source", "offline-cache"),
-            url=entry.get("url", f"https://nvd.nist.gov/vuln/detail/{entry['cve_id']}"),
-            caveat=entry.get(
-                "caveat",
-                "Offline heuristic enrichment keyed to configuration findings only; "
-                "does not assert version-level exploitability. Verify the exact IOS "
-                "release against the linked vendor advisory before acting.",
-            ),
-        )
-
-@lru_cache(maxsize=1)
 def load_cve_cache() -> Dict[str, List[dict]]:
-    """rule_id -> [entry,...] loaded from the offline committed cache."""
+    """rule_id -> [CVE entries...] from the committed offline cache."""
     if not CVE_CACHE_PATH.exists():
         return {}
     return json.loads(CVE_CACHE_PATH.read_text(encoding="utf-8")).get("cves", {})
 
+
 def enrich_findings(findings: List[FindingDTO]) -> List[FindingDTO]:
     """
-    Additive enrichment: returns NEW DTO objects with an optional `cves` list
-    attached (CVEReferenceDTO per matching failing rule). Never mutates the
+    Additive-only enrichment: returns NEW DTO objects with an optional `cves`
+    list attached (CVEReferenceDTO per matching failing rule). Never mutates
     input findings; never alters severity/weight/status/remediation/score.
     """
     cache = load_cve_cache()
