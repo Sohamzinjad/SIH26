@@ -1,3 +1,5 @@
+import ipaddress
+import re
 from typing import Optional, Dict, Any
 from sqlalchemy.orm import Session
 from backend.models.mapping import MappingCache, AIMapping
@@ -51,6 +53,26 @@ def save_approved_mapping(
     db.refresh(cache_entry)
     return cache_entry
 
+def _split_cidr(value):
+    """Splits '10.0.0.1/24' into (ip, netmask). Passes 'ip mask' / bare mask through unchanged."""
+    if not value:
+        return None, None
+    value = str(value).strip()
+    m = re.match(r"^([\d.]+)/(\d{1,2})$", value)
+    if m:
+        ip, bits = m.group(1), int(m.group(2))
+        return ip, str(ipaddress.ip_network(f"{ip}/{bits}", strict=False).netmask)
+    parts = value.split()
+    if len(parts) == 2:
+        return parts[0], parts[1]
+    if re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", value):
+        first_octet = int(value.split(".")[0])
+        if first_octet not in (0, 128, 192, 224, 240, 248, 252, 254, 255):
+            return value, None
+        return None, value
+    return None, value
+
+
 def build_normalized_config_from_mapping(
     mapping_data: Dict[str, Any],
     raw_config: str,
@@ -66,13 +88,20 @@ def build_normalized_config_from_mapping(
 
     # Interfaces
     for intf_dict in mapping_data.get("interfaces", []):
+        ip, mask = _split_cidr(intf_dict.get("ip_address"))
+        if intf_dict.get("subnet_mask"):
+            mask = _split_cidr(intf_dict.get("subnet_mask"))[1] or _split_cidr(intf_dict.get("subnet_mask"))[0]
         norm.interfaces.append(
             InterfaceConfig(
                 name=intf_dict.get("name", "eth0"),
-                ip_address=intf_dict.get("ip_address"),
-                subnet_mask=intf_dict.get("subnet_mask"),
+                ip_address=ip,
+                subnet_mask=mask,
                 is_shutdown=intf_dict.get("is_shutdown", False),
-                ref=LineRef(line_start=1, line_end=5, snippet=f"interface {intf_dict.get('name')}")
+                ref=LineRef(
+                    line_start=intf_dict.get("line_start", 1),
+                    line_end=intf_dict.get("line_end", 1),
+                    snippet=intf_dict.get("snippet") or f"interface {intf_dict.get('name')}"
+                )
             )
         )
 
@@ -89,9 +118,13 @@ def build_normalized_config_from_mapping(
         norm.snmp.communities.append(
             SNMPCommunity(
                 name=comm.get("name", "public"),
-                permission=comm.get("permission", "ro"),
+                permission="ro" if comm.get("permission", "ro") != "rw" else "rw",
                 is_default_string=comm.get("is_default", False),
-                ref=LineRef(line_start=1, line_end=3, snippet=f"snmp {comm.get('name')}")
+                ref=LineRef(
+                    line_start=comm.get("line_start", 1),
+                    line_end=comm.get("line_end", 1),
+                    snippet=comm.get("snippet") or f"snmp {comm.get('name')}"
+                )
             )
         )
 
@@ -100,6 +133,7 @@ def build_normalized_config_from_mapping(
     norm.crypto.ssh_enabled = crypto_data.get("ssh_enabled", False)
     norm.crypto.telnet_enabled = crypto_data.get("telnet_enabled", False)
     norm.crypto.http_server_enabled = crypto_data.get("http_enabled", False)
+    norm.crypto.https_server_enabled = crypto_data.get("https_enabled", False)
 
     # Management
     mgmt_data = mapping_data.get("management", {})
