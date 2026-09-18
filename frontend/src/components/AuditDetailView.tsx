@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AuditDetail, Finding } from '../types';
-import { fetchAuditDetail, getReportUrl } from '../api/client';
+import { fetchAuditDetail, getReportUrl, waiveFinding, unwaiveFinding } from '../api/client';
 import {
   ShieldCheck, 
   AlertTriangle, 
@@ -44,6 +44,13 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onVie
   const [selectedFinding, setSelectedFinding] = useState<Finding | null>(null);
   const [copiedRemediation, setCopiedRemediation] = useState(false);
 
+  // Governance waiver workflow
+  const [waiverTarget, setWaiverTarget] = useState<Finding | null>(null);
+  const [waiverJustification, setWaiverJustification] = useState('');
+  const [waiverReviewer, setWaiverReviewer] = useState('analyst');
+  const [waiverBusy, setWaiverBusy] = useState(false);
+  const [waiverError, setWaiverError] = useState<string | null>(null);
+
   useEffect(() => {
     loadAudit();
   }, [auditId]);
@@ -65,6 +72,36 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onVie
     navigator.clipboard.writeText(text);
     setCopiedRemediation(true);
     setTimeout(() => setCopiedRemediation(false), 2000);
+  };
+
+  const applyWaive = async () => {
+    if (!waiverTarget?.id) return;
+    setWaiverBusy(true);
+    setWaiverError(null);
+    try {
+      await waiveFinding(waiverTarget.id, waiverJustification, waiverReviewer);
+      setWaiverTarget(null);
+      setWaiverJustification('');
+      loadAudit();
+    } catch (e: any) {
+      setWaiverError(e?.message || 'Failed to apply waiver');
+    } finally {
+      setWaiverBusy(false);
+    }
+  };
+
+  const applyUnwaive = async (finding: Finding) => {
+    if (!finding.id) return;
+    setWaiverBusy(true);
+    setWaiverError(null);
+    try {
+      await unwaiveFinding(finding.id);
+      loadAudit();
+    } catch (e: any) {
+      setWaiverError(e?.message || 'Failed to remove waiver');
+    } finally {
+      setWaiverBusy(false);
+    }
   };
 
   if (loading) {
@@ -106,6 +143,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onVie
 
   const passCount = findings.filter(f => f.status === 'pass').length;
   const failCount = findings.filter(f => f.status === 'fail').length;
+  const waivedFails = findings.filter(f => f.status === 'fail' && f.waived).length;
 
   return (
     <div className="space-y-8 animate-fadeIn">
@@ -150,6 +188,14 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onVie
               <div className="text-emerald-400 font-mono font-semibold">{passCount} Pass</div>
               <div className="text-rose-400 font-mono font-semibold">{failCount} Fail</div>
             </div>
+            {detail.effective_score !== null && detail.effective_score !== undefined &&
+              (detail.effective_score !== audit.score || waivedFails > 0) && (
+              <div className="ml-3 pl-3 border-l border-[#22262F] text-[10px] font-mono text-emerald-400 leading-tight">
+                <div>Governance-adjusted</div>
+                <div className="text-sm font-bold">{detail.effective_score}%</div>
+                <div className="text-[9px] text-slate-500">{waivedFails} fail(s) waived</div>
+              </div>
+            )}
           </div>
 
           {audit.device_id != null && onViewDeviceHistory && (
