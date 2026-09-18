@@ -26,6 +26,16 @@ def get_dashboard_overview(db: Session = Depends(get_db)):
     active_chains_count = db.query(AttackPath).filter(AttackPath.is_active == 1).count()
     pending_ai_proposals = db.query(AIMapping).filter(AIMapping.status == "PENDING").count()
 
+    # Governance trust signal — REAL persisted rows (never hardcoded):
+    # human-approved = AI mappings a HUMAN approved (approved_by NOT NULL)
+    # vs total_audits = every persisted audit execution.
+    human_approved_audits = (
+        db.query(AIMapping)
+        .filter(AIMapping.approved_by.isnot(None), AIMapping.audit_id.isnot(None))
+        .count()
+    )
+    total_audits = db.query(Audit).count()
+
     # Build device summary list
     device_items = []
     for d in devices:
@@ -61,6 +71,7 @@ def get_dashboard_overview(db: Session = Depends(get_db)):
         "high_failures": high_count,
         "active_attack_chains": active_chains_count,
         "pending_ai_proposals": pending_ai_proposals,
+        "human_approved_audits": human_approved_audits,
         "devices": device_items,
         "recent_audits": recent_audits_list
     }

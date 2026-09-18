@@ -26,6 +26,11 @@ class AuditDetailResponse(BaseModel):
     attack_paths: List[AttackPathDTO]
     single_fix_recommendation: Optional[SingleFixRecommendation] = None
     normalized_config: Optional[NormalizedConfig] = None
+    # Effective compliance AFTER genuine governance waivers (waived findings
+    # removed from the fail count). None when the audit has no findings.
+    effective_score: Optional[float] = None
+    effective_fail_count: Optional[int] = None
+    effective_total_count: Optional[int] = None
 
 class AIMappingApprovalRequest(BaseModel):
     approved_by: str = "analyst"

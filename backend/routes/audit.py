@@ -264,10 +264,27 @@ def get_audit_detail(audit_id: int, db: Session = Depends(get_db)):
             status=f.status,
             evidence=EvidenceModel(line_start=f.line_start, line_end=f.line_end, snippet=f.evidence_snippet) if f.line_start else None,
             remediation=f.remediation,
-            explanation=f.explanation
+            explanation=f.explanation,
+            waived=f.waived_at is not None,
+            waived_at=f.waived_at,
+            waived_by=f.waived_by,
+            waiver_justification=f.waiver_justification,
         )
         for f in db_findings
     ]
+
+    # Effective compliance — a genuinely waived finding (waived_at NOT NULL)
+    # is removed from the effective fail count. Computed from REAL rows; when
+    # nothing is waived it equals the stored audit score.
+    effective_total = len(db_findings)
+    effective_fail = sum(
+        1 for f in db_findings if f.status == "fail" and f.waived_at is None
+    )
+    effective_score = None
+    if effective_total:
+        effective_score = round(
+            100.0 * (1.0 - effective_fail / effective_total), 1
+        )
 
     paths_dto = [
         AttackPathDTO(
@@ -305,5 +322,8 @@ def get_audit_detail(audit_id: int, db: Session = Depends(get_db)):
         audit=summary_dto,
         findings=findings_dto,
         attack_paths=paths_dto,
-        single_fix_recommendation=single_fix
+        single_fix_recommendation=single_fix,
+        effective_score=effective_score,
+        effective_fail_count=effective_fail,
+        effective_total_count=effective_total,
     )

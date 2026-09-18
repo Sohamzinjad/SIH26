@@ -44,18 +44,68 @@ def list_findings_for_audit(
         query = query.filter(Finding.status == status.lower())
 
     records = query.all()
-    return [
-        FindingDTO(
-            id=r.id,
-            rule_id=r.rule_id,
-            framework=r.framework,
-            title=r.title,
-            severity=r.severity,
-            weight=r.weight,
-            status=r.status,
-            evidence=EvidenceModel(line_start=r.line_start, line_end=r.line_end, snippet=r.evidence_snippet) if r.line_start else None,
-            remediation=r.remediation,
-            explanation=r.explanation
-        )
-        for r in records
-    ]
+    return [_finding_to_dto(r) for r in records]
+
+
+@router.post("/{finding_id}/waive", response_model=FindingDTO)
+def waive_finding(
+    finding_id: int,
+    request: WaiveFindingRequest,
+    db: Session = Depends(get_db),
+):
+    """Mark a finding as waived with justification, reviewer, and timestamp.
+
+    The waiver is REAL persisted state (waived_at / waived_by /
+    waiver_justification on the Finding row) — a finding only counts as
+    waived when genuinely waived through this endpoint, never by default."""
+    f = db.query(Finding).filter(Finding.id == finding_id).first()
+    if not f:
+        raise HTTPException(status_code=404, detail=f"Finding {finding_id} not found")
+
+    now = datetime.utcnow()
+    f.waived_at = now
+    f.waived_by = request.waived_by
+    f.waiver_justification = request.justification
+    db.add(AuditTrailEntry(
+        action="FINDING_WAIVED",
+        actor=request.waived_by,
+        target_type="finding",
+        target_id=f.id,
+        details_json={
+            "rule_id": f.rule_id,
+            "posed_at": now.isoformat(),
+            "justification": request.justification,
+        },
+    ))
+    db.commit()
+    db.refresh(f)
+    return _finding_to_dto(f)
+
+
+@router.post("/{finding_id}/unwaive", response_model=FindingDTO)
+def unwaive_finding(
+    finding_id: int,
+    db: Session = Depends(get_db),
+):
+    """Revoke a previous waiver by clearing the real waiver columns."""
+    f = db.query(Finding).filter(Finding.id == finding_id).first()
+    if not f:
+        raise HTTPException(status_code=404, detail=f"Finding {finding_id} not found")
+
+    db.add(AuditTrailEntry(
+        action="FINDING_UNWAIVED",
+        actor="analyst",
+        target_type="finding",
+        target_id=f.id,
+        details_json={
+            "rule_id": f.rule_id,
+            "revoked_at": datetime.utcnow().isoformat(),
+            "previously_waived_by": f.waived_by,
+        },
+    ))
+    f.waived_at = None
+    f.waived_by = None
+    f.waiver_justification = None
+    db.commit()
+    db.refresh(f)
+    return _finding_to_dto(f)
