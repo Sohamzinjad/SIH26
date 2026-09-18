@@ -68,12 +68,12 @@ def test_all_chain_fixtures_match_preregistered_verdicts():
             cast_exp = sorted(expected)
             if actual != cast_exp:
                 raise AssertionError(
-                    f"MISMATCH on {chain_id} {kind.upper()} fixture {fixture}:\n"
+                    f"MISMATCH on {chain_id} {fixture_key} fixture {fixture}:\n"
                     f"  expected fired: {cast_exp}\n"
                     f"  actual fired:   {actual}\n"
                     f"  (pre-registered in expected_chain_verdicts.json; "
                     f"refusing to silently adjust verdict or fixture)"
                 )
-            results.append((chain_id, kind, fixture, actual))
+            results.append((chain_id, fixture_key, fixture, actual))
     # Defensive: every chain must appear in verdicts
     assert len(results) == 16
