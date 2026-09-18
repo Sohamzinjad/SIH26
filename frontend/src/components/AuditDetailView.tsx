@@ -581,6 +581,76 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onVie
           </div>
         </div>
       )}
+
+      {/* Governance Waiver Modal */}
+      {waiverTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-[#12151A] border border-[#2C313B] rounded-2xl w-full max-w-lg shadow-2xl">
+            <div className="p-5 border-b border-[#22262F] flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-semibold text-white">Apply Governance Waiver</h3>
+                <p className="text-[11px] text-slate-400 font-mono mt-0.5">
+                  {waiverTarget.rule_id} — {waiverTarget.title}
+                </p>
+              </div>
+              <button
+                onClick={() => setWaiverTarget(null)}
+                className="text-slate-500 hover:text-white transition"
+              >
+                <XCircle className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-5 space-y-4">
+              {waiverError && (
+                <div className="bg-rose-500/10 border border-rose-500/30 rounded-lg px-3 py-2 text-xs font-mono text-rose-300">
+                  {waiverError}
+                </div>
+              )}
+              <div>
+                <label className="text-[10px] uppercase font-mono text-slate-500 tracking-wider">
+                  Justification (why is this risk accepted?)
+                </label>
+                <textarea
+                  value={waiverJustification}
+                  onChange={(e) => setWaiverJustification(e.target.value)}
+                  rows={3}
+                  placeholder="e.g. Compensating control in place; remediation scheduled for next maintenance window"
+                  className="mt-1.5 w-full bg-[#0A0C0F] border border-[#22262F] rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-amber-500/50 font-mono"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] uppercase font-mono text-slate-500 tracking-wider">
+                  Reviewing analyst
+                </label>
+                <input
+                  value={waiverReviewer}
+                  onChange={(e) => setWaiverReviewer(e.target.value)}
+                  className="mt-1.5 w-full bg-[#0A0C0F] border border-[#22262F] rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-500/50 font-mono"
+                />
+              </div>
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2 text-[11px] text-slate-300">
+                Waiving this finding removes it from the effective compliance fail count.
+                The action is recorded in the audit trail.
+              </div>
+            </div>
+            <div className="p-5 border-t border-[#22262F] flex justify-end space-x-2">
+              <button
+                onClick={() => setWaiverTarget(null)}
+                className="text-xs px-4 py-2 rounded-lg border border-[#22262F] text-slate-400 hover:text-white transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={applyWaive}
+                disabled={!waiverJustification.trim() || waiverBusy}
+                className="text-xs px-4 py-2 rounded-lg bg-amber-500/80 hover:bg-amber-400 text-black font-semibold transition disabled:opacity-40"
+              >
+                {waiverBusy ? 'Applying…' : 'Apply Waiver'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
