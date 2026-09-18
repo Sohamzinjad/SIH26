@@ -222,9 +222,10 @@ def _extract_auth(config_text: str) -> Dict[str, Any]:
         user = m.group(1).lower()
         if user in DEFAULT_WEAK_USERS and user not in weak:
             weak.append(user)
-    if "pass123" in low or "password123" in low or "unencrypted" in low:
-        if "admin" not in weak:
-            weak.append("admin")
+    for m in re.finditer(r"local_operator\s*=\s*[\"\']?([\w.\-]+)", config_text, re.IGNORECASE | re.MULTILINE):
+        user = m.group(1).lower()
+        if user in DEFAULT_WEAK_USERS and user not in weak:
+            weak.append(user)
     encryption = bool(
         re.search(r"password-encryption|password_encryption|service password-encryption|\benable secret|\bsecret\s+[0-9a-f]{9,}|\bpassword .*? encrypted", low)
     )
