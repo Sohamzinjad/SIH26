@@ -22,6 +22,16 @@ class FindingDTO(BaseModel):
     remediation: Optional[str] = None
     explanation: Optional[str] = None
     cves: Optional[List["CVEReferenceDTO"]] = None  # additive-only enrichment
+    # Governance waiver fields (additive — populated only when genuinely
+    # waived via POST /api/findings/{id}/waive; NULL means not waived).
+    waived: bool = False
+    waived_at: Optional[datetime] = None
+    waived_by: Optional[str] = None
+    waiver_justification: Optional[str] = None
+
+class WaiveFindingRequest(BaseModel):
+    justification: str = ""
+    waived_by: str = "analyst"
 
 class AttackPathDTO(BaseModel):
     id: Optional[int] = None

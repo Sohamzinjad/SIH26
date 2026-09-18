@@ -1,11 +1,31 @@
 from typing import List, Optional
+from datetime import datetime
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from backend.database import get_db
 from backend.models.device import Finding
-from backend.schemas.finding import FindingDTO, EvidenceModel
+from backend.models.audit_trail import AuditTrailEntry
+from backend.schemas.finding import FindingDTO, EvidenceModel, WaiveFindingRequest
 
 router = APIRouter(prefix="/api/findings", tags=["Findings"])
+
+def _finding_to_dto(f: Finding) -> FindingDTO:
+    return FindingDTO(
+        id=f.id,
+        rule_id=f.rule_id,
+        framework=f.framework,
+        title=f.title,
+        severity=f.severity,
+        weight=f.weight,
+        status=f.status,
+        evidence=EvidenceModel(line_start=f.line_start, line_end=f.line_end, snippet=f.evidence_snippet) if f.line_start else None,
+        remediation=f.remediation,
+        explanation=f.explanation,
+        waived=f.waived_at is not None,
+        waived_at=f.waived_at,
+        waived_by=f.waived_by,
+        waiver_justification=f.waiver_justification,
+    )
 
 @router.get("/{audit_id}", response_model=List[FindingDTO])
 def list_findings_for_audit(
