@@ -1,6 +1,7 @@
 from typing import List, Optional, Dict, Any
 from pydantic import BaseModel
 from datetime import datetime
+from backend.enrichment.schemas import CVEReferenceDTO
 
 class EvidenceModel(BaseModel):
     line_start: Optional[int] = None
