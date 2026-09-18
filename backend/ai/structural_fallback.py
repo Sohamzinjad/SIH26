@@ -216,13 +216,9 @@ def _extract_auth(config_text: str) -> Dict[str, Any]:
     aaa = bool(re.search(r"\baaa\b|aaa[- ]new-model|set aaa|authentication.*(radius|tacacs)", low))
     weak: List[str] = []
     for m in re.finditer(
-        r"(?:username|local_operator|operator|set\s+contact|user\s*=\s*)\s*[\"\']?([\w.\-]+)",
-        config_text, re.IGNORECASE
+        r"(?:username|local_operator|operator|set\s+contact|user\s*=\s*)[=:\s\"\']*([\w.\-]+)",
+        config_text, re.IGNORECASE | re.MULTILINE
     ):
-        user = m.group(1).lower()
-        if user in DEFAULT_WEAK_USERS and user not in weak:
-            weak.append(user)
-    for m in re.finditer(r"local_operator\s*=\s*[\"\']?([\w.\-]+)", config_text, re.IGNORECASE | re.MULTILINE):
         user = m.group(1).lower()
         if user in DEFAULT_WEAK_USERS and user not in weak:
             weak.append(user)
