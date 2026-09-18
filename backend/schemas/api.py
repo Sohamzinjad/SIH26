@@ -16,6 +16,9 @@ class AuditUploadResponse(BaseModel):
     attack_paths_count: int
     ai_mapping_pending: bool = False
     ai_mapping_id: Optional[int] = None
+    mapping_latency_ms: Optional[float] = None  # time for AI/structural mapping proposal
+    total_latency_ms: Optional[float] = None    # end-to-end request time
+    mapping_source: Optional[str] = None        # "ollama" | "structural_fallback" | "fingerprint_cache"
 
 class AuditDetailResponse(BaseModel):
     audit: AuditSummaryDTO
