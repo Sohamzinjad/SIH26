@@ -38,16 +38,23 @@ async def upload_config_and_audit(
 
     vendor, confidence, fingerprint = detect_vendor(config_text)
 
+    t_start = time.perf_counter()
+
     # 1. Unknown Vendor Flow
     if vendor == "unknown":
         # Check if we already have an approved mapping for this dialect
         cached_mapping = lookup_cached_mapping(db, fingerprint)
         if cached_mapping:
             detection_method = "fingerprint_cache"
+            mapping_source = "fingerprint_cache"
+            mapping_latency_ms = 0.0
             normalized = build_normalized_config_from_mapping(cached_mapping, config_text, fname)
         else:
             # AI-assisted Proposal Path (Human-in-the-loop)
+            t_map = time.perf_counter()
             proposed = ollama_client.propose_mapping(config_text)
+            mapping_latency_ms = round((time.perf_counter() - t_map) * 1000, 1)
+            mapping_source = "ollama" if "_derived_from" not in proposed else "structural_fallback"
             
             # Create device entry
             device = Device(
@@ -87,7 +94,8 @@ async def upload_config_and_audit(
                 actor="ollama_ai_agent",
                 target_type="ai_mapping",
                 target_id=ai_map.id,
-                details_json={"fingerprint": fingerprint, "vendor": ai_map.vendor_guessed}
+                details_json={"fingerprint": fingerprint, "vendor": ai_map.vendor_guessed,
+                              "mapping_source": mapping_source, "mapping_latency_ms": mapping_latency_ms}
             )
             db.add(trail)
             db.commit()
@@ -105,20 +113,27 @@ async def upload_config_and_audit(
                 failed_findings=0,
                 attack_paths_count=0,
                 ai_mapping_pending=True,
-                ai_mapping_id=ai_map.id
+                ai_mapping_id=ai_map.id,
+                mapping_latency_ms=mapping_latency_ms,
+                total_latency_ms=round((time.perf_counter() - t_start) * 1000, 1),
+                mapping_source=mapping_source
             )
 
     # 2. Known Vendor or Cached Mapping Flow
     else:
         detection_method = "heuristic"
+        mapping_source = "deterministic_parser"
+        t_map = time.perf_counter()
         parser = get_parser_for_vendor(vendor)
         if not parser:
             raise HTTPException(status_code=500, detail=f"No parser available for detected vendor {vendor}")
         normalized = parser.parse(config_text, fname)
+        mapping_latency_ms = round((time.perf_counter() - t_map) * 1000, 1)
 
     # Deterministic Compliance Audit
     score, findings, pass_cnt, fail_cnt, total_cnt = rule_engine.audit(normalized)
     attack_paths = correlate_attack_paths(findings)
+    total_latency_ms = round((time.perf_counter() - t_start) * 1000, 1)
 
     # Save Device
     device = db.query(Device).filter(Device.hostname == normalized.hostname).first()
@@ -191,7 +206,9 @@ async def upload_config_and_audit(
         actor="system",
         target_type="audit",
         target_id=audit.id,
-        details_json={"hostname": device.hostname, "score": score, "findings": total_cnt}
+        details_json={"hostname": device.hostname, "score": score, "findings": total_cnt,
+                      "mapping_source": mapping_source, "mapping_latency_ms": mapping_latency_ms,
+                      "total_latency_ms": total_latency_ms}
     )
     db.add(trail)
     db.commit()
@@ -207,7 +224,10 @@ async def upload_config_and_audit(
         total_findings=total_cnt,
         failed_findings=fail_cnt,
         attack_paths_count=len(attack_paths),
-        ai_mapping_pending=False
+        ai_mapping_pending=False,
+        mapping_latency_ms=mapping_latency_ms,
+        total_latency_ms=total_latency_ms,
+        mapping_source=mapping_source
     )
 
 @router.get("/{audit_id}", response_model=AuditDetailResponse)
