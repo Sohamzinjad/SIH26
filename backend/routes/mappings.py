@@ -6,6 +6,7 @@ from backend.database import get_db
 from backend.models.mapping import AIMapping
 from backend.models.device import Audit, Device, Finding, AttackPath
 from backend.models.audit_trail import AuditTrailEntry
+from backend.models.audit_trail_chain import get_latest_hash, compute_entry_hash
 from backend.schemas.api import AIMappingResponse, AIMappingApprovalRequest, AuditUploadResponse
 from backend.ai.fingerprint_cache import save_approved_mapping, build_normalized_config_from_mapping
 from backend.rules.engine import engine as rule_engine
@@ -148,12 +149,25 @@ def reject_mapping(
         if audit:
             audit.status = "REJECTED_MAPPING"
 
+    prev_hash = get_latest_hash(db)
+    now = datetime.utcnow()
     trail = AuditTrailEntry(
         action="MAPPING_REJECTED",
         actor=rejected_by,
         target_type="ai_mapping",
         target_id=ai_map.id
     )
+    trail.created_at = now
+    trail.entry_hash = compute_entry_hash(
+        prev_hash,
+        trail.action,
+        trail.actor,
+        trail.target_type,
+        trail.target_id,
+        trail.details_json,
+        trail.created_at,
+    )
+    trail.prev_hash = prev_hash
     db.add(trail)
     db.commit()
 

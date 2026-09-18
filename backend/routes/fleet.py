@@ -40,6 +40,7 @@ from backend.database import get_db
 from backend.models.device import Device, Audit, Finding, AttackPath
 from backend.models.mapping import AIMapping
 from backend.models.audit_trail import AuditTrailEntry
+from backend.models.audit_trail_chain import get_latest_hash, compute_entry_hash
 from backend.parsers.vendor_detect import detect_vendor
 from backend.parsers import get_parser_for_vendor
 from backend.rules.engine import engine as rule_engine
@@ -146,6 +147,8 @@ def _audit_single(
             is_active=1,
         ))
 
+    prev_hash = get_latest_hash(db)
+    now = datetime.utcnow()
     trail = AuditTrailEntry(
         action="FLEET_AUDIT_RUN",
         target_type="audit",
@@ -159,6 +162,17 @@ def _audit_single(
             "latency_ms": round((time.perf_counter() - t_start) * 1000, 1),
         },
     )
+    trail.created_at = now
+    trail.entry_hash = compute_entry_hash(
+        prev_hash,
+        trail.action,
+        trail.actor,
+        trail.target_type,
+        trail.target_id,
+        trail.details_json,
+        trail.created_at,
+    )
+    trail.prev_hash = prev_hash
     db.add(trail)
     db.commit()
 
