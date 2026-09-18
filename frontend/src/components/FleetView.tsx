@@ -18,16 +18,7 @@ interface FleetViewProps {
   onBatchFailed?: (msg: string) => void;
 }
 
-export const FleetView: React.FC<FleetViewProps> = ({ onBatchCompleted, onBatchFailed }) => {
-  
-  const [files, setFiles] = useState<File[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [lastBatch, setLastBatch] = useState<FleetBatchResponse | null>(null);
-  const [summary, setSummary] = useState<FleetSummary | null>(null);
-  const navigate = useNavigate();
-  const navigate = useNavigate();
-  const navigate = useNavigate();
+interface FleetViewProps2 {}
 
   const handleFiles = (list: FileList | null) => {
     if (!list) return;
