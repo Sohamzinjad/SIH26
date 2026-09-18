@@ -1,0 +1,42 @@
+{
+  "cves": {
+    "CIS-CISCO-1.4.1": [
+      {
+        "advisory_url": "https://nvd.nist.gov/vuln/detail/CVE-2017-6742",
+        "caveat": "Offline heuristic: this CVE reference is attached because the finding flags a configuration condition (an SNMP read/read-write community string, or community exposure without an ACL) matching the documented precondition of the linked Cisco advisory (CVE-2017-6742: SNMP subsystem buffer overflow requiring knowledge of the community string). This enrichment NEVER asserts the audited device's own IOS version is confirmed exploitable \u2014 verify the exact IOS release against the vendor advisory before acting.",
+        "cve_id": "CVE-2017-6742",
+        "cvss_base_score": "9.8",
+        "rule_id": "CIS-CISCO-1.4.1",
+        "severity": "critical",
+        "title": "Cisco IOS and IOS XE Software SNMP Remote Code Execution Vulnerability"
+      }
+    ],
+    "CIS-CISCO-1.4.2": [
+      {
+        "advisory_url": "https://nvd.nist.gov/vuln/detail/CVE-2017-6742",
+        "caveat": "Offline heuristic: this CVE reference is attached because the finding flags a configuration condition (an SNMP read/read-write community string, or community exposure without an ACL) matching the documented precondition of the linked Cisco advisory (CVE-2017-6742: SNMP subsystem buffer overflow requiring knowledge of the community string). This enrichment NEVER asserts the audited device's own IOS version is confirmed exploitable \u2014 verify the exact IOS release against the vendor advisory before acting.",
+        "cve_id": "CVE-2017-6742",
+        "cvss_base_score": "9.8",
+        "rule_id": "CIS-CISCO-1.4.2",
+        "severity": "critical",
+        "title": "Cisco IOS and IOS XE Software SNMP Remote Code Execution Vulnerability"
+      }
+    ],
+    "CIS-CISCO-1.4.3": [
+      {
+        "advisory_url": "https://nvd.nist.gov/vuln/detail/CVE-2017-6742",
+        "caveat": "Offline heuristic: this CVE reference is attached because the finding flags a configuration condition (an SNMP read/read-write community string, or community exposure without an ACL) matching the documented precondition of the linked Cisco advisory (CVE-2017-6742: SNMP subsystem buffer overflow requiring knowledge of the community string). This enrichment NEVER asserts the audited device's own IOS version is confirmed exploitable \u2014 verify the exact IOS release against the vendor advisory before acting.",
+        "cve_id": "CVE-2017-6742",
+        "cvss_base_score": "9.8",
+        "rule_id": "CIS-CISCO-1.4.3",
+        "severity": "critical",
+        "title": "Cisco IOS and IOS XE Software SNMP Remote Code Execution Vulnerability"
+      }
+    ]
+  },
+  "discipline": "Offline, additive-only, preregistered CVE enrichment. RO/VERIFY contract: this cache is the committed data the validating test checks; the builder output must always be byte-identical. CVE ids are real and verifiable. Enrichment NEVER changes finding severity/weight/status/evidence/remediation/explanation or the audit score/verdicts \u2014 it only adds an optional `cves` list.",
+  "generated_by": "backend/scripts/build_cve_cache.py",
+  "generated_from_committed_sources": [
+    "backend/rules/cis_cisco.py (SNMP community rules 1.4.1/1.4.2/1.4.3)"
+  ]
+}
