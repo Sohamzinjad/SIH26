@@ -124,5 +124,6 @@ class FleetAttackChainAggregate(BaseModel):
 class FleetSummaryResponse(BaseModel):
     """Fleet-wide N-of-M aggregates (rules + attack chains) over real audits."""
     total_devices: int
+    human_approved_audits: int = 0
     by_rule: List[FleetRuleAggregate]
     by_chain: List[FleetAttackChainAggregate]

@@ -26,6 +26,7 @@ export const FleetView: React.FC<FleetViewProps> = ({ onBatchCompleted, onBatchF
   const [lastBatch, setLastBatch] = useState<FleetBatchResponse | null>(null);
   const [summary, setSummary] = useState<FleetSummary | null>(null);
   const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const handleFiles = (list: FileList | null) => {
     if (!list) return;
