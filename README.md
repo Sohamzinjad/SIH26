@@ -99,6 +99,7 @@ False Positive (expected-pass, got-fail):      0
 False Negative (expected-fail, got-pass):      0
 Detection Rate (Recall):                       100.0%
 False Positive Rate (FPR):                     0.0%
+False Negative Rate (FNR):                     0.0%
 By Severity:
   critical  detection=100.0%  FPR=  0.0%   (tp=1 tn=13 fp=0 fn=0)
   high      detection=100.0%  FPR=  0.0%   (tp=9 tn=23 fp=0 fn=0)
