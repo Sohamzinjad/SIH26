@@ -51,7 +51,37 @@ ATTACK_CHAIN_TEMPLATES = [
         "break_rule_id": "CIS-CISCO-1.5.1",
         "break_why": "Executing 'no ip source-route' forces all packet routing to follow strictly verified routing tables, preventing attackers from forcing packets past ingress inspection filters.",
         "narrative": "IP source routing permits external senders to dictate the hop path through internal interfaces, enabling route injection and perimeter ACL evasion."
-    }
+    },
+    {
+        "chain_id": "CHAIN-WB-MGMT-TAKEOVER",
+        "name": "Unrestricted Cleartext Management to Whitebox Device Takeover",
+        "severity": "critical",
+        "requires": ["NIST-AC-17", "NIST-AC-3", "NIST-IA-2", "NIST-AU-2"],
+        "min_matches": 3,
+        "break_rule_id": "NIST-AC-17",
+        "break_why": "Enforcing encrypted remote sessions (SSH/HTTPS) and disabling Telnet/HTTP removes the sniffable credential channel that is the root of this whole chain.",
+        "narrative": "The whitebox box exposes cleartext management (Telnet/HTTP) on an unsegmented network with no access-control gating and no centralized AAA. An on-path adversary captures administrator credentials in cleartext, bypasses per-user accountability, and takes over the device without any log evidence arriving at a syslog collector."
+    },
+    {
+        "chain_id": "CHAIN-WB-ACCOUNT-COMPROMISE",
+        "name": "Default Credentials to Unauthenticated Whitebox Admin Access",
+        "severity": "critical",
+        "requires": ["NIST-IA-5", "NIST-AC-2", "NIST-AC-12"],
+        "min_matches": 2,
+        "break_rule_id": "NIST-IA-5",
+        "break_why": "Moving to cryptographically hashed account secrets (and removing shared default admin/root logins) prevents credential reuse and offline cracking of exposed device stores.",
+        "narrative": "The device ships with default or shared admin accounts whose secrets are stored unencrypted, and administrative sessions are never auto-terminated. Any attacker who retrieves a backup, touches the console, or watches a slow session can recover high-privilege credentials and walk into an active admin session."
+    },
+    {
+        "chain_id": "CHAIN-WB-SNMP-RECON-WRITE",
+        "name": "Default SNMP Community to Whitebox Reconfiguration",
+        "severity": "high",
+        "requires": ["NIST-AC-3", "NIST-AC-17", "SNMP-DEFAULT"],
+        "min_matches": 2,
+        "break_rule_id": "NIST-AC-3",
+        "break_why": "Applying network access restrictions to the management plane (including SNMP) stops remote scanners from reaching a default-community SNMP agent in the first place.",
+        "narrative": "Well-known SNMP community strings are active on the whitebox with unrestricted reachability. Attackers enumerate interface tables and topology to pivot into management protocols, then use write-capable strings to alter the configuration undetected."
+    },
 ]
 
 def correlate_attack_paths(findings: List[FindingDTO]) -> List[AttackPathDTO]:
