@@ -101,7 +101,6 @@ class FleetAttackChainAggregate(BaseModel):
     break_rule_id: str
 
 
-class FleetRuleAggregate(BaseModel):
     """N of M devices currently FAILING a specific rule, computed from real
     per-device audit records (never a hardcoded number)."""
     rule_id: str
@@ -113,7 +112,6 @@ class FleetRuleAggregate(BaseModel):
     compliance_pct: float  # 100.0 * (1 - devices_failing / devices_present)
 
 
-class FleetAttackChainAggregate(BaseModel):
     """N of M devices with a specific correlated attack chain currently active."""
     chain_id: str
     name: str
