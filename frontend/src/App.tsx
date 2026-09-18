@@ -6,6 +6,7 @@ import { AuditDetailView } from './components/AuditDetailView';
 import { MappingsView } from './components/MappingsView';
 import { FleetView } from './components/FleetView';
 import { DeviceHistoryView } from './components/DeviceHistoryView';
+import { AttackPathGraph } from './components/AttackPathGraph';
 import { fetchDashboardOverview, fetchPendingMappings } from './api/client';
 import { DashboardOverview } from './types';
 import { ShieldCheck, ExternalLink, Activity, Terminal, Lock } from 'lucide-react';
@@ -44,6 +45,11 @@ export const App: React.FC = () => {
   const handleViewDeviceHistory = (deviceId: number) => {
     setActiveDeviceId(deviceId);
     setCurrentTab('device-history');
+  };
+
+  const handleViewAttackPath = (auditId: number) => {
+    setActiveAuditId(auditId);
+    setCurrentTab('attack-path');
   };
 
   const handleAuditCompleted = (auditId: number) => {
@@ -92,7 +98,18 @@ export const App: React.FC = () => {
         )}
 
         {currentTab === 'audit-detail' && activeAuditId && (
-          <AuditDetailView auditId={activeAuditId} onViewDeviceHistory={handleViewDeviceHistory} />
+          <AuditDetailView
+            auditId={activeAuditId}
+            onViewDeviceHistory={handleViewDeviceHistory}
+            onViewAttackPath={handleViewAttackPath}
+          />
+        )}
+
+        {currentTab === 'attack-path' && activeAuditId && (
+          <AttackPathGraph
+            auditId={activeAuditId}
+            onBack={() => setCurrentTab('audit-detail')}
+          />
         )}
 
         {currentTab === 'device-history' && activeDeviceId && (

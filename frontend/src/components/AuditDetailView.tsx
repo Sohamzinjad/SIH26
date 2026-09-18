@@ -27,9 +27,10 @@ import {
 interface AuditDetailViewProps {
   auditId: number;
   onViewDeviceHistory?: (deviceId: number) => void;
+  onViewAttackPath?: (auditId: number) => void;
 }
 
-export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onViewDeviceHistory }) => {
+export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onViewDeviceHistory, onViewAttackPath }) => {
   const [detail, setDetail] = useState<AuditDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -205,6 +206,15 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onVie
             >
               <History className="w-3.5 h-3.5 text-emerald-400" />
               <span>History & Drift</span>
+            </button>
+          )}
+          {onViewAttackPath && (
+            <button
+              onClick={() => onViewAttackPath(audit.id)}
+              className="flex items-center space-x-2 border border-[#2C313B] hover:border-rose-500/50 hover:bg-rose-500/5 text-slate-200 font-medium px-4 py-2.5 rounded-lg text-xs transition"
+            >
+              <Network className="w-3.5 h-3.5 text-rose-400" />
+              <span>Attack Path Graph</span>
             </button>
           )}
           <a
