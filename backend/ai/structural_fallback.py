@@ -303,7 +303,7 @@ def _extract_crypto(config_text: str) -> Dict[str, Any]:
 
     ssh = bool(re.search(r"\bssh\b|ssh2|sshv2|secure[-_ ]?shell|set\s+admin-ssh\s+enable|ip\s+ssh\s+version", low))
     telnet = bool(re.search(r"telnet|set\s+admin-telnet\s+enable", low))
-    http = bool(re.search(r"ip\s+http\s+server|http_server|http[-_ ]?admin|http\s+server|set\s+http\s+enable|set\s+webadmin\s+http", low))
+    http = bool(re.search(r"ip\s+http\s+server|http_server|http[-_ ]?admin|http\s+server|set\s+http\s+enable|set\s+webadmin\s+http|\bhttp\b", low))
     https = bool(re.search(r"https|ip\s+http\s+secure-server|http[-_ ]?secure-server|set\s+https\s+enable|webadmin\s+https", low))
 
     if ssh_kv is not None:
