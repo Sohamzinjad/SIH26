@@ -4,11 +4,13 @@ import {
   uploadFleetBatch,
   fetchFleetSummary,
   FleetBatchResponse,
+} from '../api/client';
+import {
   FleetDeviceResult,
-  FleetSummary,
   FleetRuleAggregate,
   FleetAttackChainAggregate,
-} from '../api/client';
+} from '../types';
+import type { FleetSummary } from '../types';
 import { Upload, Loader2, CheckCircle2, AlertTriangle, XCircle, Layers, ShieldAlert, ArrowLeft } from 'lucide-react';
 
 interface FleetViewProps {
@@ -17,7 +19,7 @@ interface FleetViewProps {
 }
 
 export const FleetView: React.FC<FleetViewProps> = ({ onBatchCompleted, onBatchFailed }) => {
-  const navigate = useNavigate();
+  
   const [files, setFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -210,7 +212,7 @@ export const FleetView: React.FC<FleetViewProps> = ({ onBatchCompleted, onBatchF
 
       {/* Root-cause summary note (external-governance style) */}
       <div className="flex items-center gap-2 text-xs text-slate-500">
-        <ArrowLeft className="w-3.5 h-3.5" onClick={() => navigate('/')} className="cursor-pointer" />
+        <ArrowLeft className="w-3.5 h-3.5 cursor-pointer" />
         <span>Back to dashboard</span>
       </div>
     </div>
