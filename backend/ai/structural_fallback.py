@@ -250,25 +250,24 @@ def _extract_snmp(config_text: str, blocks: List[_LineBlock]) -> Dict[str, Any]:
             continue
         if block.name and block.name.isdigit():
             continue
+        perm = "ro"
+        if "rw" in clow or "read-write" in clow or "read_write" in clow or "write" in clow:
+            perm = "rw"
         for m in re.finditer(
-            r"(?:community|query_identifier|\bname)\s*[\"\']?([\w.\-]+?)[\"\']?\s*(?:ro|rw|read[-_ ]?only|read[-_ ]?write)?",
+            r"(?:community|query_identifier|query_id|\bname)\s*=\s*[\"\']?([\w.\-]+?)[\"\']?",
             combined, re.IGNORECASE
         ):
             name = m.group(1)
-            if name.startswith("public") or name.startswith("private") or name.startswith("monitor") or name.startswith("ro") or name.startswith("rw"):
-                perm = "ro"
-                if "rw" in clow or "read-write" in clow or "read_write" in clow:
-                    perm = "rw"
-                is_default = name.lower() in {"public", "private"}
-                if not any(c["name"] == name for c in communities):
-                    communities.append({
-                        "name": name,
-                        "permission": perm,
-                        "is_default": is_default,
-                        "line_start": block.line_nums[0],
-                        "line_end": block.line_nums[-1],
-                        "snippet": "\n".join(block.lines[:6]),
-                    })
+            is_default = name.lower() in {"public", "private"}
+            if not any(c["name"] == name for c in communities):
+                communities.append({
+                    "name": name,
+                    "permission": perm,
+                    "is_default": is_default,
+                    "line_start": block.line_nums[0],
+                    "line_end": block.line_nums[-1],
+                    "snippet": "\n".join(block.lines[:6]),
+                })
 
     for m in re.finditer(r"snmp-server community\s+([\w.\-]+)\s+(\S+)", config_text, re.IGNORECASE):
         name, perm_raw = m.group(1), m.group(2)
