@@ -25,6 +25,8 @@ import os
 from backend.parsers.vendor_detect import detect_vendor
 from backend.parsers import get_parser_for_vendor
 from backend.rules.engine import engine
+from backend.ai.structural_fallback import extract_structural_mapping
+from backend.ai.fingerprint_cache import build_normalized_config_from_mapping
 
 HELDOUT_DIR = os.path.join(os.path.dirname(__file__), "..", "sample_configs", "heldout")
 
