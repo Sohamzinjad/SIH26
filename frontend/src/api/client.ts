@@ -65,3 +65,44 @@ export async function rejectAIMapping(mappingId: number) {
 export function getReportUrl(auditId: number): string {
   return `${API_BASE}/api/reports/${auditId}/html`;
 }
+
+
+export interface FleetBatchFileResult {
+  audit_id: number;
+  device_id: number;
+  hostname: string;
+  vendor: string;
+  filename: string;
+  status: string;
+  compliance_score: number;
+  total_findings: number;
+  failed_findings: number;
+  attack_paths_count: number;
+  ai_mapping_pending: boolean;
+  detection_method: string;
+  mapping_source: string;
+  latency_ms: number;
+  error?: string;
+}
+
+export interface FleetBatchResponse {
+  total_files: number;
+  completed_count: number;
+  pending_count: number;
+  failed_count: number;
+  results: FleetBatchFileResult[];
+}
+
+export async function uploadFleetBatch(files: File[]): Promise<FleetBatchResponse> {
+  const formData = new FormData();
+  files.forEach(f => formData.append("files", f));
+  const res = await fetch(`${API_BASE}/api/fleet/batch`, { method: "POST", body: formData });
+  if (!res.ok) throw new Error("Fleet batch upload failed");
+  return res.json();
+}
+
+export async function fetchFleetSummary(): Promise<FleetSummary> {
+  const res = await fetch(`${API_BASE}/api/fleet/summary`);
+  if (!res.ok) throw new Error("Failed to load fleet summary");
+  return res.json();
+}

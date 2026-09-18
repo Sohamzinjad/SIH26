@@ -100,3 +100,46 @@ export interface DashboardOverview {
     started_at: string;
   }>;
 }
+
+export interface FleetDeviceResult {
+  audit_id: number;
+  device_id: number;
+  hostname: string;
+  vendor: string;
+  filename: string;
+  status: string;                  // COMPLETED | PENDING_AI_MAPPING
+  compliance_score: number;
+  total_findings: number;
+  failed_findings: number;
+  attack_paths_count: number;
+  ai_mapping_pending: boolean;
+  detection_method: string;
+  mapping_source: string;
+  latency_ms: number;
+  error?: string;
+}
+
+export interface FleetRuleAggregate {
+  rule_id: string;
+  title: string;
+  severity: string;
+  framework: string;
+  devices_present: number;
+  devices_failing: number;
+  compliance_pct: number;
+}
+
+export interface FleetAttackChainAggregate {
+  chain_id: string;
+  name: string;
+  severity: string;
+  devices_present: number;
+  devices_active: number;
+  firing_pct: number;
+}
+
+export interface FleetSummary {
+  total_devices: number;
+  by_rule: FleetRuleAggregate[];
+  by_chain: FleetAttackChainAggregate[];
+}
