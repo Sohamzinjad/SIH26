@@ -76,7 +76,7 @@ ATTACK_CHAIN_TEMPLATES = [
         "chain_id": "CHAIN-WB-SNMP-RECON-WRITE",
         "name": "Default SNMP Community to Whitebox Reconfiguration",
         "severity": "high",
-        "requires": ["NIST-AC-3", "NIST-AC-17", "SNMP-DEFAULT"],
+        "requires": ["NIST-AC-3", "NIST-AC-17", "NIST-AC-2"],
         "min_matches": 2,
         "break_rule_id": "NIST-AC-3",
         "break_why": "Applying network access restrictions to the management plane (including SNMP) stops remote scanners from reaching a default-community SNMP agent in the first place.",
