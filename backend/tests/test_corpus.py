@@ -1,3 +1,4 @@
+import os
 import pytest
 from backend.parsers.cisco_ios import CiscoIOSParser
 from backend.parsers.fortios import FortiOSParser
@@ -73,6 +74,8 @@ def test_labelled_corpus_evaluation():
     actual_pass = 0
     total_expected_fail = 0
     actual_fail = 0
+    per_severity = {}
+    per_config = []
 
     cisco_p = CiscoIOSParser()
     forti_p = FortiOSParser()
@@ -91,26 +94,55 @@ def test_labelled_corpus_evaluation():
         score, findings, _, _, _ = engine.audit(cfg)
 
         finding_map = {f.rule_id: f.status for f in findings}
+        sev_map = {f.rule_id: f.severity for f in findings}
+        cfg_stats = {"file": item["file"], "score": score, "tp": 0, "tn": 0, "fp": 0, "fn": 0}
 
         for rule in item["must_pass"]:
             total_expected_pass += 1
+            sev = per_severity.setdefault(sev_map.get(rule, "unknown"), {"tp": 0, "tn": 0, "fp": 0, "fn": 0})
             if finding_map.get(rule) == "pass":
                 actual_pass += 1
+                sev["tp"] += 1
+                cfg_stats["tp"] += 1
+            else:
+                sev["fp"] += 1
+                cfg_stats["fp"] += 1
 
         for rule in item["must_fail"]:
             total_expected_fail += 1
+            sev = per_severity.setdefault(sev_map.get(rule, "unknown"), {"tp": 0, "tn": 0, "fp": 0, "fn": 0})
             if finding_map.get(rule) == "fail":
                 actual_fail += 1
+                sev["tn"] += 1
+                cfg_stats["tn"] += 1
+            else:
+                sev["fn"] += 1
+                cfg_stats["fn"] += 1
+
+        per_config.append(cfg_stats)
 
     detection_rate = (actual_fail / total_expected_fail) * 100.0 if total_expected_fail else 100.0
     false_negative_rate = 100.0 - detection_rate
     false_positive_rate = ((total_expected_pass - actual_pass) / total_expected_pass) * 100.0 if total_expected_pass else 0.0
 
     print(f"\n================ CORPUS EVALUATION METRICS ================")
+    print(f"# Configs: {len(LABELLED_CORPUS)}")
     print(f"True Detection Rate (Recall): {detection_rate:.1f}%")
     print(f"False Positive Rate (FPR):    {false_positive_rate:.1f}%")
     print(f"False Negative Rate (FNR):    {false_negative_rate:.1f}%")
     print(f"Total Controls Verified:      {total_expected_pass + total_expected_fail}")
+    print("Per Config (score | TP TN FP FN):")
+    for c in per_config:
+        print(f"  {c['score']:5.1f}%  {c['tp']} {c['tn']} {c['fp']} {c['fn']}  {os.path.basename(c['file'])}")
+    print("By Severity Tier:")
+    for sev in ("critical", "high", "medium", "low"):
+        s = per_severity.get(sev, {"tp": 0, "tn": 0, "fp": 0, "fn": 0})
+        denom_neg = s["tn"] + s["fn"]
+        denom_pos = s["tp"] + s["fp"]
+        det = (s["tn"] / denom_neg * 100.0) if denom_neg else 100.0
+        fp_r = (s["fp"] / denom_pos * 100.0) if denom_pos else 0.0
+        print(f"  {sev:<9} detection={det:5.1f}%  FPR={fp_r:5.1f}%  "
+              f"(tp={s['tp']} tn={s['tn']} fp={s['fp']} fn={s['fn']})")
     print(f"===========================================================\n")
 
     assert detection_rate >= 95.0, f"Detection rate too low: {detection_rate}%"
