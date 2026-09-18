@@ -16,10 +16,11 @@
 1. [Core Innovations & Differentiators](#-core-innovations--differentiators)
 2. [Supported Vendors & Compliance Frameworks](#-supported-vendors--compliance-frameworks)
 3. [Corpus Evaluation & Accuracy Metrics](#-corpus-evaluation--accuracy-metrics)
-4. [System Architecture](#-system-architecture)
-5. [Quick Start & Live Demo](#-quick-start--live-demo)
-6. [API Reference](#-api-reference)
-7. [Repository Structure](#-repository-structure)
+4. [Design Choice: Deterministic Parsing](#-design-choice-why-deterministic-structural-parsing-not-an-llm-is-the-core)
+5. [Latency & Scaling (Measured)](#-latency--scaling-measured-not-estimated)
+6. [Quick Start & Live Demo](#-quick-start--live-demo)
+7. [API Reference](#-api-reference)
+8. [Repository Structure](#-repository-structure)
 
 ---
 
@@ -148,6 +149,63 @@ yet. What *is* verified (`backend/tests/test_calibration.py`):
 
 Interpret confidence as an *ordinal* signal ("more independent evidence found"),
 never as a probability of correctness.
+
+---
+
+## 🔍 Design Choice: Why Deterministic Structural Parsing (Not an LLM) is the Core
+
+For a defense/intelligence Security Operations context (NTRO), config
+**parsing is deliberately deterministic**, and the LLM is deliberately *not* a
+parser. This is a scoped architectural decision, not a technology shortcut:
+
+| Concern | Deterministic structural parsing (chosen) | LLM-based parsing (rejected as core) |
+| :--- | :--- | :--- |
+| **Auditability** | Every finding traceable to exact line numbers & regex transitions | Probabilistic; same input can yield different output |
+| **Reproducibility** | Identical input → identical report, every run (verified by test) | Non-deterministic (temperature/sampling), inconsistent evidence |
+| **Vendor fidelity** | State machine encodes the *actual* CLI grammar (Cisco IOS, FortiOS) | Hallucinates syntax that doesn't exist on the device |
+| **Air-gap & latency** | Sub-millisecond parsing, no model dependency | Requires model runtime/GPU, ~10s/device locally |
+| **Certification** | Rules prove against labeled configs (corpus: 100% recall, 0% FPR) | Behavior changes across model versions |
+
+**Where the LLM *is* used — and where it is not trusted:**
+- The LLM runs **only** on *unknown/white-box* dialects the deterministic parsers
+  cannot recognize (ostensibly arbitrary NOS).
+- It *proposes* a structured mapping. It never decides. A human analyst inspects
+  the proposal side-by-side with the raw config and **approves or rejects** it.
+- Once approved, the dialect fingerprint is cached; the deterministic pipeline
+  re-applies the human-approved mapping to future same-dialect devices without
+  ever re-invoking the stochastic layer — and re-derives device identity
+  (hostname, interface IPs) fresh from each device's actual config text.
+
+This yields the property that the tagline advertises: **"AI proposes,
+deterministic code decides, humans approve novel cases."**
+
+---
+
+## ⏱️ Latency & Scaling (Measured, Not Estimated)
+
+Measured on this repository (`backend/tests/benchmark_latency.py`):
+
+```
+========== AUDIT LATENCY BENCHMARK (per device) ==========
+deterministic cisco parse+audit : median    0.2 ms  (min   0.2, max    0.4)
+structural fallback map+audit   : median    0.5 ms  (min   0.5, max    3.2)
+ollama ai map+audit             : median 9832.8 ms  (min 6433.6, max 13232.0)
+
+------ scaling (sequential audits, no warm cache) ------
+    1 device   ->   0.8 ms total  (  0.77 ms/device)
+   10 devices  ->   5.6 ms total  (  0.56 ms/device)
+   50 devices  ->  21.7 ms total  (  0.43 ms/device)
+```
+
+- **Deterministic + fingerprint-cache paths scale linearly, sub-millisecond per
+  device** — hundreds to thousands of devices audit in seconds (SQLite demo,
+  network hop negligible). The only cost roughly linear in config size.
+- **The AI path is the bottleneck** (~10 s/device on `llama3.2:3b` on Apple
+  Silicon). Because AI is scoped to *first-seen unknown dialects only* and its
+  result is cached, batch fleet audits hit the AI path at most once per dialect.
+- Latency is also surfaced live per audit: every upload response (and the audit
+  trail) carries `mapping_source` (`deterministic_parser` / `structural_fallback`
+  / `ollama` / `fingerprint_cache`) and `mapping_latency_ms` / `total_latency_ms`.
 
 ---
 
