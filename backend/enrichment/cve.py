@@ -22,7 +22,9 @@ Pipeline contract:
 """
 
 from typing import Dict, List, Optional
+
 from backend.enrichment.schemas import CVEReferenceDTO
+from backend.schemas.finding import FindingDTO, EvidenceModel
 
 
 def load_cve_cache() -> Dict[str, List[dict]]:
