@@ -89,7 +89,7 @@ export const App: React.FC = () => {
         )}
 
         {currentTab === 'fleet' && (
-          <FleetView />
+          <FleetView onSelectAudit={handleSelectAudit} />
         )}
 {currentTab === 'mappings' && (
           <MappingsView onMappingApproved={handleMappingApproved} />

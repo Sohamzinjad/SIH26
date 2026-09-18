@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   uploadFleetBatch,
   fetchFleetSummary,
@@ -16,9 +15,16 @@ import { Upload, Loader2, CheckCircle2, AlertTriangle, XCircle, Layers, ShieldAl
 interface FleetViewProps {
   onBatchCompleted?: (batch: FleetBatchResponse) => void;
   onBatchFailed?: (msg: string) => void;
+  onSelectAudit?: (auditId: number) => void;
 }
 
-interface FleetViewProps2 {}
+export const FleetView: React.FC<FleetViewProps> = ({ onBatchCompleted, onBatchFailed, onSelectAudit }) => {
+
+  const [files, setFiles] = useState<File[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [lastBatch, setLastBatch] = useState<FleetBatchResponse | null>(null);
+  const [summary, setSummary] = useState<FleetSummary | null>(null);
 
   const handleFiles = (list: FileList | null) => {
     if (!list) return;
@@ -46,7 +52,7 @@ interface FleetViewProps2 {}
   };
 
   const openAudit = (auditId: number) => {
-    navigate(`/audit/${auditId}`);
+    onSelectAudit?.(auditId);
   };
 
   const activeRules = (summary?.by_rule ?? []).filter((r: FleetRuleAggregate) => r.devices_failing > 0);
