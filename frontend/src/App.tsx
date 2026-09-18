@@ -5,6 +5,7 @@ import { UploadView } from './components/UploadView';
 import { AuditDetailView } from './components/AuditDetailView';
 import { MappingsView } from './components/MappingsView';
 import { FleetView } from './components/FleetView';
+import { DeviceHistoryView } from './components/DeviceHistoryView';
 import { fetchDashboardOverview, fetchPendingMappings } from './api/client';
 import { DashboardOverview } from './types';
 import { ShieldCheck, ExternalLink, Activity, Terminal, Lock } from 'lucide-react';
@@ -12,6 +13,7 @@ import { ShieldCheck, ExternalLink, Activity, Terminal, Lock } from 'lucide-reac
 export const App: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<string>('dashboard');
   const [activeAuditId, setActiveAuditId] = useState<number | null>(null);
+  const [activeDeviceId, setActiveDeviceId] = useState<number | null>(null);
   const [overview, setOverview] = useState<DashboardOverview | null>(null);
   const [pendingCount, setPendingCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
@@ -37,6 +39,11 @@ export const App: React.FC = () => {
   const handleSelectAudit = (auditId: number) => {
     setActiveAuditId(auditId);
     setCurrentTab('audit-detail');
+  };
+
+  const handleViewDeviceHistory = (deviceId: number) => {
+    setActiveDeviceId(deviceId);
+    setCurrentTab('device-history');
   };
 
   const handleAuditCompleted = (auditId: number) => {
@@ -85,7 +92,11 @@ export const App: React.FC = () => {
         )}
 
         {currentTab === 'audit-detail' && activeAuditId && (
-          <AuditDetailView auditId={activeAuditId} />
+          <AuditDetailView auditId={activeAuditId} onViewDeviceHistory={handleViewDeviceHistory} />
+        )}
+
+        {currentTab === 'device-history' && activeDeviceId && (
+          <DeviceHistoryView deviceId={activeDeviceId} onSelectAudit={handleSelectAudit} />
         )}
 
         {currentTab === 'fleet' && (
