@@ -4,6 +4,7 @@ import { DashboardView } from './components/DashboardView';
 import { UploadView } from './components/UploadView';
 import { AuditDetailView } from './components/AuditDetailView';
 import { MappingsView } from './components/MappingsView';
+import { FleetView } from './components/FleetView';
 import { fetchDashboardOverview, fetchPendingMappings } from './api/client';
 import { DashboardOverview } from './types';
 import { ShieldCheck, ExternalLink, Activity, Terminal, Lock } from 'lucide-react';
@@ -87,7 +88,10 @@ export const App: React.FC = () => {
           <AuditDetailView auditId={activeAuditId} />
         )}
 
-        {currentTab === 'mappings' && (
+        {currentTab === 'fleet' && (
+          <FleetView />
+        )}
+{currentTab === 'mappings' && (
           <MappingsView onMappingApproved={handleMappingApproved} />
         )}
       </main>
