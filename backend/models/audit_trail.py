@@ -12,3 +12,10 @@ class AuditTrailEntry(Base):
     target_id = Column(Integer, nullable=True)
     details_json = Column(JSON, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+    # Tamper-evident chain linkage (additive; existing rows persist via the
+    # additive bootstrap in backend/database.py, hashes backfilled on next write).
+    # entry_hash = SHA-256 over the canonical serialization of this row's fields
+    # chained onto prev_hash (see backend/models/audit_trail_chain.py for the
+    # byte-for-byte canonicalization contract).
+    entry_hash = Column(String(64), nullable=False, default=None)
+    prev_hash = Column(String(64), nullable=True, default=None)  # None ONLY for the very first row
