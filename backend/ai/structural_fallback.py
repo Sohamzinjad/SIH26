@@ -161,8 +161,8 @@ def _extract_interfaces(blocks: List[_LineBlock]) -> List[Dict[str, Any]]:
 
         if name_guess and "address" in joined.lower():
             m = re.search(
-                r"(?:address|ip\s*address|ip_address|ip-address|ip\s*=)\s*[\"\']?"
-                r"([\d./]+)", joined, re.IGNORECASE
+                r"(?:address|ip\s*address|ip_address|ip-address|ip\s*=)\s*[:=]?\s*[\"\']?"
+                r"([\d./]+)[\"\']?", joined, re.IGNORECASE
             )
             if m:
                 addr = _cidr_or_pair(m.group(1))
