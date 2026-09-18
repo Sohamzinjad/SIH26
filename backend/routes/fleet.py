@@ -183,7 +183,7 @@ async def _collect_files(files: List[UploadFile], zip_files: List[UploadFile]) -
     for up in files:
         raw = await up.read()
         collected.append((up.filename or "config.cfg", raw.decode("utf-8", errors="replace")))
-for zp in zip_files:
+    for zp in zip_files:
         blob = await zp.read()
         try:
             archive = zipfile.ZipFile(io.BytesIO(blob))
