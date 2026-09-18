@@ -2,7 +2,10 @@ import json
 import os
 import pathlib
 
-LIST = {"pos": "expected_positive_fired", "neg": "expected_negative_fired"}
+KINDS = [
+    ("positive_fixture", "expected_positive_fired"),
+    ("negative_fixture", "expected_negative_fired"),
+]
 
 VERDICTS_PATH = pathlib.Path(__file__).parent / "expected_chain_verdicts.json"
 CHAINS_DIR = pathlib.Path(__file__).parent.parent / "sample_configs" / "chains"
@@ -58,9 +61,9 @@ def test_all_chain_fixtures_match_preregistered_verdicts():
 
     results = []
     for chain_id, spec in verdicts.items():
-        for kind, key in LIST.items():
-            fixture = spec[f"{kind}_fixture"]
-            expected = spec[key]
+        for fixture_key, expected_key in KINDS:
+            fixture = spec[fixture_key]
+            expected = spec[expected_key]
             actual = _run_fixture(fixture)
             cast_exp = sorted(expected)
             if actual != cast_exp:
