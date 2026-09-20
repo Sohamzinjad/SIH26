@@ -2,25 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --bg-canvas: #D4D3CF;
+  --surface-base: #DDDDDA;
+  --surface-card: #E8E7E4;
+  --surface-elevated: #EFEEEB;
+  --surface-pure: #F7F6F3;
+  --surface-white: #FFFFFF;
+  --charcoal: #1F1F1F;
+  --graphite: #181818;
+  --border-subtle: rgba(0, 0, 0, 0.07);
+  --border-dark: rgba(255, 255, 255, 0.08);
+}
+
 @layer base {
   body {
-    @apply bg-[#D9D9D6] text-[#111111] font-sans antialiased selection:bg-[#232323] selection:text-white;
+    background-color: var(--bg-canvas);
+    color: #171717;
+    font-family: 'Inter', 'IBM Plex Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
   }
 }
 
-/* Tactical scrollbar */
+/* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #D9D9D6;
+  background: var(--bg-canvas);
 }
 ::-webkit-scrollbar-thumb {
-  background: #B9B9B4;
+  background: #B5B4AF;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #8C8C85;
+  background: #8E8E8E;
 }
 
 /* Chamfered / Angled corners clip-path */
@@ -55,92 +71,53 @@
   );
 }
 
-/* Tactical Panel Container */
-.trinetra-card {
-  background-color: #F1F1EF;
-  border: 1px solid #B9B9B4;
+/* Subtle Material Gradient & Card Elevation */
+.trinetra-panel {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F7F6F3 100%);
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03), 0 10px 30px rgba(0, 0, 0, 0.05);
   position: relative;
 }
 
-.trinetra-card-dark {
-  background-color: #171717;
-  color: #F1F1EF;
-  border: 1px solid #232323;
+.trinetra-panel-dark {
+  background: linear-gradient(180deg, #222222 0%, #181818 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  color: #F7F6F3;
   position: relative;
-}
-
-/* Tactical Corner Crosshair Indicators */
-.tactical-corner-tl {
-  position: absolute;
-  top: -1px;
-  left: -1px;
-  width: 6px;
-  height: 6px;
-  border-top: 2px solid #171717;
-  border-left: 2px solid #171717;
-}
-
-.tactical-corner-tr {
-  position: absolute;
-  top: -1px;
-  right: -1px;
-  width: 6px;
-  height: 6px;
-  border-top: 2px solid #171717;
-  border-right: 2px solid #171717;
-}
-
-.tactical-corner-bl {
-  position: absolute;
-  bottom: -1px;
-  left: -1px;
-  width: 6px;
-  height: 6px;
-  border-bottom: 2px solid #171717;
-  border-left: 2px solid #171717;
-}
-
-.tactical-corner-br {
-  position: absolute;
-  bottom: -1px;
-  right: -1px;
-  width: 6px;
-  height: 6px;
-  border-bottom: 2px solid #171717;
-  border-right: 2px solid #171717;
 }
 
 /* Tactical Radar Grid Background */
 .trinetra-grid-bg {
   background-image: 
-    linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
-  background-size: 20px 20px;
+    linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
 .trinetra-dark-grid-bg {
   background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 
-/* Pulsing radar dot animation */
-@keyframes radar-pulse {
+/* Glowing dot animation */
+@keyframes radar-glow {
   0% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(214, 69, 69, 0.7);
+    opacity: 0.6;
   }
-  70% {
-    transform: scale(1.4);
-    box-shadow: 0 0 0 10px rgba(214, 69, 69, 0);
+  50% {
+    transform: scale(1.35);
+    opacity: 1;
   }
   100% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(214, 69, 69, 0);
+    opacity: 0.6;
   }
 }
 
-.radar-pulse-red {
-  animation: radar-pulse 2s infinite;
+.animate-radar-glow {
+  animation: radar-glow 2.5s infinite ease-in-out;
 }
