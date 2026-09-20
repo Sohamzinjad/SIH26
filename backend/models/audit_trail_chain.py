@@ -1,56 +1,41 @@
-"""
-Tamper-evident hash-chain primitives for the audit trail (additive).
+"""Deterministic tamper-evident hashing for the audit trail (additive).
 
-This module provides the two primitives every AuditTrailEntry write site
-uses to turn the persisted audit trail into a cryptographic hash chain:
+Every AuditTrailEntry is chained onto the previous entry's hash:
 
-  * compute_entry_hash(...)  -> SHA-256 over a *canonical* serialization of
-    the entry's own fields, chained onto `prev_hash` (empty string when the
-    row is the table's very first, so even a prev-less first row hashes a
-    deterministic value).
-  * get_latest_hash(db)      -> the entry_hash of the most recent row (by
-    `id`, never by `created_at`, to avoid clock-skew reordering), or None if
-    the table is empty.
+    entry_hash = sha256( canonical_json + prev_hash ).hexdigest()
 
-CANONICALIZATION CONTRACT (byte-for-byte; the verify endpoint depends on
-reproducing this EXACTLY):
+CANONICALIZATION CONTRACT (verifiers MUST reproduce byte-for-byte):
 
-  payload = {
-      "action":      action,
-      "actor":       actor,
-      "target_type": target_type,          # JSON null if None
-      "target_id":   target_id,            # JSON null if None
-      "details":     details_json,         # must be already-resolved dict
-  }
-  canonical = json.dumps(payload, sort_keys=False, separators=(",", ":"),
-                         ensure_ascii=False, default=str)
-              + "\n"
-              + (prev_hash if prev_hash is not None else "")
+    fields = {
+        "action":        action,                   # str
+        "actor":         actor,                    # str
+        "target_type":   target_type,              # str | None
+        "target_id":     target_id,                # int | None
+        "details_json":  details_json,             # dict | None (JSON native values)
+        "created_at":    created_at.isoformat(),   # str — exact persisted value
+    }
+    canonical_json = json.dumps(
+        fields,
+        sort_keys=True,        # fixed key order, recursively (details_json too)
+        separators=(",", ":"), # no whitespace
+        default=str,           # defensive; JSON-native values never trigger it
+    )
+    digest_input = (canonical_json + (prev_hash or "")).encode("utf-8")
+    entry_hash   = hashlib.sha256(digest_input).hexdigest()
 
-  entry_hash = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
-
-Fields are emitted in the FIXED order shown above (action, actor,
-target_type, target_id, details) — never sorted, never reordered, because
-each write site and the verifier must agree byte-for-byte and a sorted-key
-dump would make that contract silently dependent on key ordering.
-
-`details_json` MUST already be a fully-resolved in-memory dict (resolved
-from the DB row's stored JSON before calling) so both the write site and
-the verifier serialize the identical bytes; `default=str` is a safety net
-only and should never be exercised by real findings rows.
-
-The `created_at` is intentionally NOT part of the hash payload: it is set
-by the ORM at insert time and is not attributable at the moment the caller
-constructs the row, so including it would make the two sides (write-time vs
-verify-time reproduction) diverge. Attribution runs on action+actor+target
-+details, which ARE known at construction time.
+NOTE: prev_hash is appended AFTER the canonical JSON, never inside it, and a
+None prev_hash contributes the empty string (so the very first row hashes the
+same as a row written with an explicit empty prev_hash).
 """
 
 import hashlib
 import json
-from typing import Any, Optional
+from datetime import datetime
+from typing import Any, Dict, Optional
 
 from sqlalchemy.orm import Session
+
+from backend.models.audit_trail import AuditTrailEntry
 
 
 def compute_entry_hash(
@@ -59,42 +44,80 @@ def compute_entry_hash(
     actor: str,
     target_type: Optional[str],
     target_id: Optional[int],
-    details_json: dict,
+    details_json: Optional[Dict[str, Any]],
+    created_at: datetime,
 ) -> str:
-    """Return the SHA-256 hash for ONE audit-trail row given its own fields
-    and the previous row's entry_hash (or None for the table's first row).
-
-    See module docstring for the byte-for-byte canonicalization contract;
-    the verifier calls this with the SAME argument order so the two sides
-    are reproducible from persisted values alone.
-    """
-    payload = {
+    """SHA-256 of the canonical serialization of this entry's fields chained onto
+    the previous entry's hash. See the module docstring for the byte-for-byte
+    canonicalization contract."""
+    fields = {
         "action": action,
         "actor": actor,
         "target_type": target_type,
         "target_id": target_id,
-        "details": details_json,
+        "details_json": details_json,
+        "created_at": created_at.isoformat(),
     }
-    canonical = (
-        json.dumps(payload, sort_keys=False, separators=(",", ":"),
-                   ensure_ascii=False, default=str)
-        + "\n"
-        + (prev_hash if prev_hash is not None else "")
+    canonical_json = json.dumps(
+        fields,
+        sort_keys=True,
+        separators=(",", ":"),
+        default=str,
     )
-    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+    digest_input = (canonical_json + (prev_hash or "")).encode("utf-8")
+    return hashlib.sha256(digest_input).hexdigest()
 
 
 def get_latest_hash(db: Session) -> Optional[str]:
-    """Return the entry_hash of the most recently-created audit-trail row,
-    or None if the table is empty.
+    """entry_hash of the most recent audit trail row (ordered by id, NOT
+    created_at), or None when the table is empty (or the newest row predates
+    hashing and has no entry_hash yet)."""
+    row = db.query(AuditTrailEntry).order_by(AuditTrailEntry.id.desc()).first()
+    return row.entry_hash if row else None
 
-    Ordering is by `id` (the append-only sequence), never by `created_at`,
-    so a clock-skewed created_at can never reorder the chain when a new row
-    is being chained onto "the latest" existing row.
+
+def verify_chain(db: Session) -> Dict[str, Any]:
+    """Walk the ENTIRE audit trail in id order, verifying the hash chain.
+
+    Stops at the first mismatch and reports it. Returns:
+        {verified, total_entries, first_broken_entry_id, first_broken_reason}
+
+    For each row the stored entry_hash is compared against a recomputation
+    using the PREVIOUS row's entry_hash as prev_hash; then prev_hash must equal
+    the previous row's entry_hash (None for the very first row).
     """
-    row = (
-        db.query(
-            type(db.query(BackendAuditTrailModelStub).model)
+    rows = db.query(AuditTrailEntry).order_by(AuditTrailEntry.id.asc()).all()
+    total_entries = len(rows)
+    prev_entry_hash: Optional[str] = None
+    for row in rows:
+        recomputed = compute_entry_hash(
+            prev_entry_hash,
+            row.action,
+            row.actor,
+            row.target_type,
+            row.target_id,
+            row.details_json,
+            row.created_at,
         )
-        ...
-    )
+        if recomputed != row.entry_hash:
+            return {
+                "verified": False,
+                "total_entries": total_entries,
+                "first_broken_entry_id": row.id,
+                "first_broken_reason": "entry_hash_mismatch",
+            }
+        if row.prev_hash != prev_entry_hash:
+            reason = "first_row_prev_hash_not_null" if prev_entry_hash is None else "prev_hash_mismatch"
+            return {
+                "verified": False,
+                "total_entries": total_entries,
+                "first_broken_entry_id": row.id,
+                "first_broken_reason": reason,
+            }
+        prev_entry_hash = row.entry_hash
+    return {
+        "verified": True,
+        "total_entries": total_entries,
+        "first_broken_entry_id": None,
+        "first_broken_reason": None,
+    }

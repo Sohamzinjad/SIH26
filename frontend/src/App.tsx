@@ -10,7 +10,7 @@ import { AttackPathGraph } from './components/AttackPathGraph';
 import { AuditTrailView } from './components/AuditTrailView';
 import { fetchDashboardOverview, fetchPendingMappings } from './api/client';
 import { DashboardOverview } from './types';
-import { ShieldCheck, ExternalLink, Activity, Terminal, Lock } from 'lucide-react';
+import { Lock, Shield } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<string>('dashboard');
@@ -71,86 +71,107 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0C0F] text-[#F4F6FB] font-sans flex flex-col selection:bg-emerald-500/30 selection:text-white">
-      {/* Pinecone Console Header */}
+    <div className="min-h-screen bg-[#D9D9D6] text-[#111111] font-sans flex flex-col selection:bg-[#171717] selection:text-white">
+      {/* TRINETRA Command Header & Navigation Rail */}
       <Navbar
         currentTab={currentTab}
         setCurrentTab={setCurrentTab}
         pendingCount={pendingCount}
         activeAuditId={activeAuditId}
+        activeDeviceId={activeDeviceId}
       />
 
-      {/* Main Workspace Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {currentTab === 'dashboard' && (
-          <DashboardView
-            overview={overview}
-            loading={loading}
-            onSelectAudit={handleSelectAudit}
-            onNewAudit={() => setCurrentTab('upload')}
-          />
-        )}
+      {/* Main Operational Workspace (Offset by 240px sidebar on desktop) */}
+      <div className="md:ml-60 flex-1 flex flex-col min-h-[calc(100vh-3.5rem)]">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+          {currentTab === 'dashboard' && (
+            <DashboardView
+              overview={overview}
+              loading={loading}
+              onSelectAudit={handleSelectAudit}
+              onNewAudit={() => setCurrentTab('upload')}
+            />
+          )}
 
-        {currentTab === 'upload' && (
-          <UploadView
-            onAuditCompleted={handleAuditCompleted}
-            onAIMappingCreated={handleAIMappingCreated}
-          />
-        )}
+          {currentTab === 'upload' && (
+            <UploadView
+              onAuditCompleted={handleAuditCompleted}
+              onAIMappingCreated={handleAIMappingCreated}
+            />
+          )}
 
-        {currentTab === 'audit-detail' && activeAuditId && (
-          <AuditDetailView
-            auditId={activeAuditId}
-            onViewDeviceHistory={handleViewDeviceHistory}
-            onViewAttackPath={handleViewAttackPath}
-          />
-        )}
+          {currentTab === 'audit-detail' && activeAuditId && (
+            <AuditDetailView
+              auditId={activeAuditId}
+              onViewDeviceHistory={handleViewDeviceHistory}
+              onViewAttackPath={handleViewAttackPath}
+            />
+          )}
 
-        {currentTab === 'attack-path' && activeAuditId && (
-          <AttackPathGraph
-            auditId={activeAuditId}
-            onBack={() => setCurrentTab('audit-detail')}
-          />
-        )}
+          {currentTab === 'attack-path' && activeAuditId && (
+            <AttackPathGraph
+              auditId={activeAuditId}
+              onBack={() => setCurrentTab('audit-detail')}
+            />
+          )}
 
-        {currentTab === 'device-history' && activeDeviceId && (
-          <DeviceHistoryView deviceId={activeDeviceId} onSelectAudit={handleSelectAudit} />
-        )}
+          {currentTab === 'device-history' && activeDeviceId && (
+            <DeviceHistoryView deviceId={activeDeviceId} onSelectAudit={handleSelectAudit} />
+          )}
 
-        {currentTab === 'fleet' && (
-          <FleetView onSelectAudit={handleSelectAudit} />
-        )}
-{currentTab === 'mappings' && (
-          <MappingsView onMappingApproved={handleMappingApproved} />
-        )}
-        {currentTab === 'audit-trail' && (
-          <AuditTrailView />
-        )}
-      </main>
+          {currentTab === 'fleet' && (
+            <FleetView onSelectAudit={handleSelectAudit} />
+          )}
 
-      {/* Pinecone Console Footer */}
-      <footer className="bg-[#0F1115] border-t border-[#22262F] py-6 px-4 sm:px-6 lg:px-8 text-xs text-[#9AA2B0] mt-auto">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center space-x-3">
-            <div className="flex items-center space-x-1.5 font-mono text-[11px] text-slate-300">
-              <Lock className="w-3.5 h-3.5 text-emerald-400" />
-              <span>PINE AUDIT ENGINE</span>
+          {currentTab === 'mappings' && (
+            <MappingsView onMappingApproved={handleMappingApproved} />
+          )}
+
+          {currentTab === 'audit-trail' && (
+            <AuditTrailView />
+          )}
+
+          {(currentTab === 'devices' || currentTab === 'findings' || currentTab === 'reports' || currentTab === 'settings') && (
+            <div className="bg-[#F1F1EF] border border-[#B9B9B4] trinetra-chamfer p-8 text-center space-y-4 shadow-sm my-8">
+              <Shield className="w-12 h-12 text-[#171717] mx-auto" />
+              <h2 className="text-xl font-bold font-mono tracking-wide text-[#171717] uppercase">
+                TRINETRA {currentTab.toUpperCase()} MODULE ACTIVE
+              </h2>
+              <p className="text-xs font-mono text-[#5E5E5E] max-w-md mx-auto">
+                Deterministic compliance auditing active for CIS Cisco, FortiOS, NIST SP 800-53 and DISA STIG benchmarks.
+              </p>
+              <button
+                onClick={() => setCurrentTab('dashboard')}
+                className="bg-[#171717] text-white font-mono text-xs font-bold px-4 py-2 trinetra-chamfer hover:bg-[#232323] transition"
+              >
+                &larr; RETURN TO DASHBOARD
+              </button>
             </div>
-            <span className="text-slate-600">&bull;</span>
-            <span className="text-[11px] text-slate-400">
-              Air-Gapped Deterministic CIS / NIST SP 800-53 Assurance
-            </span>
-          </div>
+          )}
+        </main>
 
-          <div className="flex items-center space-x-6 text-[11px]">
-            <div className="flex items-center space-x-1.5 text-[11px] text-slate-400">
-              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-              <span>All Systems Operational</span>
+        {/* TRINETRA Footer */}
+        <footer className="bg-[#171717] border-t border-[#232323] py-4 px-6 text-[#B9B9B4] font-mono text-xs mt-auto">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center space-x-3">
+              <Lock className="w-3.5 h-3.5 text-[#00A86B]" />
+              <span className="font-bold text-white tracking-widest uppercase">TRINETRA DEFENSE ENGINE</span>
+              <span className="text-[#5E5E5E]">&bull;</span>
+              <span className="text-[#5E5E5E] text-[11px]">
+                Air-Gapped High Assurance Compliance & Threat Intelligence
+              </span>
             </div>
-            <span className="font-mono text-slate-500">v2.4.0-deterministic</span>
+
+            <div className="flex items-center space-x-6 text-[11px]">
+              <div className="flex items-center space-x-1.5 text-[#00A86B] font-bold">
+                <span className="w-2 h-2 rounded-full bg-[#00A86B]"></span>
+                <span>FOR A SAFER TOMORROW</span>
+              </div>
+              <span className="text-[#5E5E5E]">v0.1.0-defense</span>
+            </div>
           </div>
-        </div>
-      </footer>
+        </footer>
+      </div>
     </div>
   );
 };

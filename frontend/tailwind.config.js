@@ -8,53 +8,31 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
-        mono: ['JetBrains Mono', 'Fira Code', 'Menlo', 'Monaco', 'Courier New', 'monospace'],
+        sans: ['Inter', 'IBM Plex Sans', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        mono: ['JetBrains Mono', 'IBM Plex Mono', 'Fira Code', 'Menlo', 'Monaco', 'Courier New', 'monospace'],
+        display: ['Inter', 'IBM Plex Sans', 'sans-serif'],
       },
       colors: {
-        pinecone: {
-          bg: '#0A0C0F',
-          canvas: '#0F1115',
-          surface: '#14161C',
-          'surface-hover': '#1A1D24',
-          card: '#12141A',
-          'card-elevated': '#1B1E26',
-          border: '#22262F',
-          'border-light': '#2C313B',
-          brand: '#00E58C',
-          electric: '#0FA96E',
-          cyan: '#22D3EE',
-          emerald: '#00E58C',
-          amber: '#F5B94C',
-          rose: '#F76B5E',
-          text: '#F4F6FB',
-          muted: '#9AA2B0',
-          subtle: '#5D6573',
+        trinetra: {
+          bg: '#D9D9D6',
+          surface: '#F1F1EF',
+          card: '#EAEAE7',
+          charcoal: '#232323',
+          graphite: '#171717',
+          border: '#B9B9B4',
+          'border-dark': '#8C8C85',
+          text: '#111111',
+          muted: '#5E5E5E',
+          success: '#00A86B',
+          warning: '#D4A017',
+          critical: '#D64545',
+          info: '#0057B8',
         },
-        dark: {
-          900: '#0A0C0F',
-          800: '#14161C',
-          700: '#1B1E26',
-          600: '#262B35',
-          500: '#363C49',
-        },
-        navy: {
-          900: '#0A0C10',
-          800: '#101319',
-          700: '#1B1F29'
-        },
-        cyber: {
-          green: '#00E58C',
-          red: '#F76B5E',
-          orange: '#F5B94C',
-          blue: '#5B8DEF',
-          cyan: '#22D3EE'
-        }
       },
       boxShadow: {
-        'pinecone': '0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.2)',
-        'pinecone-glow': '0 0 24px -6px rgba(0, 229, 140, 0.28)',
-        'pinecone-glow-emerald': '0 0 24px -6px rgba(0, 229, 140, 0.28)',
+        'tactical': '0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)',
+        'tactical-inset': 'inset 0 1px 2px rgba(0, 0, 0, 0.1)',
+        'tactical-dark': '0 4px 12px rgba(0, 0, 0, 0.35)',
       }
     },
   },

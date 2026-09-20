@@ -2,17 +2,13 @@ import React, { useState } from 'react';
 import { 
   UploadCloud, 
   FileCode, 
-  CheckCircle2, 
   AlertCircle, 
   Sparkles, 
-  ShieldAlert, 
   Terminal, 
-  Cpu, 
-  Layers, 
-  Sliders, 
   Check, 
   ArrowRight,
-  FileText
+  Shield,
+  Info
 } from 'lucide-react';
 import { uploadConfig } from '../api/client';
 
@@ -195,136 +191,143 @@ export const UploadView: React.FC<UploadViewProps> = ({
   const lineCount = rawText ? rawText.split('\n').length : 0;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 animate-fadeIn">
-      {/* Pinecone Header */}
-      <div className="border-b border-[#22262F] pb-5">
-        <div className="flex items-center space-x-2 text-xs text-slate-400 mb-1 font-mono">
-          <span>Indexes</span>
-          <span>/</span>
-          <span className="text-slate-200">Ingest Configuration</span>
+    <div className="max-w-4xl mx-auto space-y-6 animate-fadeIn pb-12">
+      {/* Header */}
+      <div className="border-b border-[#B9B9B4] pb-5">
+        <div className="text-[11px] font-mono tracking-widest text-[#5E5E5E] uppercase font-bold">
+          INGEST & AUDIT
         </div>
-        <h1 className="text-2xl font-bold text-white tracking-tight">Create Compliance Audit Run</h1>
-        <p className="text-xs text-[#9AA2B0] mt-1">
-          Submit network device running configurations to evaluate deterministic CIS, NIST SP 800-53, and DISA STIG controls.
+        <h1 className="text-2xl font-black text-[#171717] tracking-tight uppercase font-display mt-0.5">
+          Submit Device Running Config
+        </h1>
+        <p className="text-xs text-[#5E5E5E] font-sans mt-1">
+          Evaluate multi-vendor running configs against CIS, NIST SP 800-53, and DISA STIG benchmarks using deterministic rule engines.
         </p>
       </div>
 
-      {/* Preset Starter Cards (Pinecone Templates) */}
-      <div className="space-y-2">
-        <div className="text-[11px] uppercase font-semibold text-[#9AA2B0] tracking-wider flex items-center gap-1.5">
-          <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-          <span>Quick Benchmark Templates</span>
+      {/* Preset Starter Cards */}
+      <div className="space-y-2.5">
+        <div className="text-[11px] font-mono uppercase font-bold text-[#5E5E5E] tracking-wider flex items-center gap-1.5">
+          <Sparkles className="w-3.5 h-3.5 text-[#00A86B]" />
+          <span>BENCHMARK TEMPLATES</span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 font-mono text-xs">
           <button
             type="button"
             onClick={() => loadPreset('cisco_compliant', 'cisco_hardened.cfg')}
-            className={`text-left p-3.5 rounded-xl border transition-all ${
+            className={`text-left p-3.5 border transition trinetra-chamfer ${
               activePreset === 'cisco_compliant'
-                ? 'bg-[#1B1E26] border-emerald-500/50 shadow-sm'
-                : 'bg-[#12141A] border-[#22262F] hover:border-[#2C313B]'
+                ? 'bg-[#171717] text-white border-[#171717]'
+                : 'bg-[#F1F1EF] text-[#171717] border-[#B9B9B4] hover:bg-[#EAEAE7]'
             }`}
           >
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-semibold text-emerald-400">Cisco IOS (Hardened)</span>
-              {activePreset === 'cisco_compliant' && <Check className="w-3.5 h-3.5 text-emerald-400" />}
+            <div className="flex items-center justify-between mb-1 font-bold">
+              <span className={activePreset === 'cisco_compliant' ? 'text-[#00A86B]' : 'text-[#171717]'}>
+                Cisco IOS (Hardened)
+              </span>
+              {activePreset === 'cisco_compliant' && <Check className="w-3.5 h-3.5 text-[#00A86B]" />}
             </div>
-            <p className="text-[11px] text-[#9AA2B0] leading-relaxed">
-              CIS / NIST Compliant baseline (~90% score).
+            <p className="text-[11px] text-[#5E5E5E] font-sans leading-relaxed">
+              CIS / NIST Compliant baseline.
             </p>
           </button>
 
           <button
             type="button"
             onClick={() => loadPreset('cisco_vulnerable', 'cisco_vulnerable.cfg')}
-            className={`text-left p-3.5 rounded-xl border transition-all ${
+            className={`text-left p-3.5 border transition trinetra-chamfer ${
               activePreset === 'cisco_vulnerable'
-                ? 'bg-[#1B1E26] border-rose-500/50 shadow-sm'
-                : 'bg-[#12141A] border-[#22262F] hover:border-[#2C313B]'
+                ? 'bg-[#171717] text-white border-[#171717]'
+                : 'bg-[#F1F1EF] text-[#171717] border-[#B9B9B4] hover:bg-[#EAEAE7]'
             }`}
           >
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-semibold text-rose-400">Cisco IOS (Vulnerable)</span>
-              {activePreset === 'cisco_vulnerable' && <Check className="w-3.5 h-3.5 text-rose-400" />}
+            <div className="flex items-center justify-between mb-1 font-bold">
+              <span className={activePreset === 'cisco_vulnerable' ? 'text-[#D64545]' : 'text-[#171717]'}>
+                Cisco IOS (Vulnerable)
+              </span>
+              {activePreset === 'cisco_vulnerable' && <Check className="w-3.5 h-3.5 text-[#D64545]" />}
             </div>
-            <p className="text-[11px] text-[#9AA2B0] leading-relaxed">
-              Multiple attack chains + single-fix severance.
+            <p className="text-[11px] text-[#5E5E5E] font-sans leading-relaxed">
+              Multi-stage attack paths & single-fix.
             </p>
           </button>
 
           <button
             type="button"
             onClick={() => loadPreset('fortios_vulnerable', 'fortigate_vuln.cfg')}
-            className={`text-left p-3.5 rounded-xl border transition-all ${
+            className={`text-left p-3.5 border transition trinetra-chamfer ${
               activePreset === 'fortios_vulnerable'
-                ? 'bg-[#1B1E26] border-amber-500/50 shadow-sm'
-                : 'bg-[#12141A] border-[#22262F] hover:border-[#2C313B]'
+                ? 'bg-[#171717] text-white border-[#171717]'
+                : 'bg-[#F1F1EF] text-[#171717] border-[#B9B9B4] hover:bg-[#EAEAE7]'
             }`}
           >
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-semibold text-amber-400">FortiGate Firewall</span>
-              {activePreset === 'fortios_vulnerable' && <Check className="w-3.5 h-3.5 text-amber-400" />}
+            <div className="flex items-center justify-between mb-1 font-bold">
+              <span className={activePreset === 'fortios_vulnerable' ? 'text-[#D4A017]' : 'text-[#171717]'}>
+                FortiGate Firewall
+              </span>
+              {activePreset === 'fortios_vulnerable' && <Check className="w-3.5 h-3.5 text-[#D4A017]" />}
             </div>
-            <p className="text-[11px] text-[#9AA2B0] leading-relaxed">
-              FortiOS syntax with insecure management exposed.
+            <p className="text-[11px] text-[#5E5E5E] font-sans leading-relaxed">
+              FortiOS block syntax parsing.
             </p>
           </button>
 
           <button
             type="button"
             onClick={() => loadPreset('whitebox_unknown', 'openflow_whitebox.cfg')}
-            className={`text-left p-3.5 rounded-xl border transition-all ${
+            className={`text-left p-3.5 border transition trinetra-chamfer ${
               activePreset === 'whitebox_unknown'
-                ? 'bg-[#1B1E26] border-cyan-500/50 shadow-sm'
-                : 'bg-[#12141A] border-[#22262F] hover:border-[#2C313B]'
+                ? 'bg-[#171717] text-white border-[#171717]'
+                : 'bg-[#F1F1EF] text-[#171717] border-[#B9B9B4] hover:bg-[#EAEAE7]'
             }`}
           >
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-semibold text-cyan-400">Whitebox / Unknown</span>
-              {activePreset === 'whitebox_unknown' && <Check className="w-3.5 h-3.5 text-cyan-400" />}
+            <div className="flex items-center justify-between mb-1 font-bold">
+              <span className={activePreset === 'whitebox_unknown' ? 'text-[#0057B8]' : 'text-[#171717]'}>
+                Whitebox / Unknown
+              </span>
+              {activePreset === 'whitebox_unknown' && <Check className="w-3.5 h-3.5 text-[#0057B8]" />}
             </div>
-            <p className="text-[11px] text-[#9AA2B0] leading-relaxed">
-              Triggers AI schema proposal & human approval.
+            <p className="text-[11px] text-[#5E5E5E] font-sans leading-relaxed">
+              Triggers AI proposal & human approval.
             </p>
           </button>
         </div>
       </div>
 
       {error && (
-        <div className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl flex items-center space-x-3 text-rose-400 text-xs">
+        <div className="p-4 bg-[#D64545] text-white font-mono text-xs flex items-center space-x-3 trinetra-chamfer">
           <AlertCircle className="w-4 h-4 flex-shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
-      {/* Main Configuration Ingestion Form */}
-      <form onSubmit={handleAuditSubmit} className="bg-[#12141A] border border-[#22262F] rounded-xl p-6 space-y-6 shadow-pinecone">
-        {/* Filename & Drag Drop Bar */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Main Ingestion Form */}
+      <form onSubmit={handleAuditSubmit} className="bg-[#F1F1EF] border border-[#B9B9B4] trinetra-chamfer p-6 space-y-6 shadow-sm">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-mono">
           <div>
-            <label className="block text-[11px] uppercase font-semibold text-[#9AA2B0] tracking-wider mb-2">
-              Target Identifier / Hostname File:
+            <label className="block text-[11px] font-bold text-[#171717] uppercase tracking-wider mb-2">
+              Device Hostname / Target File:
             </label>
             <input
               type="text"
               value={filename}
               onChange={(e) => setFilename(e.target.value)}
               placeholder="e.g. core-router-01.cfg"
-              className="w-full bg-[#0A0C0F] border border-[#22262F] focus:border-emerald-500 rounded-lg px-3.5 py-2 text-xs text-white font-mono placeholder-slate-500 focus:outline-none transition"
+              className="w-full bg-[#EAEAE7] border border-[#B9B9B4] text-xs text-[#171717] font-bold px-3.5 py-2 focus:outline-none focus:border-[#171717]"
               required
             />
           </div>
 
           <div>
-            <label className="block text-[11px] uppercase font-semibold text-[#9AA2B0] tracking-wider mb-2">
-              Upload Config File (.cfg, .txt, .conf):
+            <label className="block text-[11px] font-bold text-[#171717] uppercase tracking-wider mb-2">
+              Upload Config (.cfg, .txt, .conf):
             </label>
-            <label className="flex items-center justify-between px-3.5 py-2 bg-[#0A0C0F] border border-[#22262F] hover:border-slate-500 rounded-lg cursor-pointer transition">
-              <span className="text-xs text-slate-400 truncate max-w-[200px]">
-                {selectedFile ? selectedFile.name : 'Choose file or drag & drop...'}
+            <label className="flex items-center justify-between px-3.5 py-2 bg-[#EAEAE7] border border-[#B9B9B4] hover:border-[#171717] cursor-pointer transition">
+              <span className="text-xs text-[#5E5E5E] truncate max-w-[200px]">
+                {selectedFile ? selectedFile.name : 'Choose file...'}
               </span>
-              <span className="text-[11px] font-medium bg-[#1A1D24] text-slate-200 px-2.5 py-0.5 rounded border border-[#2C313B]">
+              <span className="text-[11px] font-bold bg-[#171717] text-white px-2.5 py-0.5">
                 Browse
               </span>
               <input
@@ -337,57 +340,46 @@ export const UploadView: React.FC<UploadViewProps> = ({
           </div>
         </div>
 
-        {/* Configuration Editor / Raw Text */}
-        <div className="space-y-2">
+        {/* Textarea */}
+        <div className="space-y-2 font-mono">
           <div className="flex items-center justify-between">
-            <label className="text-[11px] uppercase font-semibold text-[#9AA2B0] tracking-wider flex items-center gap-1.5">
-              <Terminal className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Running Configuration Payload</span>
+            <label className="text-[11px] font-bold text-[#171717] uppercase tracking-wider flex items-center gap-1.5">
+              <Terminal className="w-3.5 h-3.5 text-[#00A86B]" />
+              <span>RUNNING CONFIGURATION PAYLOAD</span>
             </label>
-            <span className="text-[11px] font-mono text-slate-400">
+            <span className="text-[11px] text-[#5E5E5E]">
               {lineCount} lines &bull; {rawText.length} bytes
             </span>
           </div>
 
-          <div className="relative">
-            <textarea
-              value={rawText}
-              onChange={(e) => setRawText(e.target.value)}
-              rows={14}
-              placeholder="Paste device running-config here..."
-              className="w-full bg-[#0A0C0F] border border-[#22262F] focus:border-emerald-500 rounded-lg p-4 font-mono text-xs text-emerald-400 placeholder-slate-600 focus:outline-none transition leading-relaxed resize-y"
-              spellCheck={false}
-            />
-          </div>
+          <textarea
+            value={rawText}
+            onChange={(e) => setRawText(e.target.value)}
+            rows={14}
+            placeholder="Paste device running-config here..."
+            className="w-full bg-[#171717] text-[#00A86B] font-mono text-xs border border-[#232323] p-4 focus:outline-none leading-relaxed resize-y"
+            spellCheck={false}
+          />
         </div>
 
-        {/* Engine Specs Pill Banner */}
-        <div className="p-3 bg-[#0A0C0F] border border-[#22262F] rounded-lg flex flex-wrap items-center justify-between gap-3 text-[11px] text-slate-400">
-          <div className="flex items-center space-x-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span>Active Frameworks: <strong className="text-slate-200">CIS Level 1/2 &bull; NIST SP 800-53 Rev 5 &bull; DISA STIG</strong></span>
+        {/* Footer CTAs */}
+        <div className="flex justify-between items-center pt-2 font-mono">
+          <div className="flex items-center text-[11px] text-[#5E5E5E]">
+            <Info className="w-3.5 h-3.5 mr-1 text-[#00A86B]" />
+            <span>Deterministic state machine audit: sub-millisecond execution</span>
           </div>
-          <div className="flex items-center space-x-2 font-mono text-slate-500">
-            <span>Air-Gapped Local Inference Engine</span>
-          </div>
-        </div>
 
-        {/* Submit Bar */}
-        <div className="flex justify-end pt-2">
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex items-center space-x-2 bg-white hover:bg-neutral-200 text-neutral-900 font-semibold px-5 py-2.5 rounded-lg text-xs transition shadow-sm disabled:opacity-50"
+            className="flex items-center space-x-2 bg-[#171717] hover:bg-[#232323] text-white font-bold px-6 py-2.5 trinetra-chamfer text-xs transition shadow-sm disabled:opacity-50"
           >
             {isSubmitting ? (
-              <>
-                <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-                <span>Executing Deterministic Audit...</span>
-              </>
+              <span>EXECUTING AUDIT...</span>
             ) : (
               <>
-                <span>Run Compliance Audit</span>
-                <ArrowRight className="w-4 h-4 text-black stroke-[2.5]" />
+                <span>RUN COMPLIANCE AUDIT</span>
+                <ArrowRight className="w-4 h-4 text-white" />
               </>
             )}
           </button>

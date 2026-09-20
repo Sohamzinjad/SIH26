@@ -11,7 +11,6 @@ import {
   XCircle,
   RefreshCw,
   Bug,
-  Loader2,
   Link2,
 } from 'lucide-react';
 
@@ -45,7 +44,7 @@ export const AuditTrailView: React.FC = () => {
       setResult(await fetchAuditTrailVerify());
       setError(`Demo: entry #${tampered.tampered_entry_id} tampered (hash NOT recomputed) — chain should now fail.`);
     } catch (e: any) {
-      setError(e?.message || 'Demo tamper failed (is AUDIT_TRAIL_DEMO_ENABLED=true?)');
+      setError(e?.message || 'Demo tamper failed');
     } finally {
       setTampering(false);
     }
@@ -54,111 +53,89 @@ export const AuditTrailView: React.FC = () => {
   const verified = result?.verified === true;
 
   return (
-    <div className="space-y-6">
-      {/* Page Heading */}
-      <div>
-        <h1 className="text-2xl font-bold text-[#F4F6FB]">Audit Trail Verification</h1>
-        <p className="text-sm text-slate-400 mt-1">
-          Tamper-evident <span className="text-emerald-400 font-mono">SHA-256 hash chain</span> over every
-          audit trail entry — recomputed across the entire table in id order.
+    <div className="space-y-6 animate-fadeIn pb-12 font-sans">
+      {/* Header */}
+      <div className="border-b border-[#B9B9B4] pb-5">
+        <div className="text-[11px] font-mono tracking-widest text-[#5E5E5E] uppercase font-bold">
+          DEFENSE AUDIT LEDGER
+        </div>
+        <h1 className="text-2xl font-black text-[#171717] tracking-tight uppercase font-display mt-0.5">
+          Tamper-Evident Hash Chain Verification
+        </h1>
+        <p className="text-xs text-[#5E5E5E] font-sans mt-1">
+          Cryptographic SHA-256 hash-chain verification for audit events. Ensures non-repudiation and immutable evidence logging.
         </p>
       </div>
 
-      {/* Result Panel */}
-      <div
-        className={`bg-[#111419] border rounded-xl p-6 ${
-          verified ? 'border-emerald-500/40' : result ? 'border-red-500/40' : 'border-[#22262F]'
-        }`}
-      >
-        <div className="flex items-center gap-3">
-          {loading ? (
-            <>
-              <Loader2 className="w-6 h-6 text-emerald-400 animate-spin" />
-              <span className="text-sm text-slate-300">Recomputing chain…</span>
-            </>
-          ) : verified ? (
-            <>
-              <ShieldCheck className="w-6 h-6 text-emerald-400" />
-              <div>
-                <div className="font-semibold text-[#F4F6FB]">Chain Verified</div>
-                <div className="text-xs text-slate-400">
-                  {result?.total_entries} entr{result?.total_entries === 1 ? 'y' : 'ies'} chained — every hash +
-                  prev_hash link matches a live recomputation.
-                </div>
+      {error && (
+        <div className="p-4 bg-[#D64545] text-white font-mono text-xs trinetra-chamfer">
+          {error}
+        </div>
+      )}
+
+      {/* Verification Status Card */}
+      <div className="bg-[#F1F1EF] border border-[#B9B9B4] trinetra-chamfer p-6 space-y-4 shadow-sm font-mono text-xs">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[#B9B9B4] pb-4">
+          <div className="flex items-center space-x-3">
+            {verified ? (
+              <div className="p-2 bg-[#00A86B] text-white font-bold">
+                <ShieldCheck className="w-6 h-6" />
               </div>
-            </>
-          ) : result ? (
-            <>
-              <ShieldAlert className="w-6 h-6 text-red-400" />
-              <div>
-                <div className="font-semibold text-red-400">Chain BROKEN — tamper detected</div>
-                <div className="text-xs text-slate-400">
-                  {result?.total_entries} entries · broke at entry{' '}
-                  <span className="font-mono text-amber-300">
-                    #{result?.first_broken_entry_id}
-                  </span>{' '}
-                  · reason <span className="font-mono text-amber-300">{result?.first_broken_reason}</span>
-                </div>
+            ) : (
+              <div className="p-2 bg-[#D64545] text-white font-bold">
+                <ShieldAlert className="w-6 h-6" />
               </div>
-            </>
-          ) : null}
+            )}
+            <div>
+              <div className="font-bold text-sm text-[#171717]">
+                {verified ? 'AUDIT TRAIL VERIFIED & INTACT' : 'HASH CHAIN MISMATCH / TAMPERING DETECTED'}
+              </div>
+              <div className="text-[11px] text-[#5E5E5E]">
+                {result?.total_entries ?? 0} total entries validated across append sequence.
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={verify}
+              disabled={loading}
+              className="bg-[#171717] hover:bg-[#232323] text-white font-bold px-4 py-2 trinetra-chamfer text-xs transition"
+            >
+              VERIFY CHAIN
+            </button>
+            <button
+              onClick={runDemoTamper}
+              disabled={tampering}
+              className="bg-[#EAEAE7] hover:bg-[#B9B9B4] text-[#171717] font-bold px-4 py-2 trinetra-chamfer text-xs border border-[#B9B9B4] transition"
+            >
+              SIMULATE TAMPER
+            </button>
+          </div>
         </div>
 
-        {error && (
-          <p className="mt-3 text-sm text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-lg px-3 py-2">
-            <Link2 className="w-4 h-4 inline mr-1" />{error}
-          </p>
+        {/* Verification Summary Details */}
+        {result && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs pt-2">
+            <div className="p-3 bg-[#EAEAE7] border border-[#B9B9B4]">
+              <span className="text-[#5E5E5E] block text-[10px] uppercase">Status</span>
+              <span className={`font-bold ${verified ? 'text-[#00A86B]' : 'text-[#D64545]'}`}>
+                {verified ? 'PASS (100% Intact)' : 'TAMPERED'}
+              </span>
+            </div>
+
+            <div className="p-3 bg-[#EAEAE7] border border-[#B9B9B4]">
+              <span className="text-[#5E5E5E] block text-[10px] uppercase">Entries Checked</span>
+              <span className="font-bold text-[#171717]">{result.total_entries}</span>
+            </div>
+
+            <div className="p-3 bg-[#EAEAE7] border border-[#B9B9B4]">
+              <span className="text-[#5E5E5E] block text-[10px] uppercase">Broken Entry ID</span>
+              <span className="font-bold text-[#171717]">{result.first_broken_entry_id ?? 'None'}</span>
+            </div>
+          </div>
         )}
-
-        <div className="mt-4 flex flex-wrap gap-3">
-          <button
-            onClick={verify}
-            disabled={loading}
-            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-          >
-            <RefreshCw className="w-4 h-4" /> Re-verify Chain
-          </button>
-          <button
-            onClick={runDemoTamper}
-            disabled={loading || tampering}
-            className="inline-flex items-center gap-2 bg-[#1A1D24] hover:bg-[#22262F] disabled:opacity-40 disabled:cursor-not-allowed text-slate-300 border border-[#2A3040] px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-          >
-            <Bug className="w-4 h-4" /> Demo: Tamper Latest Entry
-          </button>
-        </div>
-        <p className="mt-3 text-xs text-slate-500">
-          Demo removal requires <span className="font-mono text-slate-400">AUDIT_TRAIL_DEMO_ENABLED=true</span> —
-          OFF by default (no attack surface in prod). It mutates the newest entry without recomputing its hash.
-        </p>
-      </div>
-
-      {/* How it works */}
-      <div className="bg-[#111419] border border-[#22262F] rounded-xl p-6">
-        <h2 className="font-semibold text-[#F4F6FB] mb-3 flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400" /> What is verified
-        </h2>
-        <ul className="text-sm text-slate-400 space-y-2">
-          <li className="flex items-start gap-2">
-            <XCircle className="w-4 h-4 text-emerald-400 mt-0.5" />
-            <span>Every row's stored <span className="font-mono text-slate-300">entry_hash</span> equals a live
-            recomputation chained from the previous row's hash.</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <XCircle className="w-4 h-4 text-emerald-400 mt-0.5" />
-            <span>Every row's <span className="font-mono text-slate-300">prev_hash</span> points at the previous
-            row's <span className="font-mono text-slate-300">entry_hash</span> (the very first row's
-            <span className="font-mono text-slate-300"> prev_hash</span> is NULL).</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <XCircle className="w-4 h-4 text-emerald-400 mt-0.5" />
-            <span>Canonicalization is byte-for-byte fixed: <span className="font-mono text-slate-300">
-            sort_keys=True, separators=(",",":")</span>, timestamp via <span className="font-mono text-slate-300">
-            isoformat()</span>.</span>
-          </li>
-        </ul>
       </div>
     </div>
   );
 };
-
-export default AuditTrailView;

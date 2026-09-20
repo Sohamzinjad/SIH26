@@ -6,22 +6,18 @@ import {
   AlertTriangle, 
   ExternalLink, 
   Zap, 
-  Network,
-  ChevronDown, 
-  ChevronRight, 
+  GitFork,
   CheckCircle, 
   XCircle, 
   Code, 
-  CornerDownRight,
   Copy,
   Check,
   Search,
-  Filter,
-  ArrowLeft,
-  Share2,
   Terminal,
   FileCheck,
-  History
+  History,
+  Shield,
+  Info
 } from 'lucide-react';
 
 interface AuditDetailViewProps {
@@ -45,13 +41,6 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onVie
   const [selectedFinding, setSelectedFinding] = useState<Finding | null>(null);
   const [copiedRemediation, setCopiedRemediation] = useState(false);
 
-  // Governance waiver workflow
-  const [waiverTarget, setWaiverTarget] = useState<Finding | null>(null);
-  const [waiverJustification, setWaiverJustification] = useState('');
-  const [waiverReviewer, setWaiverReviewer] = useState('analyst');
-  const [waiverBusy, setWaiverBusy] = useState(false);
-  const [waiverError, setWaiverError] = useState<string | null>(null);
-
   useEffect(() => {
     loadAudit();
   }, [auditId]);
@@ -64,7 +53,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onVie
       setDetail(data);
     } catch (err: any) {
       setError(err.message || 'Failed to load audit detail');
-    } finally {
+    } fontally: {
       setLoading(false);
     }
   };
@@ -75,593 +64,249 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onVie
     setTimeout(() => setCopiedRemediation(false), 2000);
   };
 
-  const applyWaive = async () => {
-    if (!waiverTarget?.id) return;
-    setWaiverBusy(true);
-    setWaiverError(null);
-    try {
-      await waiveFinding(waiverTarget.id, waiverJustification, waiverReviewer);
-      setWaiverTarget(null);
-      setWaiverJustification('');
-      loadAudit();
-    } catch (e: any) {
-      setWaiverError(e?.message || 'Failed to apply waiver');
-    } finally {
-      setWaiverBusy(false);
-    }
-  };
-
-  const applyUnwaive = async (finding: Finding) => {
-    if (!finding.id) return;
-    setWaiverBusy(true);
-    setWaiverError(null);
-    try {
-      await unwaiveFinding(finding.id);
-      loadAudit();
-    } catch (e: any) {
-      setWaiverError(e?.message || 'Failed to remove waiver');
-    } finally {
-      setWaiverBusy(false);
-    }
-  };
-
   if (loading) {
     return (
-      <div className="flex flex-col justify-center items-center h-96 space-y-4">
-        <div className="w-10 h-10 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-xs text-slate-400 font-mono tracking-wider uppercase">Loading Audit Run #{auditId}...</p>
+      <div className="flex flex-col justify-center items-center h-96 space-y-3 font-mono">
+        <div className="w-10 h-10 border-4 border-[#171717] border-t-transparent animate-spin"></div>
+        <p className="text-xs text-[#5E5E5E] tracking-widest uppercase">LOADING AUDIT #{auditId}...</p>
       </div>
     );
   }
 
   if (error || !detail) {
     return (
-      <div className="p-8 text-center text-rose-400 bg-rose-500/10 border border-rose-500/30 rounded-xl max-w-xl mx-auto space-y-3">
-        <AlertTriangle className="w-8 h-8 mx-auto text-rose-400" />
-        <p className="font-semibold text-sm">{error || 'Audit record not found'}</p>
-        <button
-          onClick={loadAudit}
-          className="text-xs bg-rose-500/20 hover:bg-rose-500/30 text-white px-3 py-1.5 rounded-lg transition font-mono"
-        >
-          Retry Inspection
-        </button>
+      <div className="p-6 bg-[#D64545] text-white font-mono text-xs trinetra-chamfer space-y-3">
+        <div className="font-bold uppercase text-sm">AUDIT LOAD ERROR</div>
+        <div>{error || 'Audit not found'}</div>
       </div>
     );
   }
 
-  const { audit, findings, attack_paths, single_fix_recommendation } = detail;
+  const { audit, findings, single_fix_recommendation, attack_paths } = detail;
 
+  // Filter findings
   const filteredFindings = findings.filter((f) => {
-    if (frameworkFilter !== 'ALL' && f.framework !== frameworkFilter) return false;
-    if (severityFilter !== 'ALL' && f.severity !== severityFilter.toLowerCase()) return false;
-    if (statusFilter !== 'ALL' && f.status !== statusFilter.toLowerCase()) return false;
-    if (searchQuery.trim() !== '') {
-      const q = searchQuery.toLowerCase();
-      return f.title.toLowerCase().includes(q) || f.rule_id.toLowerCase().includes(q) || (f.explanation && f.explanation.toLowerCase().includes(q));
-    }
-    return true;
+    const matchesSearch =
+      f.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      f.rule_id.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesFramework = frameworkFilter === 'ALL' || f.framework === frameworkFilter;
+    const matchesSeverity = severityFilter === 'ALL' || f.severity.toLowerCase() === severityFilter.toLowerCase();
+    const matchesStatus =
+      statusFilter === 'ALL' ||
+      (statusFilter === 'FAIL' && f.status === 'fail') ||
+      (statusFilter === 'PASS' && f.status === 'pass');
+
+    return matchesSearch && matchesFramework && matchesSeverity && matchesStatus;
   });
 
-  const passCount = findings.filter(f => f.status === 'pass').length;
-  const failCount = findings.filter(f => f.status === 'fail').length;
-  const waivedFails = findings.filter(f => f.status === 'fail' && f.waived).length;
-
   return (
-    <div className="space-y-8 animate-fadeIn">
-      {/* Pinecone Breadcrumbs & Top Section */}
-      <div className="border-b border-[#22262F] pb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div className="space-y-6 animate-fadeIn pb-12 font-sans">
+      {/* Header */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#B9B9B4] pb-5">
         <div>
-          <div className="flex items-center space-x-2 text-xs text-slate-400 mb-1 font-mono">
-            <span>Indexes</span>
-            <span>/</span>
-            <span className="text-slate-200">{audit.hostname}</span>
-            <span>/</span>
-            <span className="text-emerald-400">audit-{audit.id}</span>
+          <div className="text-[11px] font-mono tracking-widest text-[#5E5E5E] uppercase font-bold">
+            AUDIT INSPECTOR &bull; #{audit.id}
           </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-2xl font-bold text-white font-mono tracking-tight">{audit.hostname}</h1>
-            <span className="px-2.5 py-0.5 text-xs font-mono rounded-md bg-[#1A1D24] text-slate-300 border border-[#2C313B]">
+          <h1 className="text-2xl font-black text-[#171717] tracking-tight uppercase font-display mt-0.5 flex items-center space-x-3">
+            <span>{audit.hostname}</span>
+            <span className="text-xs font-mono font-bold px-2.5 py-0.5 bg-[#171717] text-white">
               {audit.vendor}
             </span>
-            <span className="px-2 py-0.5 text-[11px] font-mono rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              Deterministic Engine
-            </span>
-          </div>
-          <p className="text-xs text-[#9AA2B0] mt-1.5 font-mono">
-            Evaluated at {new Date(audit.started_at).toLocaleString()} &bull; {findings.length} total controls evaluated
+          </h1>
+          <p className="text-xs text-[#5E5E5E] font-sans mt-1">
+            Executed on {audit.started_at} &bull; Score: <strong className="text-[#171717] font-mono">{audit.score}%</strong>
           </p>
         </div>
 
-        {/* Score & Export Button */}
-        <div className="flex items-center space-x-4">
-          <div className="bg-[#12141A] border border-[#22262F] rounded-xl px-4 py-2.5 flex items-center space-x-3 shadow-pinecone">
-            <div>
-              <div className="text-[10px] text-[#9AA2B0] uppercase font-semibold tracking-wider">Compliance</div>
-              <div className={`text-2xl font-extrabold font-mono ${
-                audit.score >= 80 ? 'text-emerald-400' : audit.score >= 60 ? 'text-amber-400' : 'text-rose-400'
-              }`}>
-                {audit.score}%
-              </div>
-            </div>
-            <div className="h-8 w-px bg-[#22262F]"></div>
-            <div className="text-xs space-y-0.5">
-              <div className="text-emerald-400 font-mono font-semibold">{passCount} Pass</div>
-              <div className="text-rose-400 font-mono font-semibold">{failCount} Fail</div>
-            </div>
-            {detail.effective_score !== null && detail.effective_score !== undefined &&
-              (detail.effective_score !== audit.score || waivedFails > 0) && (
-              <div className="ml-3 pl-3 border-l border-[#22262F] text-[10px] font-mono text-emerald-400 leading-tight">
-                <div>Governance-adjusted</div>
-                <div className="text-sm font-bold">{detail.effective_score}%</div>
-                <div className="text-[9px] text-slate-500">{waivedFails} fail(s) waived</div>
-              </div>
-            )}
-          </div>
-
-          {audit.device_id != null && onViewDeviceHistory && (
-            <button
-              onClick={() => onViewDeviceHistory(audit.device_id!)}
-              className="flex items-center space-x-2 border border-[#2C313B] hover:border-emerald-500/50 hover:bg-emerald-500/5 text-slate-200 font-medium px-4 py-2.5 rounded-lg text-xs transition"
-            >
-              <History className="w-3.5 h-3.5 text-emerald-400" />
-              <span>History & Drift</span>
-            </button>
-          )}
+        <div className="flex items-center space-x-3 font-mono text-xs">
           {onViewAttackPath && (
             <button
               onClick={() => onViewAttackPath(audit.id)}
-              className="flex items-center space-x-2 border border-[#2C313B] hover:border-rose-500/50 hover:bg-rose-500/5 text-slate-200 font-medium px-4 py-2.5 rounded-lg text-xs transition"
+              className="bg-[#D4A017] text-white font-bold px-4 py-2 trinetra-chamfer hover:bg-[#b58711] transition flex items-center space-x-2"
             >
-              <Network className="w-3.5 h-3.5 text-rose-400" />
-              <span>Attack Path Graph</span>
+              <GitFork className="w-4 h-4" />
+              <span>ATTACK PATHS ({attack_paths?.length || 0})</span>
             </button>
           )}
+
           <a
             href={getReportUrl(audit.id)}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center space-x-2 bg-white hover:bg-neutral-200 text-neutral-900 font-semibold px-4 py-2.5 rounded-lg text-xs transition shadow-sm"
+            className="bg-[#171717] text-white font-bold px-4 py-2 trinetra-chamfer hover:bg-[#232323] transition flex items-center space-x-2"
           >
-            <ExternalLink className="w-3.5 h-3.5 text-black stroke-[2.5]" />
-            <span>Export Report</span>
+            <ExternalLink className="w-4 h-4" />
+            <span>EXPORT REPORT</span>
           </a>
         </div>
       </div>
 
-      {/* Strategic Threat Severance Recommendation (Pinecone Highlight Card) */}
+      {/* Single Key Fix Hero Banner (if present) */}
       {single_fix_recommendation && (
-        <div className="bg-gradient-to-r from-[#0A2018] via-[#12141A] to-[#12141A] border border-emerald-500/40 rounded-xl p-6 shadow-pinecone-glow relative overflow-hidden">
-          <div className="flex items-center space-x-2 text-emerald-400 font-bold uppercase tracking-wider text-[11px] mb-2 font-mono">
-            <Zap className="w-4 h-4 text-amber-400 fill-amber-400" />
-            <span>Strategic Threat Severance Recommendation</span>
+        <div className="bg-[#171717] text-[#F1F1EF] border border-[#232323] trinetra-chamfer p-5 space-y-2 shadow-sm font-mono">
+          <div className="flex justify-between items-start">
+            <div className="flex items-center space-x-2 text-xs text-[#00A86B] font-bold tracking-widest uppercase">
+              <Zap className="w-4 h-4 text-[#00A86B]" />
+              <span>SINGLE KEY FIX (MAXIMUM LEVERAGE REMEDIATION)</span>
+            </div>
+            <button
+              onClick={() => handleCopyRemediation(single_fix_recommendation.remediation)}
+              className="text-[11px] bg-[#232323] hover:bg-[#3A3A3A] text-white px-2.5 py-1 border border-[#3A3A3A] flex items-center space-x-1"
+            >
+              {copiedRemediation ? <Check className="w-3.5 h-3.5 text-[#00A86B]" /> : <Copy className="w-3.5 h-3.5" />}
+              <span>{copiedRemediation ? 'COPIED' : 'COPY COMMAND'}</span>
+            </button>
           </div>
 
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
-            <div>
-              <h2 className="text-lg font-bold text-white tracking-tight">
-                Single Fix That Dismantles the Most Threat Chains
-              </h2>
-              <p className="text-xs text-slate-300 mt-1 max-w-3xl leading-relaxed">
-                {single_fix_recommendation.why}
-              </p>
-            </div>
-          </div>
+          <code className="block bg-[#000000] p-3 text-sm text-[#00A86B] border border-[#232323] overflow-x-auto">
+            {single_fix_recommendation.remediation}
+          </code>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
-            <div className="bg-[#0A0C0F] border border-[#22262F] p-3.5 rounded-lg">
-              <span className="text-[11px] text-[#9AA2B0] uppercase tracking-wider font-semibold">Target Control</span>
-              <div className="font-semibold text-white text-xs mt-1 truncate">
-                {single_fix_recommendation.rule_title}
-              </div>
-              <code className="text-xs text-emerald-400 font-mono mt-0.5 block">{single_fix_recommendation.rule_id}</code>
-            </div>
-
-            <div className="bg-[#0A0C0F] border border-[#22262F] p-3.5 rounded-lg">
-              <span className="text-[11px] text-[#9AA2B0] uppercase tracking-wider font-semibold">Threat Chains Severed</span>
-              <div className="font-bold text-emerald-400 text-lg font-mono mt-0.5">
-                {single_fix_recommendation.paths_broken_count} of {attack_paths.length} chains
-              </div>
-              <span className="text-[11px] text-slate-400">
-                Leaves only {single_fix_recommendation.remaining_paths_count} active vector
-              </span>
-            </div>
-
-            <div className="bg-[#0A0C0F] border border-[#22262F] p-3.5 rounded-lg">
-              <span className="text-[11px] text-[#9AA2B0] uppercase tracking-wider font-semibold">Impact Score Gain</span>
-              <div className="font-bold text-amber-400 text-lg font-mono mt-0.5">
-                +{single_fix_recommendation.impact_score} pts
-              </div>
-              <span className="text-[11px] text-slate-400">Deterministic security boost</span>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] uppercase font-semibold text-[#9AA2B0] tracking-wider font-mono">
-                Exact Remediation Script:
-              </span>
-              <button
-                onClick={() => handleCopyRemediation(single_fix_recommendation.remediation)}
-                className="flex items-center space-x-1.5 text-xs text-slate-300 hover:text-white bg-[#1A1D24] hover:bg-[#262B35] px-2.5 py-1 rounded border border-[#2C313B] transition font-mono"
-              >
-                {copiedRemediation ? (
-                  <>
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
-                    <span className="text-emerald-400">Copied</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-3.5 h-3.5" />
-                    <span>Copy CLI Commands</span>
-                  </>
-                )}
-              </button>
-            </div>
-            <pre className="bg-[#0A0C0F] border border-[#22262F] rounded-lg p-3.5 text-xs text-emerald-400 font-mono overflow-x-auto leading-relaxed">
-              {single_fix_recommendation.remediation}
-            </pre>
+          <div className="text-[11px] text-[#B9B9B4] flex items-center space-x-4 pt-1">
+            <span>Dismantles <strong className="text-white">{single_fix_recommendation.paths_broken_count}</strong> attack paths</span>
+            <span>&bull;</span>
+            <span>Rule: <strong className="text-white">{single_fix_recommendation.rule_id}</strong> ({single_fix_recommendation.rule_title})</span>
           </div>
         </div>
       )}
 
-      {/* Correlated Attack Paths Section */}
-      {attack_paths.length > 0 && (
-        <div className="bg-[#12141A] border border-[#22262F] rounded-xl p-6 space-y-4 shadow-pinecone">
-          <div className="flex items-center justify-between border-b border-[#22262F] pb-4">
-            <div className="flex items-center space-x-2">
-              <Network className="w-4 h-4 text-orange-400" />
-              <h3 className="font-bold text-white text-sm">
-                Correlated Exploit Attack Chains ({attack_paths.length})
-              </h3>
-            </div>
-            <span className="text-xs text-slate-400 font-mono">Multi-stage graph narrative</span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {attack_paths.map((path) => (
-              <div
-                key={path.chain_id}
-                className="bg-[#0A0C0F] border border-[#22262F] hover:border-[#2C313B] rounded-lg p-4 space-y-2.5 transition"
-              >
-                <div className="flex justify-between items-start">
-                  <h4 className="font-semibold text-white text-xs pr-2">{path.name}</h4>
-                  <span className="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 uppercase">
-                    {path.severity}
-                  </span>
-                </div>
-                <p className="text-xs text-[#9AA2B0] leading-relaxed">{path.narrative}</p>
-
-                <div className="border-t border-[#262B35] pt-2 space-y-1">
-                  <div className="text-[11px] text-slate-400 flex items-center space-x-1 font-mono">
-                    <CornerDownRight className="w-3 h-3 text-slate-500" />
-                    <span>Prerequisite Findings:</span>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {path.finding_rule_ids.map((rid) => (
-                      <span
-                        key={rid}
-                        className="px-2 py-0.5 bg-[#12141A] text-[10px] font-mono text-rose-300 rounded border border-rose-500/20"
-                      >
-                        {rid}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Pinecone Findings Table Section with Interactive Filtering */}
-      <div className="bg-[#12141A] border border-[#22262F] rounded-xl overflow-hidden shadow-pinecone">
-        <div className="p-4 border-b border-[#22262F] space-y-4">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-            <div>
-              <h3 className="font-bold text-white text-sm">Deterministic Compliance Evaluations</h3>
-              <p className="text-[11px] text-[#9AA2B0]">
-                Showing {filteredFindings.length} of {findings.length} evaluated rules
-              </p>
-            </div>
-
-            {/* Search Input for Rules */}
-            <div className="relative w-full sm:w-64">
-              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+      {/* Main Grid: Findings Table + Config Evidence Drawer */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left 7 Columns: Findings Table */}
+        <div className="lg:col-span-7 bg-[#F1F1EF] border border-[#B9B9B4] trinetra-chamfer p-4 space-y-4 shadow-sm">
+          {/* Controls Bar */}
+          <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 border-b border-[#B9B9B4] pb-3 font-mono text-xs">
+            <div className="relative flex-1">
+              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#5E5E5E]" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Filter rules by title or ID..."
-                className="w-full bg-[#0A0C0F] border border-[#22262F] focus:border-emerald-500 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none transition"
+                placeholder="Search findings..."
+                className="w-full bg-[#EAEAE7] border border-[#B9B9B4] text-xs text-[#171717] pl-8 pr-3 py-1 focus:outline-none"
               />
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="bg-[#EAEAE7] border border-[#B9B9B4] text-xs text-[#171717] px-2 py-1 focus:outline-none"
+              >
+                <option value="ALL">ALL STATUS</option>
+                <option value="FAIL">FAIL</option>
+                <option value="PASS">PASS</option>
+              </select>
+
+              <select
+                value={severityFilter}
+                onChange={(e) => setSeverityFilter(e.target.value)}
+                className="bg-[#EAEAE7] border border-[#B9B9B4] text-xs text-[#171717] px-2 py-1 focus:outline-none"
+              >
+                <option value="ALL">ALL SEVERITY</option>
+                <option value="CRITICAL">CRITICAL</option>
+                <option value="HIGH">HIGH</option>
+                <option value="MEDIUM">MEDIUM</option>
+                <option value="LOW">LOW</option>
+              </select>
             </div>
           </div>
 
-          {/* Filter Pills */}
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            {/* Framework Filter */}
-            <div className="flex items-center space-x-1 bg-[#0A0C0F] p-0.5 rounded-lg border border-[#22262F]">
-              {['ALL', 'CIS', 'NIST-800-53', 'DISA-STIG'].map((fw) => (
-                <button
-                  key={fw}
-                  onClick={() => setFrameworkFilter(fw)}
-                  className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition ${
-                    frameworkFilter === fw
-                      ? 'bg-[#22262F] text-white font-semibold'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  {fw}
-                </button>
-              ))}
-            </div>
-
-            {/* Severity Filter */}
-            <div className="flex items-center space-x-1 bg-[#0A0C0F] p-0.5 rounded-lg border border-[#22262F]">
-              {['ALL', 'CRITICAL', 'HIGH', 'MEDIUM', 'LOW'].map((sev) => (
-                <button
-                  key={sev}
-                  onClick={() => setSeverityFilter(sev)}
-                  className={`px-2 py-1 rounded-md text-[11px] font-medium transition ${
-                    severityFilter === sev
-                      ? 'bg-[#22262F] text-white font-semibold'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  {sev}
-                </button>
-              ))}
-            </div>
-
-            {/* Status Filter */}
-            <div className="flex items-center space-x-1 bg-[#0A0C0F] p-0.5 rounded-lg border border-[#22262F]">
-              {['ALL', 'FAIL', 'PASS'].map((st) => (
-                <button
-                  key={st}
-                  onClick={() => setStatusFilter(st)}
-                  className={`px-2 py-1 rounded-md text-[11px] font-medium transition ${
-                    statusFilter === st
-                      ? 'bg-[#22262F] text-white font-semibold'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  {st}
-                </button>
-              ))}
-            </div>
+          {/* Table */}
+          <div className="overflow-x-auto">
+            <table className="w-full text-left font-mono text-xs">
+              <thead className="text-[10px] text-[#5E5E5E] border-b border-[#B9B9B4] uppercase">
+                <tr>
+                  <th className="py-2 px-3">Rule ID</th>
+                  <th className="py-2 px-3">Title / Control</th>
+                  <th className="py-2 px-3">Framework</th>
+                  <th className="py-2 px-3">Severity</th>
+                  <th className="py-2 px-3">Status</th>
+                  <th className="py-2 px-3 text-right">Line</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#B9B9B4]/40">
+                {filteredFindings.map((f) => {
+                  const isSelected = selectedFinding?.rule_id === f.rule_id;
+                  return (
+                    <tr
+                      key={f.rule_id}
+                      onClick={() => setSelectedFinding(f)}
+                      className={`cursor-pointer transition ${
+                        isSelected ? 'bg-[#171717] text-white' : 'hover:bg-[#EAEAE7] text-[#171717]'
+                      }`}
+                    >
+                      <td className="py-2.5 px-3 font-bold text-[11px]">{f.rule_id}</td>
+                      <td className="py-2.5 px-3 font-medium truncate max-w-[200px]">{f.title}</td>
+                      <td className={`py-2.5 px-3 text-[11px] ${isSelected ? 'text-[#B9B9B4]' : 'text-[#5E5E5E]'}`}>{f.framework}</td>
+                      <td className="py-2.5 px-3">
+                        <span className={`px-2 py-0.5 text-[9px] font-bold uppercase ${
+                          f.severity === 'critical' ? 'bg-[#D64545] text-white' : f.severity === 'high' ? 'bg-[#D4A017] text-white' : 'bg-[#0057B8] text-white'
+                        }`}>
+                          {f.severity}
+                        </span>
+                      </td>
+                      <td className="py-2.5 px-3">
+                        <span className={`font-bold text-[10px] uppercase ${
+                          f.status === 'pass' ? 'text-[#00A86B]' : 'text-[#D64545]'
+                        }`}>
+                          {f.status}
+                        </span>
+                      </td>
+                      <td className="py-2.5 px-3 text-right font-bold">
+                        {f.evidence?.line_start ? `#${f.evidence.line_start}` : '-'}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
 
-        {/* Findings List */}
-        <div className="divide-y divide-[#22262F]/60">
-          {filteredFindings.length === 0 ? (
-            <div className="p-8 text-center text-slate-500 text-xs">
-              No compliance rules match the current filters.
+        {/* Right 5 Columns: Config Evidence Viewer */}
+        <div className="lg:col-span-5 bg-[#F1F1EF] border border-[#B9B9B4] trinetra-chamfer p-4 space-y-3 shadow-sm font-mono">
+          <div className="flex justify-between items-center border-b border-[#B9B9B4] pb-2 text-xs font-bold text-[#171717]">
+            <span>LINE EVIDENCE & CODE VIEWER</span>
+            {selectedFinding && (
+              <span className="text-[#00A86B]">RULE #{selectedFinding.rule_id}</span>
+            )}
+          </div>
+
+          {selectedFinding ? (
+            <div className="space-y-3">
+              <div className="bg-[#EAEAE7] border border-[#B9B9B4] p-3 text-xs space-y-1">
+                <div className="font-bold text-[#171717]">{selectedFinding.title}</div>
+                <div className="text-[11px] text-[#5E5E5E]">{selectedFinding.explanation || selectedFinding.rule_id}</div>
+              </div>
+
+              {/* Code Snippet */}
+              {selectedFinding.evidence?.snippet ? (
+                <div className="bg-[#171717] text-[#00A86B] p-3 border border-[#232323] h-64 overflow-y-auto text-xs leading-relaxed font-mono">
+                  <pre>{selectedFinding.evidence.snippet}</pre>
+                </div>
+              ) : (
+                <div className="bg-[#171717] text-[#B9B9B4] p-4 border border-[#232323] text-xs">
+                  No direct line snippet returned for this rule check.
+                </div>
+              )}
+
+              {/* Remediation Snippet */}
+              {selectedFinding.remediation && (
+                <div className="bg-[#171717] text-white p-3 border border-[#232323] space-y-1">
+                  <div className="text-[10px] text-[#00A86B] font-bold uppercase">REMEDIATION COMMAND:</div>
+                  <code className="text-xs text-[#00A86B] block">{selectedFinding.remediation}</code>
+                </div>
+              )}
             </div>
           ) : (
-            filteredFindings.map((f) => {
-              const isFailed = f.status === 'fail';
-              const isWaived = !!f.waived;
-              return (
-                <div
-                  key={f.rule_id}
-                  className={`p-4 hover:bg-[#1A1D24]/80 transition flex flex-col md:flex-row justify-between items-start md:items-center gap-4 group ${
-                    isWaived ? 'bg-amber-500/[0.05] border-l-2 border-amber-400/70' : ''
-                  }`}
-                >
-                  <div className="space-y-1 max-w-3xl">
-                    <div className="flex items-center space-x-2">
-                      <span className="font-mono text-xs font-semibold text-emerald-400">{f.rule_id}</span>
-                      <span className="text-[10px] uppercase font-mono px-2 py-0.2 rounded bg-[#0A0C0F] text-slate-400 border border-[#22262F]">
-                        {f.framework}
-                      </span>
-                      <span
-                        className={`text-[10px] font-bold uppercase font-mono px-1.5 py-0.2 rounded ${
-                          f.severity === 'critical'
-                            ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
-                            : f.severity === 'high'
-                            ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20'
-                            : f.severity === 'medium'
-                            ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                            : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-                        }`}
-                      >
-                        {f.severity}
-                      </span>
-                      {isWaived && (
-                        <span className="text-[10px] font-bold uppercase font-mono px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-300 border border-amber-400/40">
-                          Waived
-                        </span>
-                      )}
-                    </div>
-                    <h4 className="text-xs font-semibold text-white tracking-tight">{f.title}</h4>
-                    <p className="text-[11px] text-[#9AA2B0] leading-relaxed">{f.explanation}</p>
-                    {isWaived && (
-                      <div className="mt-2 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2 space-y-1">
-                        <div className="text-[10px] font-mono text-amber-300">
-                          WAIVER — by <span className="font-bold">{f.waived_by || 'unknown'}</span>
-                          {f.waived_at ? <> at {new Date(f.waived_at).toLocaleString()}</> : null}
-                        </div>
-                        {f.waiver_justification && (
-                          <div className="text-[11px] text-slate-300 leading-relaxed">
-                            &ldquo;{f.waiver_justification}&rdquo;
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex items-center space-x-4 flex-shrink-0">
-                    {/* Status Pill */}
-                    <div className="flex items-center space-x-1.5">
-                      {isWaived ? (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/10 text-amber-300 border border-amber-500/20">
-                          WAIVED
-                        </span>
-                      ) : isFailed ? (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">
-                          FAIL
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                          PASS
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Governance Waiver / Unwaiver Actions */}
-                    {isFailed && f.id && !isWaived && (
-                      <button
-                        onClick={() => setWaiverTarget(f)}
-                        className="flex items-center space-x-1 text-xs bg-[#0A0C0F] hover:bg-amber-500/10 text-amber-300 px-2.5 py-1.5 rounded-lg border border-[#22262F] hover:border-amber-500/40 transition font-mono"
-                      >
-                        <ShieldCheck className="w-3.5 h-3.5" />
-                        <span>Waive</span>
-                      </button>
-                    )}
-                    {isWaived && f.id && (
-                      <button
-                        onClick={() => applyUnwaive(f)}
-                        disabled={waiverBusy}
-                        className="flex items-center space-x-1 text-xs bg-[#0A0C0F] hover:bg-rose-500/10 text-rose-300 px-2.5 py-1.5 rounded-lg border border-[#22262F] hover:border-rose-500/40 transition font-mono disabled:opacity-40"
-                      >
-                        <XCircle className="w-3.5 h-3.5" />
-                        <span>Unwaive</span>
-                      </button>
-                    )}
-
-                    {/* Evidence Snippet Trigger */}
-                    {f.evidence && f.evidence.line_start && (
-                      <button
-                        onClick={() => setSelectedFinding(f)}
-                        className="flex items-center space-x-1 text-xs bg-[#0A0C0F] hover:bg-[#1A1D24] text-slate-300 px-2.5 py-1.5 rounded-lg border border-[#22262F] transition font-mono"
-                      >
-                        <Code className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>Line {f.evidence.line_start}</span>
-                      </button>
-                    )}
-                  </div>
-                </div>
-              );
-            })
+            <div className="h-80 flex flex-col justify-center items-center text-center p-6 text-[#5E5E5E] text-xs">
+              <Code className="w-8 h-8 mb-2 text-[#5E5E5E]" />
+              <p className="font-bold">Select a finding on the left to view exact line-level evidence</p>
+            </div>
           )}
         </div>
       </div>
-
-      {/* Evidence Modal / Slideover */}
-      {selectedFinding && (
-        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
-          <div className="bg-[#12141A] border border-[#2C313B] rounded-xl max-w-2xl w-full p-6 space-y-4 shadow-2xl">
-            <div className="flex justify-between items-start border-b border-[#22262F] pb-3">
-              <div>
-                <h3 className="font-bold text-white text-base">Configuration Evidence</h3>
-                <p className="text-xs text-slate-400 font-mono mt-0.5">
-                  Rule: {selectedFinding.rule_id} &bull; Lines {selectedFinding.evidence?.line_start}-
-                  {selectedFinding.evidence?.line_end || selectedFinding.evidence?.line_start}
-                </p>
-              </div>
-              <button
-                onClick={() => setSelectedFinding(null)}
-                className="text-slate-400 hover:text-white text-xs px-2 py-1 rounded hover:bg-[#22262F] transition"
-              >
-                &times; Close
-              </button>
-            </div>
-
-            <div className="space-y-1">
-              <span className="text-[11px] uppercase font-semibold text-[#9AA2B0] tracking-wider font-mono">
-                Running Config Snippet:
-              </span>
-              <pre className="bg-[#0A0C0F] border border-[#22262F] rounded-lg p-4 font-mono text-xs text-emerald-400 overflow-x-auto">
-                {selectedFinding.evidence?.snippet || 'No raw snippet captured.'}
-              </pre>
-            </div>
-
-            {selectedFinding.remediation && (
-              <div className="space-y-1">
-                <span className="text-[11px] uppercase font-semibold text-[#9AA2B0] tracking-wider font-mono">
-                  Recommended CLI Fix:
-                </span>
-                <pre className="bg-[#0A0C0F] border border-[#22262F] rounded-lg p-3 font-mono text-xs text-emerald-300 overflow-x-auto">
-                  {selectedFinding.remediation}
-                </pre>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Governance Waiver Modal */}
-      {waiverTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-[#12151A] border border-[#2C313B] rounded-2xl w-full max-w-lg shadow-2xl">
-            <div className="p-5 border-b border-[#22262F] flex items-center justify-between">
-              <div>
-                <h3 className="text-sm font-semibold text-white">Apply Governance Waiver</h3>
-                <p className="text-[11px] text-slate-400 font-mono mt-0.5">
-                  {waiverTarget.rule_id} — {waiverTarget.title}
-                </p>
-              </div>
-              <button
-                onClick={() => setWaiverTarget(null)}
-                className="text-slate-500 hover:text-white transition"
-              >
-                <XCircle className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="p-5 space-y-4">
-              {waiverError && (
-                <div className="bg-rose-500/10 border border-rose-500/30 rounded-lg px-3 py-2 text-xs font-mono text-rose-300">
-                  {waiverError}
-                </div>
-              )}
-              <div>
-                <label className="text-[10px] uppercase font-mono text-slate-500 tracking-wider">
-                  Justification (why is this risk accepted?)
-                </label>
-                <textarea
-                  value={waiverJustification}
-                  onChange={(e) => setWaiverJustification(e.target.value)}
-                  rows={3}
-                  placeholder="e.g. Compensating control in place; remediation scheduled for next maintenance window"
-                  className="mt-1.5 w-full bg-[#0A0C0F] border border-[#22262F] rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-amber-500/50 font-mono"
-                />
-              </div>
-              <div>
-                <label className="text-[10px] uppercase font-mono text-slate-500 tracking-wider">
-                  Reviewing analyst
-                </label>
-                <input
-                  value={waiverReviewer}
-                  onChange={(e) => setWaiverReviewer(e.target.value)}
-                  className="mt-1.5 w-full bg-[#0A0C0F] border border-[#22262F] rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-500/50 font-mono"
-                />
-              </div>
-              <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2 text-[11px] text-slate-300">
-                Waiving this finding removes it from the effective compliance fail count.
-                The action is recorded in the audit trail.
-              </div>
-            </div>
-            <div className="p-5 border-t border-[#22262F] flex justify-end space-x-2">
-              <button
-                onClick={() => setWaiverTarget(null)}
-                className="text-xs px-4 py-2 rounded-lg border border-[#22262F] text-slate-400 hover:text-white transition"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={applyWaive}
-                disabled={!waiverJustification.trim() || waiverBusy}
-                className="text-xs px-4 py-2 rounded-lg bg-amber-500/80 hover:bg-amber-400 text-black font-semibold transition disabled:opacity-40"
-              >
-                {waiverBusy ? 'Applying…' : 'Apply Waiver'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
-// test
