@@ -109,103 +109,105 @@ export const App: React.FC = () => {
 
       <div className="flex-1 flex flex-col">
         <main className="flex-1 w-full mx-auto max-w-[1440px] px-5 sm:px-8 lg:px-12 py-10 lg:py-14">
-          {currentTab === 'landing' && (
-            <LandingView
-              onEnterDashboard={() => navigateToTab('dashboard')}
-              onNewAudit={() => navigateToTab('upload')}
-              onExploreFleet={() => navigateToTab('fleet')}
-              onOpenMappings={() => navigateToTab('mappings')}
-              onOpenAuditTrail={() => navigateToTab('audit-trail')}
-            />
-          )}
+          <div key={`${currentTab}-${activeAuditId || ''}-${activeDeviceId || ''}`} className="view-transition">
+            {currentTab === 'landing' && (
+              <LandingView
+                onEnterDashboard={() => navigateToTab('dashboard')}
+                onNewAudit={() => navigateToTab('upload')}
+                onExploreFleet={() => navigateToTab('fleet')}
+                onOpenMappings={() => navigateToTab('mappings')}
+                onOpenAuditTrail={() => navigateToTab('audit-trail')}
+              />
+            )}
 
-          {currentTab === 'dashboard' && (
-            <DashboardView
-              overview={overview}
-              loading={loading}
-              onSelectAudit={handleSelectAudit}
-              onNewAudit={() => navigateToTab('upload')}
-            />
-          )}
+            {currentTab === 'dashboard' && (
+              <DashboardView
+                overview={overview}
+                loading={loading}
+                onSelectAudit={handleSelectAudit}
+                onNewAudit={() => navigateToTab('upload')}
+              />
+            )}
 
-          {currentTab === 'upload' && (
-            <UploadView
-              onAuditCompleted={handleAuditCompleted}
-              onAIMappingCreated={handleAIMappingCreated}
-            />
-          )}
+            {currentTab === 'upload' && (
+              <UploadView
+                onAuditCompleted={handleAuditCompleted}
+                onAIMappingCreated={handleAIMappingCreated}
+              />
+            )}
 
-          {currentTab === 'audit-detail' && activeAuditId && (
-            <AuditDetailView
-              auditId={activeAuditId}
-              onViewDeviceHistory={handleViewDeviceHistory}
-              onViewAttackPath={handleViewAttackPath}
-              onBack={handleBack}
-              onNavigateTab={navigateToTab}
-            />
-          )}
+            {currentTab === 'audit-detail' && activeAuditId && (
+              <AuditDetailView
+                auditId={activeAuditId}
+                onViewDeviceHistory={handleViewDeviceHistory}
+                onViewAttackPath={handleViewAttackPath}
+                onBack={handleBack}
+                onNavigateTab={navigateToTab}
+              />
+            )}
 
-          {currentTab === 'attack-path' && activeAuditId && (
-            <AttackPathGraph
-              auditId={activeAuditId}
-              onBack={handleBack}
-            />
-          )}
+            {currentTab === 'attack-path' && activeAuditId && (
+              <AttackPathGraph
+                auditId={activeAuditId}
+                onBack={handleBack}
+              />
+            )}
 
-          {currentTab === 'device-history' && activeDeviceId && (
-            <DeviceHistoryView
-              deviceId={activeDeviceId}
-              onSelectAudit={handleSelectAudit}
-              onBack={handleBack}
-            />
-          )}
+            {currentTab === 'device-history' && activeDeviceId && (
+              <DeviceHistoryView
+                deviceId={activeDeviceId}
+                onSelectAudit={handleSelectAudit}
+                onBack={handleBack}
+              />
+            )}
 
-          {currentTab === 'fleet' && (
-            <FleetView onSelectAudit={handleSelectAudit} />
-          )}
+            {currentTab === 'fleet' && (
+              <FleetView onSelectAudit={handleSelectAudit} />
+            )}
 
-          {currentTab === 'mappings' && (
-            <MappingsView onMappingApproved={handleMappingApproved} />
-          )}
+            {currentTab === 'mappings' && (
+              <MappingsView onMappingApproved={handleMappingApproved} />
+            )}
 
-          {currentTab === 'audit-trail' && (
-            <AuditTrailView />
-          )}
+            {currentTab === 'audit-trail' && (
+              <AuditTrailView />
+            )}
 
-          {currentTab === 'devices' && (
-            <DevicesView
-              onSelectAudit={handleSelectAudit}
-              onViewDeviceHistory={handleViewDeviceHistory}
-            />
-          )}
+            {currentTab === 'devices' && (
+              <DevicesView
+                onSelectAudit={handleSelectAudit}
+                onViewDeviceHistory={handleViewDeviceHistory}
+              />
+            )}
 
-          {currentTab === 'findings' && (
-            <FindingsView
-              onSelectAudit={handleSelectAudit}
-            />
-          )}
+            {currentTab === 'findings' && (
+              <FindingsView
+                onSelectAudit={handleSelectAudit}
+              />
+            )}
 
-          {(currentTab === 'reports' || currentTab === 'settings') && (
-            <div className="relative card overflow-hidden p-10 text-center max-w-2xl mx-auto mt-8">
-              {/* Decorative shapes allowed in empty states only */}
-              <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
-                <div className="orb orb-violet orb-drift-a -top-16 -left-12 h-48 w-48 opacity-60" />
-                <div className="orb orb-indigo orb-drift-b -bottom-20 -right-14 h-56 w-56 opacity-50" />
+            {(currentTab === 'reports' || currentTab === 'settings') && (
+              <div className="relative card overflow-hidden p-10 text-center max-w-2xl mx-auto mt-8">
+                {/* Decorative shapes allowed in empty states only */}
+                <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
+                  <div className="orb orb-violet orb-drift-a -top-16 -left-12 h-48 w-48 opacity-60" />
+                  <div className="orb orb-indigo orb-drift-b -bottom-20 -right-14 h-56 w-56 opacity-50" />
+                </div>
+                <div className="relative z-10 space-y-4">
+                  <Shield className="w-10 h-10 text-accent-hover mx-auto" />
+                  <h2 className="section-title uppercase tracking-wide">
+                    TRINETRA {currentTab.toUpperCase()} Module
+                  </h2>
+                  <p className="text-body text-muted max-w-md mx-auto">
+                    Deterministic compliance auditing active for CIS Cisco, FortiOS, NIST SP 800-53 and DISA STIG benchmarks.
+                  </p>
+                  <button onClick={() => setCurrentTab('dashboard')} className="btn btn-solid">
+                    &larr; Return to Dashboard
+                  </button>
+                </div>
               </div>
-              <div className="relative z-10 space-y-4">
-                <Shield className="w-10 h-10 text-accent-hover mx-auto" />
-                <h2 className="section-title uppercase tracking-wide">
-                  TRINETRA {currentTab.toUpperCase()} Module
-                </h2>
-                <p className="text-body text-muted max-w-md mx-auto">
-                  Deterministic compliance auditing active for CIS Cisco, FortiOS, NIST SP 800-53 and DISA STIG benchmarks.
-                </p>
-                <button onClick={() => setCurrentTab('dashboard')} className="btn btn-solid">
-                  &larr; Return to Dashboard
-                </button>
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </main>
 
         <footer className="border-t border-white/10 bg-[#0c0c0e] py-6 px-6">

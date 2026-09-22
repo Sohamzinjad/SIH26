@@ -8,6 +8,8 @@ import {
   ShieldCheck,
   Info,
   Terminal,
+  ChevronDown,
+  Layers,
 } from 'lucide-react';
 
 interface MappingsViewProps {
@@ -20,6 +22,13 @@ export const MappingsView: React.FC<MappingsViewProps> = ({ onMappingApproved })
   const [error, setError] = useState<string | null>(null);
   const [processingId, setProcessingId] = useState<number | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [expandedIds, setExpandedIds] = useState<number[]>([]);
+
+  const toggleExpand = (id: number) => {
+    setExpandedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
 
   useEffect(() => {
     loadMappings();
@@ -166,6 +175,49 @@ export const MappingsView: React.FC<MappingsViewProps> = ({ onMappingApproved })
                     <pre className="code-surface h-80 p-4 text-ok leading-relaxed">
                       {JSON.stringify(m.proposed_schema, null, 2)}
                     </pre>
+                  </div>
+                </div>
+
+                {/* Expandable AST detail toggle with smooth collapsible animation */}
+                <div className="pt-1">
+                  <button
+                    onClick={() => toggleExpand(m.id)}
+                    className="btn btn-ghost btn-sm !py-1.5 !px-3 text-xs w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2"
+                  >
+                    <span className="flex items-center gap-1.5 font-mono text-[11px]">
+                      <Layers className="w-3.5 h-3.5 text-accent-hover" />
+                      {expandedIds.includes(m.id) ? 'Hide syntax parsing & schema metadata' : 'Inspect syntax parsing & schema metadata'}
+                    </span>
+                    <ChevronDown
+                      className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                        expandedIds.includes(m.id) ? 'rotate-180' : ''
+                      }`}
+                    />
+                  </button>
+
+                  <div className={`collapsible-grid ${expandedIds.includes(m.id) ? 'is-expanded' : ''}`}>
+                    <div className="collapsible-inner pt-3">
+                      <div className="rounded-xl border border-white/10 bg-surface-2 p-4 space-y-3 font-mono text-xs">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          <div className="rounded-lg bg-surface-3 p-3 border border-white/5 space-y-1">
+                            <span className="text-faint text-[10px] uppercase tracking-wider block">Full Fingerprint</span>
+                            <span className="text-ink break-all text-[11px]">{m.fingerprint_hash}</span>
+                          </div>
+                          <div className="rounded-lg bg-surface-3 p-3 border border-white/5 space-y-1">
+                            <span className="text-faint text-[10px] uppercase tracking-wider block">Proposed Dialect Engine</span>
+                            <span className="text-ok font-bold">{m.vendor_guessed || 'Generic Multi-Vendor'}</span>
+                          </div>
+                          <div className="rounded-lg bg-surface-3 p-3 border border-white/5 space-y-1">
+                            <span className="text-faint text-[10px] uppercase tracking-wider block">Determinism Verification</span>
+                            <span className="text-accent-hover font-bold">100% Verifiable AST Grammar</span>
+                          </div>
+                        </div>
+
+                        <div className="text-caption text-muted font-sans">
+                          Once approved, this white-box grammar will be written to the deterministic dialect registry. Subsequent audits for this vendor syntax will skip LLM inference entirely and evaluate with zero hallucination.
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 

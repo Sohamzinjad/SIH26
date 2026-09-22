@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AuditDetail, Finding } from '../types';
-import { fetchAuditDetail, getReportUrl } from '../api/client';
+import { fetchAuditDetail, getReportUrl, waiveFinding, unwaiveFinding } from '../api/client';
 import {
   ExternalLink,
   Zap,
@@ -11,6 +11,8 @@ import {
   Code,
   ArrowLeft,
   Workflow,
+  ShieldAlert,
+  ChevronDown,
 } from 'lucide-react';
 
 interface AuditDetailViewProps {
@@ -36,20 +38,73 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onVie
   const [selectedFinding, setSelectedFinding] = useState<Finding | null>(null);
   const [copiedRemediation, setCopiedRemediation] = useState(false);
 
+  // Waiver form state
+  const [isWaiverOpen, setIsWaiverOpen] = useState(false);
+  const [waiverJustification, setWaiverJustification] = useState('');
+  const [waivedBy, setWaivedBy] = useState('SecOps-Lead');
+  const [waiverProcessing, setWaiverProcessing] = useState(false);
+  const [waiverMsg, setWaiverMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
   useEffect(() => {
     loadAudit();
   }, [auditId]);
 
-  const loadAudit = async () => {
+  const loadAudit = async (reselectRuleId?: string) => {
     setLoading(true);
     setError(null);
     try {
       const data = await fetchAuditDetail(auditId);
       setDetail(data);
+      if (reselectRuleId) {
+        const updated = data.findings?.find((f) => f.rule_id === reselectRuleId);
+        if (updated) setSelectedFinding(updated);
+      } else if (selectedFinding) {
+        const updated = data.findings?.find((f) => f.rule_id === selectedFinding.rule_id);
+        if (updated) setSelectedFinding(updated);
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to load audit detail');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleApplyWaiver = async () => {
+    if (!selectedFinding?.id) {
+      setWaiverMsg({ type: 'error', text: 'Finding ID not available for waiver' });
+      return;
+    }
+    if (!waiverJustification.trim()) {
+      setWaiverMsg({ type: 'error', text: 'Waiver justification is required' });
+      return;
+    }
+    setWaiverProcessing(true);
+    setWaiverMsg(null);
+    try {
+      await waiveFinding(selectedFinding.id, waiverJustification.trim(), waivedBy.trim() || 'analyst');
+      setWaiverMsg({ type: 'success', text: `Finding #${selectedFinding.rule_id} waived successfully.` });
+      setIsWaiverOpen(false);
+      setWaiverJustification('');
+      await loadAudit(selectedFinding.rule_id);
+    } catch (err: any) {
+      setWaiverMsg({ type: 'error', text: err.message || 'Failed to submit waiver' });
+    } finally {
+      setWaiverProcessing(false);
+    }
+  };
+
+  const handleRevokeWaiver = async () => {
+    if (!selectedFinding?.id) return;
+    setWaiverProcessing(true);
+    setWaiverMsg(null);
+    try {
+      await unwaiveFinding(selectedFinding.id);
+      setWaiverMsg({ type: 'success', text: `Waiver on #${selectedFinding.rule_id} revoked.` });
+      await loadAudit(selectedFinding.rule_id);
+    } catch (err: any) {
+      setWaiverMsg({ type: 'error', text: err.message || 'Failed to revoke waiver' });
+    } finally {
+      setWaiverProcessing(false);
     }
   };
 
@@ -297,9 +352,13 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onVie
                       <td className={`py-2.5 px-3 text-[12px] ${isSelected ? 'text-muted' : 'text-faint'}`}>{f.framework}</td>
                       <td className="py-2.5 px-3">{severityBadge(f.severity)}</td>
                       <td className="py-2.5 px-3">
-                        <span className={`font-bold text-[11px] uppercase ${f.status === 'pass' ? 'text-ok' : 'text-crit'}`}>
-                          {f.status}
-                        </span>
+                        {f.waived ? (
+                          <span className="badge badge-pending">Waived</span>
+                        ) : (
+                          <span className={`font-bold text-[11px] uppercase ${f.status === 'pass' ? 'text-ok' : 'text-crit'}`}>
+                            {f.status}
+                          </span>
+                        )}
                       </td>
                       <td className="py-2.5 px-3 text-right font-bold text-muted">
                         {f.evidence?.line_start ? `#${f.evidence.line_start}` : '-'}
@@ -354,6 +413,106 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onVie
                   <code className="block code-surface p-3 text-[13px] font-mono text-ok">{selectedFinding.remediation}</code>
                 </div>
               )}
+
+              {/* Waiver Section with smooth collapsible animation */}
+              <div className="card-raise p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="font-mono text-[11px] font-bold uppercase tracking-widest text-muted flex items-center gap-1.5">
+                    <ShieldAlert className="w-3.5 h-3.5 text-accent-hover" />
+                    <span>Governance Waiver &amp; Exception</span>
+                  </div>
+                  {selectedFinding.waived ? (
+                    <span className="badge badge-pending">Waived</span>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setIsWaiverOpen(!isWaiverOpen);
+                        setWaiverMsg(null);
+                      }}
+                      className="btn btn-ghost btn-sm !py-1 !px-2.5 text-[11px]"
+                    >
+                      <span>{isWaiverOpen ? 'Close form' : 'Grant waiver'}</span>
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                          isWaiverOpen ? 'rotate-180' : ''
+                        }`}
+                      />
+                    </button>
+                  )}
+                </div>
+
+                {waiverMsg && (
+                  <div
+                    className={`banner !py-2 !px-3 text-xs ${
+                      waiverMsg.type === 'success' ? 'banner-success' : 'banner-error'
+                    }`}
+                  >
+                    {waiverMsg.text}
+                  </div>
+                )}
+
+                {selectedFinding.waived ? (
+                  <div className="space-y-2 text-xs">
+                    <div className="rounded-lg bg-surface-3 p-3 border border-white/10 space-y-1">
+                      <div className="text-muted">
+                        Waived by <strong className="text-ink">{selectedFinding.waived_by || 'analyst'}</strong>
+                        {selectedFinding.waived_at ? ` on ${selectedFinding.waived_at}` : ''}
+                      </div>
+                      <div className="text-faint italic font-mono text-[11px]">
+                        "{selectedFinding.waiver_justification || 'No justification recorded'}"
+                      </div>
+                    </div>
+                    <button
+                      onClick={handleRevokeWaiver}
+                      disabled={waiverProcessing}
+                      className="btn btn-danger btn-sm w-full"
+                    >
+                      {waiverProcessing ? 'Revoking…' : 'Revoke waiver'}
+                    </button>
+                  </div>
+                ) : (
+                  <div className={`collapsible-grid ${isWaiverOpen ? 'is-expanded' : ''}`}>
+                    <div className="collapsible-inner space-y-3 pt-2">
+                      <div className="space-y-1">
+                        <label className="kicker !text-[10px]">Justification / Rationale</label>
+                        <textarea
+                          value={waiverJustification}
+                          onChange={(e) => setWaiverJustification(e.target.value)}
+                          placeholder="Provide documented operational requirement or compensating control..."
+                          rows={3}
+                          className="field resize-none text-xs"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="kicker !text-[10px]">Approving Analyst / Authority</label>
+                        <input
+                          type="text"
+                          value={waivedBy}
+                          onChange={(e) => setWaivedBy(e.target.value)}
+                          placeholder="e.g. SecOps-Lead"
+                          className="field text-xs"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2 pt-1">
+                        <button
+                          onClick={handleApplyWaiver}
+                          disabled={waiverProcessing || !waiverJustification.trim()}
+                          className="btn btn-primary btn-sm flex-1"
+                        >
+                          {waiverProcessing ? 'Recording…' : 'Submit official waiver'}
+                        </button>
+                        <button
+                          onClick={() => setIsWaiverOpen(false)}
+                          disabled={waiverProcessing}
+                          className="btn btn-ghost btn-sm"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           ) : (
             <div className="h-80 flex flex-col justify-center items-center text-center p-6 text-muted">

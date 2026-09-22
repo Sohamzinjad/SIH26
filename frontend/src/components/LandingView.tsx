@@ -5,16 +5,17 @@ import {
   Zap,
   GitFork,
   HardDrive,
-  FileCheck2,
   Lock,
   ArrowRight,
   Sparkles,
-  ChevronRight,
+  ChevronDown,
   Terminal,
-  Activity,
-  Layers,
   CheckCircle2,
   AlertTriangle,
+  HelpCircle,
+  FileSpreadsheet,
+  Workflow,
+  History,
 } from 'lucide-react';
 
 interface LandingViewProps {
@@ -25,6 +26,30 @@ interface LandingViewProps {
   onOpenAuditTrail: () => void;
 }
 
+interface FaqItem {
+  q: string;
+  a: string;
+}
+
+const FAQ_ITEMS: FaqItem[] = [
+  {
+    q: 'How does TRINETRA eliminate LLM hallucinations in compliance audits?',
+    a: 'Unlike naive AI scanners that feed sensitive configs into external cloud LLMs, TRINETRA uses local offline LLMs solely to propose white-box grammar mappings for unknown vendor dialects. All actual compliance checks execute against a 100% deterministic AST parser using verifiable code and line-numbered evidence.',
+  },
+  {
+    q: 'Is TRINETRA certified for 100% air-gapped, offline defense networks?',
+    a: 'Yes. TRINETRA operates completely self-contained with no telemetry, no outbound API calls, and no cloud dependencies. All benchmarks (CIS Cisco, FortiOS, NIST SP 800-53 Rev 5, DISA STIG) and graph algorithms run entirely on local operational infrastructure.',
+  },
+  {
+    q: 'How does Single-Key Bottleneck Severance calculate the highest-leverage CLI fix?',
+    a: 'TRINETRA models isolated findings as an attack graph representing multi-hop adversary pivot chains. The severance engine runs bridge-finding graph algorithms to pinpoint the single CLI configuration change that breaks the maximum number of exploit paths simultaneously.',
+  },
+  {
+    q: 'How does the cryptographic audit ledger provide non-repudiation?',
+    a: 'Every audit execution, AI grammar approval, and governance waiver is stamped with a SHA-256 Merkle forward hash linking directly to the previous block. The chain cannot be backdated or modified without invalidating subsequent block hashes.',
+  },
+];
+
 export const LandingView: React.FC<LandingViewProps> = ({
   onEnterDashboard,
   onNewAudit,
@@ -33,16 +58,23 @@ export const LandingView: React.FC<LandingViewProps> = ({
   onOpenAuditTrail,
 }) => {
   const [activePreviewTab, setActivePreviewTab] = useState<'audit' | 'attack-path' | 'governance'>('audit');
+  const [openFaqIndices, setOpenFaqIndices] = useState<number[]>([0]);
+
+  const toggleFaq = (idx: number) => {
+    setOpenFaqIndices((prev) =>
+      prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx]
+    );
+  };
 
   return (
     <div className="space-y-24 lg:space-y-36 pb-24">
       {/* ================= HERO SECTION ================= */}
       <section className="relative overflow-hidden rounded-[32px] border border-white/10 bg-surface px-6 py-16 sm:px-12 lg:px-20 lg:py-28">
-        {/* Floating Ambient Decorative Orbs (Agency Style - Only in Low-Density Hero) */}
+        {/* Floating Ambient Decorative Orbs (Agency Style - Strictly Low-Density Hero) */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
-          <div className="orb orb-violet orb-drift-a -top-20 right-[5%] h-96 w-96 opacity-60" />
-          <div className="orb orb-indigo orb-drift-b -bottom-28 left-[2%] h-[420px] w-[420px] opacity-50" />
-          <div className="orb orb-rose orb-drift-a top-1/2 right-[30%] h-64 w-64 opacity-30" />
+          <div className="orb orb-violet orb-drift-a -top-20 right-[5%] h-64 w-64 sm:h-96 sm:w-96 opacity-50 sm:opacity-60" />
+          <div className="orb orb-indigo orb-drift-b -bottom-28 left-[2%] h-72 w-72 sm:h-[420px] sm:w-[420px] opacity-40 sm:opacity-50" />
+          <div className="orb orb-rose orb-drift-a top-1/2 right-[25%] h-48 w-48 sm:h-64 sm:w-64 opacity-25 sm:opacity-30" />
         </div>
 
         <div className="relative z-10 max-w-5xl">
@@ -68,11 +100,11 @@ export const LandingView: React.FC<LandingViewProps> = ({
             Real-time attack-path correlation, multi-vendor dialect parsing, and high-leverage single-key remediation.
           </p>
 
-          {/* Action CTAs */}
+          {/* Action CTAs — singular dominant primary action */}
           <div className="mt-12 flex flex-wrap items-center gap-4 sm:gap-6">
             <button
               onClick={onEnterDashboard}
-              className="btn btn-primary !px-8 !py-4 !text-[13px] shadow-glow-accent group"
+              className="btn btn-primary !px-8 !py-4 !text-[13px] shadow-glow-accent group text-white"
             >
               <span>Launch Audit Console</span>
               <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
@@ -80,7 +112,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
 
             <button
               onClick={onNewAudit}
-              className="btn btn-ghost !px-7 !py-4 !text-[13px]"
+              className="btn btn-ghost !px-6 !py-4 !text-[13px] text-muted hover:text-ink"
             >
               <Zap className="w-4 h-4 text-accent-hover" />
               <span>Upload Config</span>
@@ -88,8 +120,9 @@ export const LandingView: React.FC<LandingViewProps> = ({
 
             <button
               onClick={onExploreFleet}
-              className="btn btn-ghost !px-7 !py-4 !text-[13px]"
+              className="btn btn-ghost !px-6 !py-4 !text-[13px] text-muted hover:text-ink"
             >
+              <FileSpreadsheet className="w-4 h-4 text-faint" />
               <span>Explore Fleet</span>
             </button>
           </div>
@@ -118,8 +151,8 @@ export const LandingView: React.FC<LandingViewProps> = ({
 
       {/* ================= HERO STATS CALLOUTS (Big Number Treatment) ================= */}
       <section>
-        <Reveal>
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4 border-b border-white/10 pb-16">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4 border-b border-white/10 pb-16">
+          <Reveal delayMs={0}>
             <div className="space-y-2">
               <div className="stat-number text-accent-hover">100%</div>
               <div className="stat-label">Human-Approved AI</div>
@@ -127,7 +160,19 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 Every unknown vendor syntax proposal is strictly approved by an analyst before rule evaluation.
               </p>
             </div>
+          </Reveal>
 
+          <Reveal delayMs={60}>
+            <div className="space-y-2">
+              <div className="stat-number text-ink">240+</div>
+              <div className="stat-label">Benchmark Controls</div>
+              <p className="text-caption text-faint">
+                Comprehensive rules across CIS Cisco, FortiOS, NIST SP 800-53, and DISA STIG frameworks.
+              </p>
+            </div>
+          </Reveal>
+
+          <Reveal delayMs={120}>
             <div className="space-y-2">
               <div className="stat-number text-ink">0%</div>
               <div className="stat-label">Model Hallucination</div>
@@ -135,7 +180,9 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 Audits run on a 100% deterministic rule engine with verifiable AST logic and line-numbered evidence.
               </p>
             </div>
+          </Reveal>
 
+          <Reveal delayMs={180}>
             <div className="space-y-2">
               <div className="stat-number text-ok">-78%</div>
               <div className="stat-label">Vector Severance</div>
@@ -143,16 +190,8 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 Single-key remediation identifies the single highest-leverage CLI command to dismantle chained exploits.
               </p>
             </div>
-
-            <div className="space-y-2">
-              <div className="stat-number text-ink">&lt; 150ms</div>
-              <div className="stat-label">Evaluation Latency</div>
-              <p className="text-caption text-faint">
-                Parallel AST extraction and high-speed rule matching across multi-gigabyte fleet archives.
-              </p>
-            </div>
-          </div>
-        </Reveal>
+          </Reveal>
+        </div>
       </section>
 
       {/* ================= THE 4 OPERATIONAL QUESTIONS (Interactive Card Grid) ================= */}
@@ -268,24 +307,27 @@ export const LandingView: React.FC<LandingViewProps> = ({
             {/* Selector Tabs */}
             <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-surface-2 p-1">
               <button
+                type="button"
                 onClick={() => setActivePreviewTab('audit')}
-                className={`px-4 py-1.5 rounded-full font-mono text-[11px] font-bold transition-all ${
+                className={`px-4 py-1.5 rounded-full font-mono text-[11px] font-bold transition-all duration-150 cursor-pointer ${
                   activePreviewTab === 'audit' ? 'bg-accent text-white shadow-sm' : 'text-muted hover:text-ink'
                 }`}
               >
                 1. Rule Evaluation
               </button>
               <button
+                type="button"
                 onClick={() => setActivePreviewTab('attack-path')}
-                className={`px-4 py-1.5 rounded-full font-mono text-[11px] font-bold transition-all ${
+                className={`px-4 py-1.5 rounded-full font-mono text-[11px] font-bold transition-all duration-150 cursor-pointer ${
                   activePreviewTab === 'attack-path' ? 'bg-accent text-white shadow-sm' : 'text-muted hover:text-ink'
                 }`}
               >
                 2. Attack Path Severance
               </button>
               <button
+                type="button"
                 onClick={() => setActivePreviewTab('governance')}
-                className={`px-4 py-1.5 rounded-full font-mono text-[11px] font-bold transition-all ${
+                className={`px-4 py-1.5 rounded-full font-mono text-[11px] font-bold transition-all duration-150 cursor-pointer ${
                   activePreviewTab === 'governance' ? 'bg-accent text-white shadow-sm' : 'text-muted hover:text-ink'
                 }`}
               >
@@ -296,7 +338,8 @@ export const LandingView: React.FC<LandingViewProps> = ({
         </Reveal>
 
         <Reveal delayMs={60}>
-          <div className="card overflow-hidden border border-white/10 bg-surface">
+          {/* Keyed container with tab-crossfade for smooth switching */}
+          <div key={activePreviewTab} className="card overflow-hidden border border-white/10 bg-surface tab-crossfade">
             {activePreviewTab === 'audit' && (
               <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-white/10">
                 {/* Left: Input configuration */}
@@ -309,7 +352,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     <span className="badge badge-neutral">Raw AST Input</span>
                   </div>
 
-                  <pre className="code-surface p-5 text-[12px] text-muted overflow-x-auto">
+                  <pre className="code-surface p-5 text-[12px] text-muted overflow-x-auto leading-relaxed">
 {`line vty 0 4
  transport input telnet ssh
  login
@@ -388,12 +431,12 @@ ip http server`}
                 </div>
 
                 {/* Path Steps */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="rounded-2xl border border-crit/40 bg-crit/10 p-5 space-y-3">
                     <div className="font-mono text-[11px] font-bold text-crit uppercase">Step 1: Ingress</div>
                     <div className="font-semibold text-ink text-[14px]">Telnet Interception</div>
                     <p className="text-caption text-muted">
-                      Attacker sniffs cleartext transport credentials across untrusted network hop.
+                      Attacker sniffs cleartext transport credentials across untrusted network hop (Port 23).
                     </p>
                   </div>
 
@@ -406,10 +449,18 @@ ip http server`}
                   </div>
 
                   <div className="rounded-2xl border border-accent/40 bg-accent/10 p-5 space-y-3">
-                    <div className="font-mono text-[11px] font-bold text-accent-hover uppercase">Step 3: Root Takeover</div>
+                    <div className="font-mono text-[11px] font-bold text-accent-hover uppercase">Step 3: Escalation</div>
                     <div className="font-semibold text-ink text-[14px]">Privilege 15 Elevation</div>
                     <p className="text-caption text-muted">
-                      Weak privilege configuration yields complete administrative control over core routing.
+                      Weak secret hashing yields complete administrative control over core configuration.
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl border border-crit/40 bg-crit/10 p-5 space-y-3">
+                    <div className="font-mono text-[11px] font-bold text-crit uppercase">Step 4: Takeover</div>
+                    <div className="font-semibold text-ink text-[14px]">Core Route Hijack</div>
+                    <p className="text-caption text-muted">
+                      Full infrastructure compromise routing internal defense traffic to adversary mirror.
                     </p>
                   </div>
                 </div>
@@ -425,7 +476,7 @@ ip http server`}
                       line vty 0 15 &bull; transport input ssh
                     </div>
                     <p className="text-caption text-muted">
-                      Applying this single line severs 100% of the active attack chain by closing cleartext ingress.
+                      Applying this single line severs 100% of the active attack chain by closing cleartext ingress at Step 1.
                     </p>
                   </div>
                   <button onClick={onEnterDashboard} className="btn btn-primary btn-sm">
@@ -456,29 +507,41 @@ ip http server`}
                       <span className="badge badge-pass">Block #104</span>
                       <span className="text-ink">AUDIT_EVENT: FW-MUM-CORE-01</span>
                     </div>
-                    <span className="text-faint">Prev: 0x9f4a...81e2 &bull; Hash: 0x3d1c...b018</span>
+                    <span className="text-faint">Prev: 0x9f4a...81e2 &bull; Hash: 0x3d1c...b018 &bull; Verified</span>
                   </div>
 
                   <div className="rounded-xl border border-white/10 bg-surface-2 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                     <div className="flex items-center gap-3">
                       <span className="badge badge-pass">Block #105</span>
-                      <span className="text-ink">AI_DIALECT_APPROVAL: lead_analyst_ntro</span>
+                      <span className="text-ink">AI_DIALECT_APPROVAL: FortiOS-7.2-AST</span>
                     </div>
-                    <span className="text-faint">Prev: 0x3d1c...b018 &bull; Hash: 0x7c49...f290</span>
+                    <span className="text-faint">Prev: 0x3d1c...b018 &bull; Hash: 0x7c49...f290 &bull; Actor: lead_analyst</span>
                   </div>
 
                   <div className="rounded-xl border border-white/10 bg-surface-2 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                     <div className="flex items-center gap-3">
                       <span className="badge badge-pass">Block #106</span>
+                      <span className="text-ink">GOVERNANCE_WAIVER: CIS-CISCO-2.1.1</span>
+                    </div>
+                    <span className="text-faint">Prev: 0x7c49...f290 &bull; Hash: 0xa841...cc12 &bull; Actor: SecOps-Lead</span>
+                  </div>
+
+                  <div className="rounded-xl border border-white/10 bg-surface-2 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                    <div className="flex items-center gap-3">
+                      <span className="badge badge-pass">Block #107</span>
                       <span className="text-ink">FLEET_BATCH: 42 Devices Audited</span>
                     </div>
-                    <span className="text-faint">Prev: 0x7c49...f290 &bull; Hash: 0xa841...cc12</span>
+                    <span className="text-faint">Prev: 0xa841...cc12 &bull; Hash: 0xd512...8e21 &bull; Actor: automated_cron</span>
                   </div>
                 </div>
 
-                <p className="text-caption text-muted">
-                  Every audit, human approval, and waiver is appended to an immutable forward hash chain, providing verifiable compliance logs for defense audits.
-                </p>
+                <div className="rounded-xl bg-surface-3 p-4 border border-ok/30 flex items-center justify-between gap-4 text-xs">
+                  <div className="flex items-center gap-2 text-ok font-mono font-bold">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>SHA-256 Merkle Chain Integrity: 100% Unbroken &bull; Non-Repudiation Verified</span>
+                  </div>
+                  <span className="font-mono text-faint text-[11px] hidden sm:inline">Genesis: 0x1102...49a1</span>
+                </div>
               </div>
             )}
           </div>
@@ -487,7 +550,7 @@ ip http server`}
 
       {/* ================= GOVERNANCE TRUST MOMENT ================= */}
       <section>
-        <Reveal>
+        <Reveal delayMs={80}>
           <div className="relative overflow-hidden rounded-[28px] border border-accent/40 bg-accent/10 px-8 py-12 sm:px-14 sm:py-16">
             <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-10">
               <div className="space-y-4 max-w-2xl">
@@ -508,6 +571,7 @@ ip http server`}
                     <span>Review Dialect Mappings</span>
                   </button>
                   <button onClick={onOpenAuditTrail} className="btn btn-ghost">
+                    <History className="w-4 h-4" />
                     <span>Explore Cryptographic Audit Trail</span>
                   </button>
                 </div>
@@ -525,9 +589,60 @@ ip http server`}
         </Reveal>
       </section>
 
+      {/* ================= TECHNICAL ARCHITECTURE FAQ ACCORDION ================= */}
+      <section className="space-y-8">
+        <Reveal delayMs={40}>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+            <div>
+              <div className="kicker mb-3">Technical Specifications</div>
+              <h2 className="section-title">Architecture &amp; Security Guarantees</h2>
+            </div>
+            <p className="max-w-md text-body text-muted">
+              Deep-dive into TRINETRA's deterministic AST parser, air-gapped deployment model, and cryptographic verification ledger.
+            </p>
+          </div>
+        </Reveal>
+
+        <Reveal delayMs={80}>
+          <div className="space-y-3">
+            {FAQ_ITEMS.map((item, idx) => {
+              const isOpen = openFaqIndices.includes(idx);
+              return (
+                <div key={idx} className="card p-5 sm:p-6 transition-colors duration-150">
+                  <button
+                    type="button"
+                    onClick={() => toggleFaq(idx)}
+                    className="w-full flex items-center justify-between text-left gap-4 cursor-pointer"
+                  >
+                    <span className="font-display font-bold text-base sm:text-lg text-ink">
+                      {item.q}
+                    </span>
+                    <span className="h-8 w-8 rounded-full bg-surface-2 border border-white/10 flex items-center justify-center shrink-0">
+                      <ChevronDown
+                        className={`w-4 h-4 text-muted transition-transform duration-200 ${
+                          isOpen ? 'rotate-180 text-accent-hover' : ''
+                        }`}
+                      />
+                    </span>
+                  </button>
+
+                  <div className={`collapsible-grid ${isOpen ? 'is-expanded' : ''}`}>
+                    <div className="collapsible-inner pt-4">
+                      <p className="text-body text-muted text-sm sm:text-base leading-relaxed border-t border-white/10 pt-4">
+                        {item.a}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </Reveal>
+      </section>
+
       {/* ================= BOTTOM ACTION CALLOUT ================= */}
       <section className="text-center space-y-8">
-        <Reveal>
+        <Reveal delayMs={60}>
           <div className="max-w-3xl mx-auto space-y-4">
             <div className="kicker">Ready to evaluate your infrastructure?</div>
             <h2 className="font-display font-bold text-h1 text-ink">
@@ -538,17 +653,17 @@ ip http server`}
             </p>
             <div className="pt-6 flex flex-wrap justify-center items-center gap-4">
               <button
-                onClick={onNewAudit}
-                className="btn btn-primary !px-8 !py-4 shadow-glow-accent"
+                onClick={onEnterDashboard}
+                className="btn btn-primary !px-8 !py-4 shadow-glow-accent text-white"
               >
-                <Zap className="w-4 h-4" />
-                <span>Upload Device Configuration</span>
+                <span>Launch Audit Console &rarr;</span>
               </button>
               <button
-                onClick={onEnterDashboard}
-                className="btn btn-solid !px-8 !py-4"
+                onClick={onNewAudit}
+                className="btn btn-ghost !px-7 !py-4 text-muted hover:text-ink"
               >
-                <span>Enter Live Dashboard &rarr;</span>
+                <Zap className="w-4 h-4 text-accent-hover" />
+                <span>Upload Device Configuration</span>
               </button>
             </div>
           </div>

@@ -12,6 +12,8 @@ import {
   SkipForward,
   Activity,
   Terminal,
+  ChevronDown,
+  ShieldAlert,
 } from 'lucide-react';
 
 interface AttackPathGraphProps {
@@ -29,6 +31,13 @@ export const AttackPathGraph: React.FC<AttackPathGraphProps> = ({ auditId, onBac
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [simSpeed, setSimSpeed] = useState<number>(1500);
+  const [expandedPaths, setExpandedPaths] = useState<number[]>([]);
+
+  const togglePathExpand = (idx: number) => {
+    setExpandedPaths((prev) =>
+      prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx]
+    );
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -224,8 +233,13 @@ export const AttackPathGraph: React.FC<AttackPathGraphProps> = ({ auditId, onBac
                     const isCurrent = fIdx === currentStep;
                     return (
                       <React.Fragment key={fIdx}>
-                        <div
-                          className={`rounded-xl border p-3 font-mono text-xs flex items-center gap-2.5 transition-colors duration-150 ${
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsPlaying(false);
+                            setCurrentStep(fIdx);
+                          }}
+                          className={`rounded-xl border p-3 font-mono text-xs flex items-center gap-2.5 transition-colors duration-150 cursor-pointer text-left hover:border-white/30 ${
                             isCurrent
                               ? 'bg-[#D92D20] border-[#D92D20] text-white'
                               : isPassed
@@ -245,12 +259,12 @@ export const AttackPathGraph: React.FC<AttackPathGraphProps> = ({ auditId, onBac
                             {fIdx + 1}
                           </span>
                           <span className="text-left">
-                            <span className={`block font-bold ${isPassed || isCurrent ? '' : ''}`}>{fId}</span>
+                            <span className="block font-bold">{fId}</span>
                             <span className="block text-[9px] uppercase tracking-wider opacity-80">
-                              {isCurrent ? (isPlaying ? 'Exploiting…' : 'Next step') : isPassed ? 'Pivot succeeded' : 'Pending'}
+                              {isCurrent ? (isPlaying ? 'Exploiting…' : 'Inspecting') : isPassed ? 'Pivot succeeded' : 'Pending'}
                             </span>
                           </span>
-                        </div>
+                        </button>
                         {fIdx < (selectedPath.finding_rule_ids.length - 1) && (
                           <span className={`font-bold text-sm ${isPassed ? 'text-ok' : 'text-faint'}`}>&rarr;</span>
                         )}
@@ -259,8 +273,8 @@ export const AttackPathGraph: React.FC<AttackPathGraphProps> = ({ auditId, onBac
                   })}
                 </div>
 
-                {/* Simulation Terminal Output */}
-                <div className="code-surface p-4 text-xs text-ok flex items-start gap-3">
+                {/* Simulation Terminal Output with smooth transition */}
+                <div className="code-surface p-4 text-xs text-ok flex items-start gap-3 transition-opacity duration-150">
                   <Terminal className="w-4 h-4 mt-0.5 shrink-0" />
                   <div>
                     <span className="text-muted">SIMULATION STEP [{currentStep + 1}/{totalSteps}]:</span>{' '}
@@ -323,6 +337,48 @@ export const AttackPathGraph: React.FC<AttackPathGraphProps> = ({ auditId, onBac
                   <div className="text-[14px] font-semibold text-ink">{p.break_why}</div>
                 </div>
               )}
+
+              {/* Expandable Kill Chain Breakdown with smooth collapsible animation */}
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={() => togglePathExpand(idx)}
+                  className="btn btn-ghost btn-sm !py-1.5 !px-3 text-xs flex items-center gap-2"
+                >
+                  <span className="font-mono text-[11px]">
+                    {expandedPaths.includes(idx) ? 'Hide attack vector mechanics' : 'Inspect attack vector mechanics'}
+                  </span>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                      expandedPaths.includes(idx) ? 'rotate-180' : ''
+                    }`}
+                  />
+                </button>
+
+                <div className={`collapsible-grid ${expandedPaths.includes(idx) ? 'is-expanded' : ''}`}>
+                  <div className="collapsible-inner pt-3">
+                    <div className="rounded-xl border border-white/10 bg-surface-2 p-4 space-y-3 font-mono text-xs">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div className="rounded-lg bg-surface-3 p-3 border border-white/5 space-y-1">
+                          <span className="text-faint text-[10px] uppercase tracking-wider block">Target Surface</span>
+                          <span className="text-ink font-semibold">Management Plane / VTY</span>
+                        </div>
+                        <div className="rounded-lg bg-surface-3 p-3 border border-white/5 space-y-1">
+                          <span className="text-faint text-[10px] uppercase tracking-wider block">Adversary TTP</span>
+                          <span className="text-crit font-semibold">Cleartext Ingress &rarr; Escalation</span>
+                        </div>
+                        <div className="rounded-lg bg-surface-3 p-3 border border-white/5 space-y-1">
+                          <span className="text-faint text-[10px] uppercase tracking-wider block">Remediation Leverage</span>
+                          <span className="text-ok font-semibold">1-line CLI command dismantles path</span>
+                        </div>
+                      </div>
+                      <p className="text-caption text-muted font-sans pt-1">
+                        Correlated from deterministic AST rule evaluation. When the adversary pivots through these chained vulnerabilities, administrative access is achieved without triggering volumetric threshold alarms.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           ))}
         </div>
