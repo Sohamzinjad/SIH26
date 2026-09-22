@@ -18,6 +18,8 @@ backend/**/__pycache__/
 node_modules/
 frontend/dist/
 frontend/.vite/
+.vite/
+audit-insight/
 *.tsbuildinfo
 
 # IDE
