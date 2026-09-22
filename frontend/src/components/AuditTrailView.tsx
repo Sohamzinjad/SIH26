@@ -11,7 +11,6 @@ import {
   XCircle,
   RefreshCw,
   Bug,
-  Link2,
 } from 'lucide-react';
 
 export const AuditTrailView: React.FC = () => {
@@ -53,85 +52,86 @@ export const AuditTrailView: React.FC = () => {
   const verified = result?.verified === true;
 
   return (
-    <div className="space-y-6 animate-fadeIn pb-12 font-sans">
+    <div className="space-y-10 pb-16">
       {/* Header */}
-      <div className="border-b border-[#B9B9B4] pb-5">
-        <div className="text-[11px] font-mono tracking-widest text-[#5E5E5E] uppercase font-bold">
-          DEFENSE AUDIT LEDGER
-        </div>
-        <h1 className="text-2xl font-black text-[#171717] tracking-tight uppercase font-display mt-0.5">
-          Tamper-Evident Hash Chain Verification
+      <div>
+        <div className="kicker mb-3">Defense audit ledger</div>
+        <h1 className="font-display font-bold text-h1 tracking-tight text-ink">
+          Tamper-evident hash chain verification
         </h1>
-        <p className="text-xs text-[#5E5E5E] font-sans mt-1">
+        <p className="mt-3 max-w-2xl text-body text-muted">
           Cryptographic SHA-256 hash-chain verification for audit events. Ensures non-repudiation and immutable evidence logging.
         </p>
       </div>
 
       {error && (
-        <div className="p-4 bg-[#D64545] text-white font-mono text-xs trinetra-chamfer">
-          {error}
-        </div>
+        <div className="banner banner-error">{error}</div>
       )}
 
-      {/* Verification Status Card */}
-      <div className="bg-[#F1F1EF] border border-[#B9B9B4] trinetra-chamfer p-6 space-y-4 shadow-sm font-mono text-xs">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[#B9B9B4] pb-4">
-          <div className="flex items-center space-x-3">
-            {verified ? (
-              <div className="p-2 bg-[#00A86B] text-white font-bold">
-                <ShieldCheck className="w-6 h-6" />
-              </div>
-            ) : (
-              <div className="p-2 bg-[#D64545] text-white font-bold">
-                <ShieldAlert className="w-6 h-6" />
-              </div>
-            )}
+      {/* Verification Status Card — actions are flat & immediate (no motion) */}
+      <div className="card p-6 sm:p-8 space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/10 pb-5">
+          <div className="flex items-center gap-4">
+            <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${
+              verified ? 'bg-[#067647] text-white' : 'bg-[#D92D20] text-white'
+            }`}>
+              {verified ? <ShieldCheck className="w-6 h-6" /> : <ShieldAlert className="w-6 h-6" />}
+            </div>
             <div>
-              <div className="font-bold text-sm text-[#171717]">
-                {verified ? 'AUDIT TRAIL VERIFIED & INTACT' : 'HASH CHAIN MISMATCH / TAMPERING DETECTED'}
+              <div className="font-display font-bold text-[17px] text-ink">
+                {verified ? 'Audit trail verified & intact' : 'Hash chain mismatch / tampering detected'}
               </div>
-              <div className="text-[11px] text-[#5E5E5E]">
+              <div className="text-caption text-muted mt-0.5">
                 {result?.total_entries ?? 0} total entries validated across append sequence.
               </div>
             </div>
           </div>
 
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center gap-3">
             <button
               onClick={verify}
               disabled={loading}
-              className="bg-[#171717] hover:bg-[#232323] text-white font-bold px-4 py-2 trinetra-chamfer text-xs transition"
+              className="btn btn-primary"
             >
-              VERIFY CHAIN
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              Verify chain
             </button>
             <button
               onClick={runDemoTamper}
               disabled={tampering}
-              className="bg-[#EAEAE7] hover:bg-[#B9B9B4] text-[#171717] font-bold px-4 py-2 trinetra-chamfer text-xs border border-[#B9B9B4] transition"
+              className="btn btn-ghost"
             >
-              SIMULATE TAMPER
+              <Bug className="w-4 h-4" />
+              Simulate tamper
             </button>
           </div>
         </div>
 
         {/* Verification Summary Details */}
         {result && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs pt-2">
-            <div className="p-3 bg-[#EAEAE7] border border-[#B9B9B4]">
-              <span className="text-[#5E5E5E] block text-[10px] uppercase">Status</span>
-              <span className={`font-bold ${verified ? 'text-[#00A86B]' : 'text-[#D64545]'}`}>
-                {verified ? 'PASS (100% Intact)' : 'TAMPERED'}
-              </span>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+            <div className="rounded-2xl bg-surface-2 border border-white/10 p-4">
+              <div className="font-mono text-[10px] uppercase tracking-wider text-faint">Status</div>
+              <div className={`flex items-center gap-1.5 font-bold text-[16px] mt-1 ${
+                verified ? 'text-ok' : 'text-crit'
+              }`}>
+                {verified ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+                {verified ? 'PASS (100% intact)' : 'TAMPERED'}
+              </div>
             </div>
 
-            <div className="p-3 bg-[#EAEAE7] border border-[#B9B9B4]">
-              <span className="text-[#5E5E5E] block text-[10px] uppercase">Entries Checked</span>
-              <span className="font-bold text-[#171717]">{result.total_entries}</span>
+            <div className="rounded-2xl bg-surface-2 border border-white/10 p-4">
+              <div className="font-mono text-[10px] uppercase tracking-wider text-faint">Entries checked</div>
+              <div className="font-display font-bold text-[22px] text-ink mt-1">{result.total_entries}</div>
             </div>
 
-            <div className="p-3 bg-[#EAEAE7] border border-[#B9B9B4]">
-              <span className="text-[#5E5E5E] block text-[10px] uppercase">Broken Entry ID</span>
-              <span className="font-bold text-[#171717]">{result.first_broken_entry_id ?? 'None'}</span>
+            <div className="rounded-2xl bg-surface-2 border border-white/10 p-4">
+              <div className="font-mono text-[10px] uppercase tracking-wider text-faint">Broken entry ID</div>
+              <div className="font-display font-bold text-[22px] mt-1 ${
+                result.first_broken_entry_id != null ? 'text-crit' : 'text-ok'
+              }">
+                {result.first_broken_entry_id ?? 'None'}
+              </div>
             </div>
           </div>
         )}
