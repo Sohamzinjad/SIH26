@@ -1,10 +1,13 @@
 import React from 'react';
 import { DashboardOverview } from '../types';
-import { 
-  AlertTriangle, 
-  HardDrive, 
-  GitFork, 
-  Zap 
+import { Reveal } from './Reveal';
+import {
+  AlertTriangle,
+  HardDrive,
+  GitFork,
+  Zap,
+  ArrowRight,
+  ShieldCheck,
 } from 'lucide-react';
 
 interface DashboardViewProps {
@@ -32,8 +35,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     recent_audits: []
   };
 
-  const recentAudits = Array.isArray(data?.recent_audits) && data.recent_audits.length > 0 
-    ? data.recent_audits 
+  const recentAudits = Array.isArray(data?.recent_audits) && data.recent_audits.length > 0
+    ? data.recent_audits
     : [
         { id: 101, hostname: 'FW-MUM-CORE-01', vendor: 'FortiOS', score: 68.4, fail_count: 5, status: 'COMPLETED', started_at: '20 Sep 2026, 13:05' },
         { id: 102, hostname: 'R1-DELHI-GW', vendor: 'Cisco IOS-XE', score: 92.1, fail_count: 1, status: 'COMPLETED', started_at: '20 Sep 2026, 12:47' },
@@ -41,213 +44,286 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         { id: 104, hostname: 'WHITEBOX-EDGE-03', vendor: 'White-Box', score: 62.1, fail_count: 4, status: 'COMPLETED', started_at: '20 Sep 2026, 09:31' },
       ];
 
+  const totalAudits = data.total_audits ?? 0;
+  const approvedAudits = data.human_approved_audits;
+  const humanApprovedPct =
+    approvedAudits != null && totalAudits > 0
+      ? Math.round((approvedAudits / totalAudits) * 100)
+      : 100;
+
+  const scoreTone =
+    data.average_score >= 80 ? 'text-ok' : data.average_score >= 60 ? 'text-high' : 'text-crit';
+
   return (
-    <div className="space-y-8 animate-fadeIn pb-20 font-sans text-[#171717]">
-      {/* Top Section Header with Generous Optical Spacing */}
-      <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-6 border-b border-black/10 pb-6">
-        <div>
-          <div className="flex items-center space-x-2 text-[10px] font-mono tracking-[0.2em] text-[#666666] font-bold uppercase mb-1">
-            <span>OPERATIONAL INTELLIGENCE WORKSPACE</span>
-            <span>&bull;</span>
-            <span className="text-[#171717]">DEFENSE GRID</span>
+    <div className="space-y-16 lg:space-y-24 pb-16">
+      {/* ============ HERO (decorative shapes live ONLY here) ============ */}
+      <section className="relative overflow-hidden rounded-[28px] border border-white/10 bg-surface px-6 py-14 sm:px-10 lg:px-16 lg:py-20">
+        <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
+          <div className="orb orb-violet orb-drift-a -top-24 right-[8%] h-72 w-72" />
+          <div className="orb orb-indigo orb-drift-b -bottom-32 left-[4%] h-80 w-80" />
+          <div className="orb orb-rose orb-drift-a top-1/3 -right-16 h-52 w-52" />
+        </div>
+
+        <div className="relative z-10 max-w-4xl">
+          <div className="kicker mb-5 flex items-center gap-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+            Operational Intelligence &bull; Defense Grid
           </div>
-          <h1 className="text-3xl sm:text-4xl font-black text-[#171717] tracking-[0.05em] uppercase font-display leading-tight">
-            Network Infrastructure Cyber Defense Surface
+
+          <h1 className="display text-display text-balance">
+            Network infrastructure, audited with certainty.
           </h1>
-          <p className="text-xs text-[#666666] font-sans mt-2 max-w-3xl leading-relaxed">
-            Real-time attack-path correlation, asset risk concentration, and high-leverage single-key remediation for national technical infrastructure.
+
+          <p className="mt-6 max-w-2xl text-body text-muted">
+            Real-time attack-path correlation, asset risk concentration, and high-leverage
+            single-key remediation for national technical infrastructure.
           </p>
-        </div>
 
-        {/* Action Bar */}
-        <div className="flex items-center space-x-4 font-mono text-xs">
-          <div className="bg-[#FFFFFF] border border-black/10 p-3 trinetra-chamfer shadow-tactical-elevated">
-            <div className="text-[9px] font-bold text-[#666666] uppercase tracking-[0.15em]">
-              FLEET POSTURE SCORE
-            </div>
-            <div className="text-base font-black text-[#171717] flex items-center space-x-2 mt-0.5">
-              <span>{data.average_score}%</span>
-              <span className="text-[10px] px-1.5 py-0.2 bg-[#00A86B] text-white font-bold tracking-wider">
-                OPERATIONAL
-              </span>
+          <div className="mt-9 flex flex-wrap items-center gap-4">
+            <button onClick={onNewAudit} className="btn btn-primary">
+              <Zap className="h-4 w-4" />
+              Run Audit Workflow
+              <ArrowRight className="h-4 w-4" />
+            </button>
+            <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-faint">
+              {loading ? 'Loading posture…' : 'Live fleet posture below'}
             </div>
           </div>
-
-          <button
-            onClick={onNewAudit}
-            className="bg-[#181818] hover:bg-[#292929] text-white font-mono font-bold text-xs px-6 py-3.5 trinetra-chamfer transition shadow-tactical-dark flex items-center space-x-2 tracking-[0.12em]"
-          >
-            <Zap className="w-4 h-4 text-[#00A86B]" />
-            <span>RUN AUDIT WORKFLOW</span>
-          </button>
         </div>
-      </div>
+      </section>
 
-      {/* 4 Core Questions Micro Summary Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-mono text-xs">
-        {/* Q1: What Assets Exist? */}
-        <div className="trinetra-panel p-4 trinetra-chamfer space-y-2">
-          <div className="flex justify-between items-start text-[9px] text-[#666666] font-bold uppercase tracking-[0.15em]">
-            <span>1. ASSET INVENTORY</span>
-            <HardDrive className="w-4 h-4 text-[#171717]" />
-          </div>
-          <div className="flex items-baseline space-x-2">
-            <span className="text-2xl font-black text-[#171717]">{data.total_devices}</span>
-            <span className="text-[11px] text-[#666666] font-semibold">Active Monitored Nodes</span>
-          </div>
-          <div className="text-[10px] text-[#666666] border-t border-black/5 pt-2 flex justify-between">
-            <span>Cisco &bull; Fortinet &bull; Whitebox</span>
-            <span className="font-bold text-[#171717]">100% Parsed</span>
-          </div>
-        </div>
-
-        {/* Q2: Where is Risk Concentrated? */}
-        <div className="trinetra-panel p-4 trinetra-chamfer space-y-2">
-          <div className="flex justify-between items-start text-[9px] text-[#666666] font-bold uppercase tracking-[0.15em]">
-            <span>2. RISK CONCENTRATION</span>
-            <AlertTriangle className="w-4 h-4 text-[#D64545]" />
-          </div>
-          <div className="flex items-baseline space-x-2">
-            <span className="text-2xl font-black text-[#D64545]">{data.critical_failures}</span>
-            <span className="text-[11px] text-[#D64545] font-bold">Critical Gaps</span>
-          </div>
-          <div className="text-[10px] text-[#666666] border-t border-black/5 pt-2 flex justify-between">
-            <span>Severity Breakdown:</span>
-            <span className="font-bold text-[#D64545]">{data.critical_failures} Crit &bull; {data.high_failures} High</span>
-          </div>
-        </div>
-
-        {/* Q3: How do Attack Paths Connect? */}
-        <div className="trinetra-panel p-4 trinetra-chamfer space-y-2">
-          <div className="flex justify-between items-start text-[9px] text-[#666666] font-bold uppercase tracking-[0.15em]">
-            <span>3. ATTACK VECTORS</span>
-            <GitFork className="w-4 h-4 text-[#D4A017]" />
-          </div>
-          <div className="flex items-baseline space-x-2">
-            <span className="text-2xl font-black text-[#171717]">{data.active_attack_chains}</span>
-            <span className="text-[11px] text-[#D4A017] font-bold">Chained Paths</span>
-          </div>
-          <div className="text-[10px] text-[#666666] border-t border-black/5 pt-2 flex justify-between">
-            <span>Telnet &bull; SNMP &bull; Priv Escalation</span>
-          </div>
-        </div>
-
-        {/* Q4: What Single Action Reduces the Most Risk? */}
-        <div className="trinetra-panel p-4 trinetra-chamfer space-y-2">
-          <div className="flex justify-between items-start text-[9px] text-[#666666] font-bold uppercase tracking-[0.15em]">
-            <span>4. LEVERAGE REMEDIATION</span>
-            <Zap className="w-4 h-4 text-[#00A86B]" />
-          </div>
-          <div className="flex items-baseline space-x-2">
-            <span className="text-2xl font-black text-[#00A86B]">-78.0%</span>
-            <span className="text-[11px] text-[#00A86B] font-bold">Max Severance</span>
-          </div>
-          <div className="text-[10px] text-[#666666] border-t border-black/5 pt-2 flex justify-between">
-            <span>Single Key Fix:</span>
-            <span className="font-bold text-[#171717]">VTY Access-Class</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Operational Violation Matrix & Telemetry Tables */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 font-mono text-xs">
-        {/* Left 7 Columns: Critical Violation Matrix */}
-        <div className="lg:col-span-7 trinetra-panel p-5 space-y-4 trinetra-chamfer">
-          <div className="flex justify-between items-center border-b border-black/10 pb-3">
-            <span className="font-black text-xs text-[#171717] uppercase tracking-[0.15em] flex items-center">
-              <AlertTriangle className="w-4 h-4 mr-2 text-[#D64545]" />
-              CRITICAL THREAT & COMPLIANCE VIOLATIONS MATRIX
-            </span>
-            <span className="text-[10px] text-[#666666]">SORTED BY SEVERITY</span>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left font-mono text-xs">
-              <thead className="text-[10px] text-[#666666] border-b border-black/10 uppercase tracking-wider">
-                <tr>
-                  <th className="py-2 px-2">Control / Violation</th>
-                  <th className="py-2 px-2">Framework</th>
-                  <th className="py-2 px-2 text-center">Impacted</th>
-                  <th className="py-2 px-2">Severity</th>
-                  <th className="py-2 px-2 text-right">Remediation</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-black/5">
-                <tr className="hover:bg-[#F9F9F8]">
-                  <td className="py-3 px-2 font-bold text-[#171717]">Telnet Enabled on Line VTY</td>
-                  <td className="py-3 px-2 text-[#666666] text-[11px]">CIS / DISA STIG</td>
-                  <td className="py-3 px-2 text-center font-bold text-[#D64545]">8 Devices</td>
-                  <td className="py-3 px-2">
-                    <span className="px-2 py-0.5 text-[9px] font-bold bg-[#D64545] text-white">CRITICAL</span>
-                  </td>
-                  <td className="py-3 px-2 text-right text-[#00A86B] font-bold">transport input ssh</td>
-                </tr>
-                <tr className="hover:bg-[#F9F9F8]">
-                  <td className="py-3 px-2 font-bold text-[#171717]">Default SNMP Community ('public')</td>
-                  <td className="py-3 px-2 text-[#666666] text-[11px]">CIS Benchmark</td>
-                  <td className="py-3 px-2 text-center font-bold text-[#D64545]">6 Devices</td>
-                  <td className="py-3 px-2">
-                    <span className="px-2 py-0.5 text-[9px] font-bold bg-[#D64545] text-white">CRITICAL</span>
-                  </td>
-                  <td className="py-3 px-2 text-right text-[#00A86B] font-bold">no snmp-server community</td>
-                </tr>
-                <tr className="hover:bg-[#F9F9F8]">
-                  <td className="py-3 px-2 font-bold text-[#171717]">Missing VTY Access-Class ACL</td>
-                  <td className="py-3 px-2 text-[#666666] text-[11px]">NIST AC-17</td>
-                  <td className="py-3 px-2 text-center font-bold text-[#D4A017]">5 Devices</td>
-                  <td className="py-3 px-2">
-                    <span className="px-2 py-0.5 text-[9px] font-bold bg-[#D4A017] text-white">HIGH</span>
-                  </td>
-                  <td className="py-3 px-2 text-right text-[#00A86B] font-bold">access-class 10 in</td>
-                </tr>
-                <tr className="hover:bg-[#F9F9F8]">
-                  <td className="py-3 px-2 font-bold text-[#171717]">No Remote Centralized Syslog</td>
-                  <td className="py-3 px-2 text-[#666666] text-[11px]">NIST AU-2</td>
-                  <td className="py-3 px-2 text-center font-bold text-[#D4A017]">4 Devices</td>
-                  <td className="py-3 px-2">
-                    <span className="px-2 py-0.5 text-[9px] font-bold bg-[#D4A017] text-white">HIGH</span>
-                  </td>
-                  <td className="py-3 px-2 text-right text-[#00A86B] font-bold">logging host 10.0.0.50</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Right 5 Columns: Executions Log & System Status */}
-        <div className="lg:col-span-5 space-y-6">
-          <div className="trinetra-panel p-5 space-y-3 trinetra-chamfer">
-            <div className="flex justify-between items-center border-b border-black/10 pb-3">
-              <span className="font-black text-xs text-[#171717] uppercase tracking-[0.15em]">
-                RECENT AUDIT EXECUTIONS
-              </span>
-              <span className="text-[10px] text-[#666666]">REAL-TIME TELEMETRY</span>
+      {/* ============ BIG-NUMBER STAT CALLOUTS ============ */}
+      <section>
+        <Reveal>
+          <div className="grid grid-cols-1 gap-x-8 gap-y-12 border-b border-white/10 pb-12 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <div className={`stat-number ${scoreTone}`}>{data.average_score}%</div>
+              <div className="stat-label mt-3">Fleet Compliance Score</div>
+              <div className="mt-1 text-caption text-faint">Weighted across all audited nodes</div>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left font-mono text-xs">
-                <thead className="text-[10px] text-[#666666] border-b border-black/10 uppercase">
+            <div>
+              <div className="stat-number">{data.total_devices}</div>
+              <div className="stat-label mt-3">Devices Audited</div>
+              <div className="mt-1 text-caption text-faint">Cisco &bull; Fortinet &bull; Whitebox</div>
+            </div>
+
+            <div>
+              <div className="stat-number text-crit">{data.critical_failures}</div>
+              <div className="stat-label mt-3">Critical Findings</div>
+              <div className="mt-1 text-caption text-faint">
+                + {data.high_failures} high severity open
+              </div>
+            </div>
+
+            <div>
+              <div className="stat-number">{data.active_attack_chains}</div>
+              <div className="stat-label mt-3">Active Attack Chains</div>
+              <div className="mt-1 text-caption text-faint">Telnet &bull; SNMP &bull; Priv escalation</div>
+            </div>
+          </div>
+        </Reveal>
+
+        {/* Governance trust signal — its own hero moment */}
+        <Reveal delayMs={60}>
+          <div className="mt-12 flex flex-col items-start gap-8 rounded-[24px] border border-accent/35 bg-accent-soft/40 px-8 py-10 sm:px-12 lg:flex-row lg:items-center lg:gap-16">
+            <div>
+              <div className="stat-number !text-[clamp(4rem,9vw,7rem)] text-accent-hover">
+                {humanApprovedPct}%
+              </div>
+            </div>
+            <div className="max-w-xl">
+              <div className="flex items-center gap-2 text-[13px] font-semibold text-white">
+                <ShieldCheck className="h-4 w-4 text-accent-hover" />
+                AI proposes. Deterministic code decides. Humans approve.
+              </div>
+              <div className="section-title mt-2">
+                Human-approved mappings across every audit
+              </div>
+              <p className="mt-3 text-body text-muted">
+                {totalAudits} audits recorded &bull; every unknown vendor dialect signed off by an
+                analyst before evaluation &bull;{' '}
+                <span className="text-white font-semibold">
+                  {data.pending_ai_proposals} proposal{data.pending_ai_proposals === 1 ? '' : 's'}{' '}
+                  pending review
+                </span>
+                .
+              </p>
+            </div>
+          </div>
+        </Reveal>
+      </section>
+
+      {/* ============ FOUR-QUESTION POSTURE CARDS ============ */}
+      <section>
+        <Reveal>
+          <div className="mb-8">
+            <div className="kicker mb-2">The Four Operational Questions</div>
+            <h2 className="section-title">Posture at a glance</h2>
+          </div>
+        </Reveal>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Reveal>
+            <div className="card card-hover h-full p-5 space-y-3">
+              <div className="flex justify-between items-start">
+                <span className="kicker">1. Asset Inventory</span>
+                <HardDrive className="w-4 h-4 text-muted" />
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="stat-number-sm">{data.total_devices}</span>
+                <span className="text-caption text-muted">Active Monitored Nodes</span>
+              </div>
+              <div className="text-caption text-faint border-t border-white/10 pt-3 flex justify-between gap-2">
+                <span>Cisco &bull; Fortinet &bull; Whitebox</span>
+                <span className="font-semibold text-ink">100% Parsed</span>
+              </div>
+            </div>
+          </Reveal>
+
+          <Reveal delayMs={50}>
+            <div className="card card-hover h-full p-5 space-y-3">
+              <div className="flex justify-between items-start">
+                <span className="kicker">2. Risk Concentration</span>
+                <AlertTriangle className="w-4 h-4 text-crit" />
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="stat-number-sm text-crit">{data.critical_failures}</span>
+                <span className="text-caption font-bold text-crit">Critical Gaps</span>
+              </div>
+              <div className="text-caption text-faint border-t border-white/10 pt-3 flex justify-between gap-2">
+                <span>Severity breakdown</span>
+                <span className="font-semibold text-crit">
+                  {data.critical_failures} Crit &bull; {data.high_failures} High
+                </span>
+              </div>
+            </div>
+          </Reveal>
+
+          <Reveal delayMs={100}>
+            <div className="card card-hover h-full p-5 space-y-3">
+              <div className="flex justify-between items-start">
+                <span className="kicker">3. Attack Vectors</span>
+                <GitFork className="w-4 h-4 text-high" />
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="stat-number-sm">{data.active_attack_chains}</span>
+                <span className="text-caption font-bold text-high">Chained Paths</span>
+              </div>
+              <div className="text-caption text-faint border-t border-white/10 pt-3 flex justify-between gap-2">
+                <span>Telnet &bull; SNMP &bull; Priv Escalation</span>
+              </div>
+            </div>
+          </Reveal>
+
+          <Reveal delayMs={150}>
+            <div className="card card-hover h-full p-5 space-y-3">
+              <div className="flex justify-between items-start">
+                <span className="kicker">4. Leverage Remediation</span>
+                <Zap className="w-4 h-4 text-ok" />
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="stat-number-sm text-ok">-78.0%</span>
+                <span className="text-caption font-bold text-ok">Max Severance</span>
+              </div>
+              <div className="text-caption text-faint border-t border-white/10 pt-3 flex justify-between gap-2">
+                <span>Single key fix</span>
+                <span className="font-semibold text-ink">VTY Access-Class</span>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ============ VIOLATIONS MATRIX + RECENT AUDITS (dense data: no decoration) ============ */}
+      <section className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        <div className="lg:col-span-7">
+          <Reveal>
+            <div className="mb-6">
+              <div className="kicker mb-2">Sorted by severity</div>
+              <h2 className="section-title">Critical &amp; compliance violations</h2>
+            </div>
+            <div className="card p-2 sm:p-4 overflow-x-auto">
+              <table className="data-table min-w-[640px]">
+                <thead>
                   <tr>
-                    <th className="py-1.5 px-2">Host</th>
-                    <th className="py-1.5 px-2">Vendor</th>
-                    <th className="py-1.5 px-2">Score</th>
-                    <th className="py-1.5 px-2 text-right">Action</th>
+                    <th>Control / Violation</th>
+                    <th>Framework</th>
+                    <th className="text-center">Impacted</th>
+                    <th>Severity</th>
+                    <th className="text-right">Remediation</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-black/5">
+                <tbody>
+                  <tr className="row-hover">
+                    <td className="font-semibold">Telnet Enabled on Line VTY</td>
+                    <td className="text-muted text-[12px]">CIS / DISA STIG</td>
+                    <td className="text-center font-bold text-crit">8 Devices</td>
+                    <td><span className="badge badge-critical">Critical</span></td>
+                    <td className="text-right font-mono text-[12px] text-ok">transport input ssh</td>
+                  </tr>
+                  <tr className="row-hover">
+                    <td className="font-semibold">Default SNMP Community ('public')</td>
+                    <td className="text-muted text-[12px]">CIS Benchmark</td>
+                    <td className="text-center font-bold text-crit">6 Devices</td>
+                    <td><span className="badge badge-critical">Critical</span></td>
+                    <td className="text-right font-mono text-[12px] text-ok">no snmp-server community</td>
+                  </tr>
+                  <tr className="row-hover">
+                    <td className="font-semibold">Missing VTY Access-Class ACL</td>
+                    <td className="text-muted text-[12px]">NIST AC-17</td>
+                    <td className="text-center font-bold text-high">5 Devices</td>
+                    <td><span className="badge badge-high">High</span></td>
+                    <td className="text-right font-mono text-[12px] text-ok">access-class 10 in</td>
+                  </tr>
+                  <tr className="row-hover">
+                    <td className="font-semibold">No Remote Centralized Syslog</td>
+                    <td className="text-muted text-[12px]">NIST AU-2</td>
+                    <td className="text-center font-bold text-high">4 Devices</td>
+                    <td><span className="badge badge-high">High</span></td>
+                    <td className="text-right font-mono text-[12px] text-ok">logging host 10.0.0.50</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </Reveal>
+        </div>
+
+        <div className="lg:col-span-5 space-y-6">
+          <Reveal delayMs={60}>
+            <div className="mb-6">
+              <div className="kicker mb-2">Real-time telemetry</div>
+              <h2 className="section-title">Recent audits</h2>
+            </div>
+            <div className="card p-2 sm:p-4 overflow-x-auto">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Host</th>
+                    <th>Vendor</th>
+                    <th>Score</th>
+                    <th className="text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
                   {recentAudits.map((a: any) => (
-                    <tr key={a.id} className="hover:bg-[#F9F9F8]">
-                      <td className="py-2.5 px-2 font-bold text-[#171717]">{a.hostname}</td>
-                      <td className="py-2.5 px-2 text-[#666666] text-[11px]">{a.vendor}</td>
-                      <td className="py-2.5 px-2 font-bold" style={{ color: a.score >= 80 ? '#00A86B' : a.score >= 60 ? '#D4A017' : '#D64545' }}>
+                    <tr key={a.id} className="row-hover">
+                      <td className="font-semibold">{a.hostname}</td>
+                      <td className="text-muted text-[12px]">{a.vendor}</td>
+                      <td
+                        className="font-bold"
+                        style={{
+                          color: a.score >= 80 ? '#4ade80' : a.score >= 60 ? '#ffb224' : '#ff8585',
+                        }}
+                      >
                         {a.score}%
                       </td>
-                      <td className="py-2.5 px-2 text-right">
+                      <td className="text-right">
                         <button
                           onClick={() => onSelectAudit(a.id)}
-                          className="text-[10px] font-bold bg-[#181818] text-white px-2.5 py-1 trinetra-chamfer hover:bg-[#292929]"
+                          className="btn btn-ghost btn-sm"
                         >
-                          INSPECT &rarr;
+                          Inspect
                         </button>
                       </td>
                     </tr>
@@ -255,36 +331,41 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </tbody>
               </table>
             </div>
-          </div>
+          </Reveal>
 
-          {/* Defense System Status Panel */}
-          <div className="bg-[#181818] text-[#F7F6F3] border border-white/10 trinetra-chamfer p-5 space-y-3 font-mono text-xs shadow-tactical-dark">
-            <div className="border-b border-white/10 pb-2 flex justify-between items-center">
-              <span className="font-bold text-xs uppercase tracking-[0.15em] text-white">DEFENSE INFRASTRUCTURE STATUS</span>
-              <span className="text-[10px] text-[#00A86B] font-bold">● ALL SYSTEMS GO</span>
-            </div>
+          <Reveal delayMs={100}>
+            <div className="card p-5 space-y-4">
+              <div className="border-b border-white/10 pb-3 flex justify-between items-center">
+                <span className="font-display text-[13px] font-bold uppercase tracking-[0.12em] text-ink">
+                  Defense Infrastructure Status
+                </span>
+                <span className="font-mono text-[10px] font-bold text-ok uppercase">
+                  ● All systems go
+                </span>
+              </div>
 
-            <div className="grid grid-cols-2 gap-2.5 text-[11px]">
-              <div className="p-2.5 bg-[#262626] border border-white/10">
-                <div className="text-[#8E8E8E] text-[9px]">FASTAPI SERVICE</div>
-                <div className="font-bold text-[#00A86B]">ONLINE (0.2ms)</div>
-              </div>
-              <div className="p-2.5 bg-[#262626] border border-white/10">
-                <div className="text-[#8E8E8E] text-[9px]">DATABASE BACKEND</div>
-                <div className="font-bold text-[#00A86B]">POSTGRES DB</div>
-              </div>
-              <div className="p-2.5 bg-[#262626] border border-white/10">
-                <div className="text-[#8E8E8E] text-[9px]">LOCAL AI INFERENCE</div>
-                <div className="font-bold text-[#00A86B]">OLLAMA (llama3.2)</div>
-              </div>
-              <div className="p-2.5 bg-[#262626] border border-white/10">
-                <div className="text-[#8E8E8E] text-[9px]">DIALECT CACHE</div>
-                <div className="font-bold text-white">24 ENTRIES</div>
+              <div className="grid grid-cols-2 gap-3 text-[12px]">
+                <div className="rounded-xl bg-surface-2 border border-white/10 p-3">
+                  <div className="font-mono text-[10px] uppercase tracking-wider text-faint">FastAPI Service</div>
+                  <div className="font-bold text-ok mt-1">ONLINE (0.2ms)</div>
+                </div>
+                <div className="rounded-xl bg-surface-2 border border-white/10 p-3">
+                  <div className="font-mono text-[10px] uppercase tracking-wider text-faint">Database Backend</div>
+                  <div className="font-bold text-ok mt-1">POSTGRES DB</div>
+                </div>
+                <div className="rounded-xl bg-surface-2 border border-white/10 p-3">
+                  <div className="font-mono text-[10px] uppercase tracking-wider text-faint">Local AI Inference</div>
+                  <div className="font-bold text-ok mt-1">OLLAMA (llama3.2)</div>
+                </div>
+                <div className="rounded-xl bg-surface-2 border border-white/10 p-3">
+                  <div className="font-mono text-[10px] uppercase tracking-wider text-faint">Dialect Cache</div>
+                  <div className="font-bold text-ink mt-1">24 ENTRIES</div>
+                </div>
               </div>
             </div>
-          </div>
+          </Reveal>
         </div>
-      </div>
+      </section>
     </div>
   );
 };
