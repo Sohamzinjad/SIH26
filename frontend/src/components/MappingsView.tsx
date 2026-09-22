@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { AIMapping } from '../types';
 import { fetchPendingMappings, approveAIMapping, rejectAIMapping } from '../api/client';
-import { 
-  Sparkles, 
-  CheckCircle2, 
-  AlertCircle, 
-  ShieldCheck, 
-  Info, 
-  Terminal
+import {
+  Sparkles,
+  CheckCircle2,
+  AlertCircle,
+  ShieldCheck,
+  Info,
+  Terminal,
 } from 'lucide-react';
 
 interface MappingsViewProps {
@@ -68,47 +68,63 @@ export const MappingsView: React.FC<MappingsViewProps> = ({ onMappingApproved })
 
   if (loading) {
     return (
-      <div className="flex flex-col justify-center items-center h-96 space-y-3 font-mono">
-        <div className="w-10 h-10 border-4 border-[#171717] border-t-transparent animate-spin"></div>
-        <p className="text-xs text-[#5E5E5E] tracking-widest uppercase">FETCHING PENDING AI PROPOSALS...</p>
+      <div className="flex flex-col justify-center items-center h-96 space-y-4">
+        <div className="h-10 w-10 rounded-full border-4 border-accent border-t-transparent animate-spin"></div>
+        <p className="font-mono text-xs text-faint tracking-[0.18em] uppercase">Fetching pending AI proposals…</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 animate-fadeIn pb-12 font-sans">
+    <div className="space-y-10 pb-16">
       {/* Header */}
-      <div className="border-b border-[#B9B9B4] pb-5">
-        <div className="text-[11px] font-mono tracking-widest text-[#5E5E5E] uppercase font-bold">
-          HUMAN-IN-THE-LOOP AI GOVERNANCE
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6">
+        <div>
+          <div className="kicker mb-3">Human-in-the-loop AI governance</div>
+          <h1 className="font-display font-bold text-h1 tracking-tight text-ink">
+            White-box grammar &amp; dialect review
+          </h1>
+          <p className="mt-3 max-w-2xl text-body text-muted">
+            Review local AI proposed normalizations for unknown device configurations. Approving
+            caches the SHA-256 syntax fingerprint for 100% deterministic future runs.
+          </p>
         </div>
-        <h1 className="text-2xl font-black text-[#171717] tracking-tight uppercase font-display mt-0.5">
-          White-Box Grammar & Dialect Review
-        </h1>
-        <p className="text-xs text-[#5E5E5E] font-sans mt-1">
-          Review local AI proposed normalizations for unknown device configurations. Approving caches the SHA-256 syntax fingerprint for 100% deterministic future runs.
-        </p>
+
+        <div className="rounded-2xl border border-accent/35 bg-accent-soft/40 px-6 py-5 flex items-center gap-5">
+          <div className="stat-number-sm text-accent-hover">{mappings.length}</div>
+          <div>
+            <div className="stat-label">Pending sign-off</div>
+            <div className="text-caption text-faint mt-1">reviewed proposals are 100% human-approved</div>
+          </div>
+        </div>
       </div>
 
       {successMsg && (
-        <div className="p-4 bg-[#00A86B] text-white font-mono text-xs trinetra-chamfer flex items-center space-x-2">
+        <div className="banner banner-success flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4" />
           <span>{successMsg}</span>
         </div>
       )}
 
       {error && (
-        <div className="p-4 bg-[#D64545] text-white font-mono text-xs trinetra-chamfer flex items-center space-x-2">
+        <div className="banner banner-error flex items-center gap-2">
           <AlertCircle className="w-4 h-4" />
           <span>{error}</span>
         </div>
       )}
 
       {mappings.length === 0 ? (
-        <div className="bg-[#F1F1EF] border border-[#B9B9B4] trinetra-chamfer p-12 text-center space-y-3 font-mono">
-          <ShieldCheck className="w-10 h-10 text-[#00A86B] mx-auto" />
-          <div className="font-bold text-sm text-[#171717]">ALL DIALECT PROPOSALS REVIEWED</div>
-          <div className="text-xs text-[#5E5E5E]">No pending white-box device mappings require human approval.</div>
+        <div className="relative card overflow-hidden p-14 text-center space-y-3">
+          {/* Decorative shapes allowed in empty states only */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
+            <div className="orb orb-violet orb-drift-a -top-20 left-[20%] h-52 w-52" />
+            <div className="orb orb-indigo orb-drift-b -bottom-24 right-[18%] h-60 w-60" />
+          </div>
+          <div className="relative z-10 space-y-3">
+            <ShieldCheck className="w-10 h-10 text-ok mx-auto" />
+            <div className="font-semibold text-ink">All dialect proposals reviewed</div>
+            <div className="text-caption text-muted">No pending white-box device mappings require human approval.</div>
+          </div>
         </div>
       ) : (
         <div className="space-y-8">
@@ -116,63 +132,64 @@ export const MappingsView: React.FC<MappingsViewProps> = ({ onMappingApproved })
             const rawConfigText = m.config_sample || '';
             const rawLines = rawConfigText.split('\n');
             return (
-              <div key={m.id} className="bg-[#F1F1EF] border border-[#B9B9B4] trinetra-chamfer p-6 space-y-4 shadow-sm font-mono">
-                <div className="flex justify-between items-center border-b border-[#B9B9B4] pb-3">
+              <div key={m.id} className="card p-6 space-y-5">
+                <div className="flex flex-wrap justify-between items-start gap-3 border-b border-white/10 pb-4">
                   <div>
-                    <span className="text-[10px] text-[#5E5E5E] uppercase font-bold tracking-widest">PROPOSAL #{m.id}</span>
-                    <h3 className="font-bold text-base text-[#171717]">Fingerprint: {m.fingerprint_hash.substring(0, 16)} &bull; Guessed: {m.vendor_guessed}</h3>
+                    <span className="kicker">Proposal #{m.id}</span>
+                    <h3 className="font-display font-semibold text-lg text-ink mt-1">
+                      Fingerprint: <span className="font-mono">{m.fingerprint_hash.substring(0, 16)}</span> &bull;{' '}
+                      Guessed: <span className="uppercase">{m.vendor_guessed}</span>
+                    </h3>
                   </div>
-                  <span className="px-2.5 py-0.5 bg-[#0057B8] text-white font-bold text-xs">
-                    PENDING ANALYST SIGN-OFF
-                  </span>
+                  <span className="badge badge-medium">Pending analyst sign-off</span>
                 </div>
 
                 {/* Side-by-side Review Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 text-xs">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 text-[13px]">
                   {/* Left: Raw Config */}
                   <div className="space-y-2">
-                    <div className="text-[10px] text-[#5E5E5E] font-bold uppercase tracking-wider flex items-center">
-                      <Terminal className="w-3.5 h-3.5 mr-1 text-[#171717]" />
-                      <span>RAW UNKNOWN CONFIG TEXT ({rawLines.length} LINES)</span>
+                    <div className="font-mono text-[10px] text-faint font-bold uppercase tracking-wider flex items-center">
+                      <Terminal className="w-3.5 h-3.5 mr-1.5" />
+                      Raw unknown config text ({rawLines.length} lines)
                     </div>
-                    <pre className="bg-[#171717] text-[#F1F1EF] p-4 border border-[#232323] h-80 overflow-y-auto font-mono text-xs leading-relaxed">
+                    <pre className="code-surface h-80 p-4 text-muted leading-relaxed">
                       {rawConfigText}
                     </pre>
                   </div>
 
                   {/* Right: AI Proposed Mapping */}
                   <div className="space-y-2">
-                    <div className="text-[10px] text-[#5E5E5E] font-bold uppercase tracking-wider flex items-center">
-                      <Sparkles className="w-3.5 h-3.5 mr-1 text-[#00A86B]" />
-                      <span>AI PROPOSED STRUCTURED MAPPING (NEUTRAL SCHEMA)</span>
+                    <div className="font-mono text-[10px] text-faint font-bold uppercase tracking-wider flex items-center">
+                      <Sparkles className="w-3.5 h-3.5 mr-1.5 text-ok" />
+                      AI proposed structured mapping (neutral schema)
                     </div>
-                    <pre className="bg-[#171717] text-[#00A86B] p-4 border border-[#232323] h-80 overflow-y-auto font-mono text-xs leading-relaxed">
+                    <pre className="code-surface h-80 p-4 text-ok leading-relaxed">
                       {JSON.stringify(m.proposed_schema, null, 2)}
                     </pre>
                   </div>
                 </div>
 
-                {/* Bottom Approval Action Bar */}
-                <div className="flex justify-between items-center pt-3 border-t border-[#B9B9B4]">
-                  <div className="text-[11px] text-[#5E5E5E] flex items-center space-x-1">
-                    <Info className="w-3.5 h-3.5 text-[#00A86B]" />
+                {/* Bottom Approval Action Bar — flat, immediate, no motion */}
+                <div className="flex flex-wrap justify-between items-center gap-3 pt-4 border-t border-white/10">
+                  <div className="text-[12px] text-muted flex items-center gap-1.5">
+                    <Info className="w-3.5 h-3.5 text-ok" />
                     <span>Approving stores SHA-256 dialect fingerprint in database cache.</span>
                   </div>
 
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center gap-3">
                     <button
                       onClick={() => handleReject(m.id)}
                       disabled={processingId === m.id}
-                      className="bg-[#D64545] hover:bg-[#b83535] text-white font-bold px-4 py-2 trinetra-chamfer text-xs transition"
+                      className="btn btn-danger"
                     >
-                      REJECT MAPPING
+                      Reject mapping
                     </button>
                     <button
                       onClick={() => handleApprove(m)}
                       disabled={processingId === m.id}
-                      className="bg-[#171717] hover:bg-[#232323] text-white font-bold px-6 py-2 trinetra-chamfer text-xs transition shadow-sm"
+                      className="btn btn-primary"
                     >
-                      {processingId === m.id ? 'CACHING...' : 'APPROVE & CACHE DIALECT'}
+                      {processingId === m.id ? 'Caching…' : 'Approve & cache dialect'}
                     </button>
                   </div>
                 </div>
