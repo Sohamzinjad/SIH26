@@ -25,7 +25,6 @@
 8. [Comprehensive REST API Reference](#-comprehensive-rest-api-reference)
 9. [Repository Architecture](#-repository-architecture)
 10. [Quick Start & Setup Guide](#-quick-start--setup-guide)
-11. [Judge Demonstration & Presentation Script](#-judge-demonstration--presentation-script)
 
 ---
 
@@ -381,38 +380,6 @@ npm run dev
 ```bash
 docker-compose up --build
 ```
-
----
-
-## 🏆 Judge Demonstration & Presentation Script
-
-Follow this sequential flow to showcase TRINETRA during evaluations:
-
-1. **Mission Statement & Architecture (Landing View):**
-   - Open the application $\rightarrow$ highlight the defense-grade terminal landing view.
-   - Explain the core principle: *"AI proposes, deterministic code decides, humans approve novel cases."*
-2. **Hardened Baseline vs. Exploitable Network (Audit View):**
-   - Click the **Hardened Cisco** preset $\rightarrow$ show $>85\%$ compliance score, green control badges, and zero exploit chains.
-   - Click the **Vulnerable Cisco** preset $\rightarrow$ observe score dropping below $50\%$ with multiple chained exploit paths.
-3. **Attack Path Graph & Single Key Fix:**
-   - Open the **Attack Path Graph** $\rightarrow$ show how Telnet, missing VTY ACL, and default SNMP string chain into administrative takeover.
-   - Highlight the **Single Key Fix Banner**: Demonstrating that applying `access-class 10 in` dismantles 3 active attack chains simultaneously.
-4. **Offline CVE Intelligence & Waiver Governance:**
-   - In the findings table, show the **CVE-2017-6742** badge automatically attached to the SNMP finding without internet access.
-   - Click **Waive Finding** on a low-severity item $\rightarrow$ enter formal justification and submit.
-5. **Cryptographic Tamper-Evident Audit Trail:**
-   - Navigate to **Audit Trail** $\rightarrow$ verify that the waiver was logged with a forward-linked SHA-256 hash.
-   - Click **Verify Hash Chain** $\rightarrow$ see $100\%$ chain verification passing across all events.
-   - *(Optional)* Trigger the demo tamper test to prove that any out-of-band DB mutation breaks the chain at the exact compromised record.
-6. **Fleet Bulk Auditing & Configuration Drift:**
-   - Navigate to **Fleet Batch Auditor** $\rightarrow$ drop multiple configs or a `.zip` archive to demonstrate sub-second multi-device analysis.
-   - Open **Device History** $\rightarrow$ show longitudinal tracking and rule transition drift (`improved`, `worsened`, `same`).
-7. **Human-in-the-Loop Novel NOS Dialect Approval:**
-   - Upload a novel white-box configuration $\rightarrow$ demonstrate the AI proposing a structured AST normalization.
-   - Inspect the side-by-side proposal in **Pending Mappings** $\rightarrow$ click **Approve** $\rightarrow$ show the SHA-256 fingerprint cached for all future audits.
-8. **Export Defense Compliance Report:**
-   - Click **Export Auditor Report** to generate a clean, print-ready HTML compliance document formatted for commanders and auditors.
-
 ---
 
 ## 👥 Authors & Acknowledgements
