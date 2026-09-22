@@ -302,6 +302,7 @@ export const FleetView: React.FC<FleetViewProps> = ({ onBatchCompleted, onBatchF
               </table>
             </div>
           </div>
+        </div>
       )}
     </div>
   );
