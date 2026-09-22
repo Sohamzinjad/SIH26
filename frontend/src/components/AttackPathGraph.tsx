@@ -3,7 +3,7 @@ import { AttackPath, AuditDetail } from '../types';
 import { fetchAuditDetail } from '../api/client';
 import {
   ArrowLeft,
-  ShieldAlert,
+  ShieldCheck,
   GitFork,
   Zap,
   Play,
@@ -12,7 +12,6 @@ import {
   SkipForward,
   Activity,
   Terminal,
-  ShieldCheck
 } from 'lucide-react';
 
 interface AttackPathGraphProps {
@@ -71,17 +70,17 @@ export const AttackPathGraph: React.FC<AttackPathGraphProps> = ({ auditId, onBac
 
   if (loading) {
     return (
-      <div className="flex flex-col justify-center items-center h-96 space-y-3 font-mono">
-        <div className="w-10 h-10 border-4 border-[#171717] border-t-transparent animate-spin"></div>
-        <p className="text-xs text-[#5E5E5E] tracking-widest uppercase">CORRELATING ATTACK PATHS...</p>
+      <div className="flex flex-col justify-center items-center h-96 space-y-4">
+        <div className="h-10 w-10 rounded-full border-4 border-accent border-t-transparent animate-spin"></div>
+        <p className="font-mono text-xs text-faint tracking-[0.18em] uppercase">Correlating attack paths…</p>
       </div>
     );
   }
 
   if (error || !detail) {
     return (
-      <div className="p-6 bg-[#D64545] text-white font-mono text-xs trinetra-chamfer space-y-3">
-        <div className="font-bold uppercase text-sm font-display">ATTACK PATH ERROR</div>
+      <div className="banner banner-error space-y-2">
+        <div className="font-bold uppercase text-sm">Attack path error</div>
         <div>{error || 'Audit not found'}</div>
       </div>
     );
@@ -103,33 +102,37 @@ export const AttackPathGraph: React.FC<AttackPathGraphProps> = ({ auditId, onBac
     setCurrentStep(0);
   };
 
+  const handleSelectPath = (idx: number) => {
+    setActivePathIdx(idx);
+    setCurrentStep(0);
+    setIsPlaying(false);
+  };
+
+  // NOTE: this view deliberately uses no decorative shapes or entrance motion —
+  // the graph must stay static and readable at all times.
   return (
-    <div className="space-y-6 animate-fadeIn pb-12 font-sans">
+    <div className="space-y-10 pb-16">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#B9B9B4] pb-5">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
-          <div className="flex items-center space-x-3 mb-1">
+          <div className="flex items-center gap-4 mb-3">
             {onBack && (
               <button
                 onClick={onBack}
-                className="text-xs font-mono font-bold text-[#171717] hover:underline flex items-center space-x-1"
+                className="btn btn-ghost btn-sm"
               >
-                <ArrowLeft className="w-3.5 h-3.5 text-[#00A86B]" />
-                <span>&larr; BACK TO AUDIT</span>
+                <ArrowLeft className="w-3.5 h-3.5" />
+                Back to audit
               </button>
             )}
-            <span className="text-[11px] font-mono tracking-widest text-[#5E5E5E] uppercase font-bold">
-              ATTACK PATH WORKSPACE &bull; #{audit.id}
-            </span>
+            <span className="kicker">Attack path workspace &bull; #{audit.id}</span>
           </div>
 
-          <h1 className="text-2xl font-black text-[#171717] tracking-tight uppercase font-display mt-0.5 flex items-center space-x-3">
+          <h1 className="font-display font-bold text-h1 tracking-tight text-ink flex flex-wrap items-center gap-3">
             <span>{audit.hostname}</span>
-            <span className="text-xs font-mono font-bold px-2.5 py-0.5 bg-[#D64545] text-white">
-              {paths.length} ACTIVE PATHS
-            </span>
+            <span className="badge badge-critical">{paths.length} active paths</span>
           </h1>
-          <p className="text-xs text-[#5E5E5E] font-sans mt-1">
+          <p className="mt-3 text-body text-muted">
             Correlated multi-stage exploit chains linking rule violations into actionable attack stories.
           </p>
         </div>
@@ -137,121 +140,119 @@ export const AttackPathGraph: React.FC<AttackPathGraphProps> = ({ auditId, onBac
 
       {/* Single Key Fix Highlight Box */}
       {single_fix_recommendation && (
-        <div className="bg-[#171717] text-[#F1F1EF] border border-[#232323] trinetra-chamfer p-5 space-y-2 shadow-sm font-mono">
-          <div className="flex items-center space-x-2 text-xs text-[#00A86B] font-bold tracking-widest uppercase">
-            <Zap className="w-4 h-4 text-[#00A86B]" />
-            <span>SINGLE KEY FIX (OPTIMAL REMEDIATION MOVE)</span>
+        <div className="card p-6 space-y-4">
+          <div className="flex items-center gap-2 font-mono text-[12px] font-bold uppercase tracking-widest text-ok">
+            <Zap className="w-4 h-4" />
+            Single key fix &bull; optimal remediation move
           </div>
-          <code className="block bg-[#000000] p-3 text-sm text-[#00A86B] border border-[#232323] overflow-x-auto">
+          <code className="block code-surface p-4 text-sm text-ok">
             {single_fix_recommendation.remediation}
           </code>
-          <p className="text-[11px] text-[#B9B9B4]">
-            Dismantles <strong className="text-white">{single_fix_recommendation.paths_broken_count}</strong> attack paths simultaneously.
+          <p className="text-caption text-muted">
+            Dismantles <strong className="text-ink">{single_fix_recommendation.paths_broken_count}</strong> attack paths simultaneously.
           </p>
         </div>
       )}
 
       {/* Graph & Simulation Area */}
       {paths.length === 0 ? (
-        <div className="bg-[#F1F1EF] border border-[#B9B9B4] trinetra-chamfer p-12 text-center space-y-3 font-mono">
-          <ShieldCheck className="w-10 h-10 text-[#00A86B] mx-auto" />
-          <div className="font-bold text-sm text-[#171717]">NO ACTIVE ATTACK PATHS DETECTED</div>
-          <div className="text-xs text-[#5E5E5E]">Device configuration has passed critical chain correlation.</div>
+        <div className="card p-12 text-center space-y-3">
+          <ShieldCheck className="w-10 h-10 text-ok mx-auto" />
+          <div className="font-semibold text-ink">No active attack paths detected</div>
+          <div className="text-caption text-muted">Device configuration has passed critical chain correlation.</div>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-8">
           {/* Interactive Simulation Controls */}
-          <div className="bg-[#171717] text-[#F1F1EF] border border-[#232323] trinetra-chamfer p-4 space-y-4 shadow-sm font-mono">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#232323] pb-3 gap-3">
-              <div className="flex items-center space-x-2 text-xs font-bold text-[#00A86B] tracking-widest uppercase">
-                <Activity className="w-4 h-4 text-[#00A86B] animate-pulse" />
-                <span>ADVERSARY PIVOT SIMULATOR</span>
+          <div className="card-raise p-5 sm:p-6 space-y-5">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div className="flex items-center gap-2 font-mono text-[12px] font-bold uppercase tracking-widest text-ok">
+                <Activity className="w-4 h-4" />
+                Adversary pivot simulator
               </div>
 
-              {/* Playback Controls */}
-              <div className="flex items-center space-x-2 text-xs">
+              {/* Playback Controls — no motion in controls themselves */}
+              <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsPlaying(!isPlaying)}
-                  className="bg-[#00A86B] hover:bg-[#008f5b] text-white px-3 py-1.5 font-bold trinetra-chamfer flex items-center space-x-1.5 transition"
+                  className="btn btn-primary btn-sm"
                 >
                   {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-                  <span>{isPlaying ? 'PAUSE' : 'SIMULATE PIVOT'}</span>
+                  {isPlaying ? 'Pause' : 'Simulate pivot'}
                 </button>
 
                 <button
                   onClick={handleNextStep}
                   disabled={currentStep >= totalSteps - 1}
-                  className="bg-[#232323] hover:bg-[#3A3A3A] disabled:opacity-40 text-white px-2.5 py-1.5 border border-white/10 flex items-center space-x-1 transition"
+                  className="btn btn-ghost btn-sm"
                 >
                   <SkipForward className="w-3.5 h-3.5" />
-                  <span>STEP</span>
+                  Step
                 </button>
 
                 <button
                   onClick={handleResetSim}
-                  className="bg-[#232323] hover:bg-[#3A3A3A] text-white px-2.5 py-1.5 border border-white/10 flex items-center space-x-1 transition"
+                  className="btn btn-ghost btn-sm"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
-                  <span>RESET</span>
+                  Reset
                 </button>
               </div>
             </div>
 
             {/* Path selector buttons */}
-            <div className="flex flex-wrap gap-2 text-xs">
+            <div className="flex flex-wrap gap-2">
               {paths.map((p, idx) => (
                 <button
                   key={idx}
-                  onClick={() => {
-                    setActivePathIdx(idx);
-                    setCurrentStep(0);
-                    setIsPlaying(false);
-                  }}
-                  className={`px-3 py-1.5 border font-bold transition ${
-                    activePathIdx === idx
-                      ? 'bg-[#D64545] text-white border-[#D64545]'
-                      : 'bg-[#232323] text-[#B9B9B4] border-[#3A3A3A] hover:bg-[#2A2A2A]'
+                  onClick={() => handleSelectPath(idx)}
+                  className={`btn btn-sm ${
+                    activePathIdx === idx ? 'btn-primary' : 'btn-ghost'
                   }`}
                 >
-                  PATH #{idx + 1}: {p.name}
+                  Path #{idx + 1}: {p.name}
                 </button>
               ))}
             </div>
 
             {/* Interactive Step Visualizer */}
             {selectedPath && (
-              <div className="space-y-4 pt-2">
-                <div className="flex flex-wrap items-center gap-3 bg-[#000000] p-4 border border-[#232323]">
+              <div className="space-y-4">
+                <div className="flex flex-wrap items-center gap-3 rounded-xl border border-white/10 bg-[#0c0c0e] p-4">
                   {selectedPath.finding_rule_ids?.map((fId, fIdx) => {
                     const isPassed = fIdx < currentStep;
                     const isCurrent = fIdx === currentStep;
                     return (
                       <React.Fragment key={fIdx}>
                         <div
-                          className={`p-3 border font-mono text-xs flex items-center space-x-2 transition-all ${
+                          className={`rounded-xl border p-3 font-mono text-xs flex items-center gap-2.5 transition-colors duration-150 ${
                             isCurrent
-                              ? 'bg-[#D64545] text-white border-white scale-105 shadow-lg animate-pulse'
+                              ? 'bg-[#D92D20] border-[#D92D20] text-white'
                               : isPassed
-                              ? 'bg-[#00A86B]/20 text-[#00A86B] border-[#00A86B]'
-                              : 'bg-[#181818] text-[#5E5E5E] border-[#2A2A2A]'
+                              ? 'bg-[#067647]/15 border-[#067647]/60 text-[#4ADE80]'
+                              : 'bg-surface border-white/10 text-faint'
                           }`}
                         >
-                          <span className={`w-5 h-5 font-bold flex items-center justify-center text-[10px] ${
-                            isCurrent ? 'bg-white text-[#D64545]' : isPassed ? 'bg-[#00A86B] text-white' : 'bg-[#3A3A3A] text-white'
-                          }`}>
+                          <span
+                            className={`h-6 w-6 font-bold flex items-center justify-center text-[11px] rounded-lg ${
+                              isCurrent
+                                ? 'bg-white text-[#D92D20]'
+                                : isPassed
+                                ? 'bg-[#067647] text-white'
+                                : 'bg-surface-3 text-muted'
+                            }`}
+                          >
                             {fIdx + 1}
                           </span>
-                          <div className="text-left">
-                            <div className="font-bold">{fId}</div>
-                            <div className="text-[9px] opacity-80">
-                              {isCurrent ? 'EXPLOITING NOW...' : isPassed ? 'PIVOT SUCCEEDED' : 'PENDING'}
-                            </div>
-                          </div>
+                          <span className="text-left">
+                            <span className={`block font-bold ${isPassed || isCurrent ? '' : ''}`}>{fId}</span>
+                            <span className="block text-[9px] uppercase tracking-wider opacity-80">
+                              {isCurrent ? (isPlaying ? 'Exploiting…' : 'Next step') : isPassed ? 'Pivot succeeded' : 'Pending'}
+                            </span>
+                          </span>
                         </div>
                         {fIdx < (selectedPath.finding_rule_ids.length - 1) && (
-                          <span className={`font-bold text-sm ${isPassed ? 'text-[#00A86B]' : 'text-[#3A3A3A]'}`}>
-                            &rarr;
-                          </span>
+                          <span className={`font-bold text-sm ${isPassed ? 'text-ok' : 'text-faint'}`}>&rarr;</span>
                         )}
                       </React.Fragment>
                     );
@@ -259,14 +260,14 @@ export const AttackPathGraph: React.FC<AttackPathGraphProps> = ({ auditId, onBac
                 </div>
 
                 {/* Simulation Terminal Output */}
-                <div className="bg-[#0A0A0A] border border-[#232323] p-3 font-mono text-xs text-[#00A86B] flex items-start space-x-2">
-                  <Terminal className="w-4 h-4 text-[#00A86B] mt-0.5 shrink-0" />
+                <div className="code-surface p-4 text-xs text-ok flex items-start gap-3">
+                  <Terminal className="w-4 h-4 mt-0.5 shrink-0" />
                   <div>
-                    <span className="text-[#B9B9B4]">SIMULATION STEP [{currentStep + 1}/{totalSteps}]:</span>{' '}
+                    <span className="text-muted">SIMULATION STEP [{currentStep + 1}/{totalSteps}]:</span>{' '}
                     <span>
                       Adversary exploits rule violation <strong className="text-white">{selectedPath.finding_rule_ids[currentStep]}</strong>.
                     </span>
-                    <div className="text-[11px] text-[#A0A0A0] mt-1">
+                    <div className="text-[11px] text-faint mt-1">
                       Rationale: {selectedPath.narrative}
                     </div>
                   </div>
@@ -277,38 +278,38 @@ export const AttackPathGraph: React.FC<AttackPathGraphProps> = ({ auditId, onBac
 
           {/* Detailed Path List */}
           {paths.map((p, idx) => (
-            <div key={idx} className="bg-[#F1F1EF] border border-[#B9B9B4] trinetra-chamfer p-5 space-y-4 shadow-sm font-mono">
-              <div className="flex items-center justify-between border-b border-[#B9B9B4] pb-3">
-                <div className="flex items-center space-x-3">
-                  <span className="px-2.5 py-0.5 text-xs font-bold bg-[#D64545] text-white uppercase">
-                    PATH #{idx + 1} &bull; {p.severity}
-                  </span>
-                  <span className="font-bold text-sm text-[#171717]">{p.name}</span>
+            <div key={idx} className="card p-5 sm:p-6 space-y-5">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="badge badge-critical">Path #{idx + 1} &bull; {p.severity}</span>
+                  <span className="font-display font-bold text-[15px] text-ink">{p.name}</span>
                 </div>
-                <span className="text-xs text-[#5E5E5E]">CHAIN LENGTH: {p.finding_rule_ids?.length || 0} STEPS</span>
+                <span className="font-mono text-[11px] text-faint uppercase">
+                  Chain length: {p.finding_rule_ids?.length || 0} steps
+                </span>
               </div>
 
               {/* Exploit Steps Visualization */}
-              <div className="p-4 bg-[#171717] border border-[#232323] space-y-3">
-                <div className="text-[10px] text-[#B9B9B4] tracking-widest uppercase font-bold">
-                  EXPLOIT CHAIN NARRATIVE:
+              <div className="rounded-xl border border-white/10 bg-[#0c0c0e] space-y-4 p-5">
+                <div className="font-mono text-[11px] uppercase tracking-[0.16em] font-bold text-muted">
+                  Exploit chain narrative
                 </div>
-                <p className="text-xs text-[#F1F1EF] leading-relaxed font-sans">
+                <p className="text-body text-muted leading-relaxed">
                   {p.narrative}
                 </p>
 
                 {/* Steps Nodes Diagram */}
-                <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-[#232323]">
+                <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-white/10">
                   {p.finding_rule_ids?.map((fId, fIdx) => (
                     <React.Fragment key={fIdx}>
-                      <div className="bg-[#232323] border border-[#3A3A3A] p-2 text-xs font-mono text-white flex items-center space-x-2">
-                        <span className="w-5 h-5 bg-[#D64545] text-white font-bold flex items-center justify-center text-[10px]">
+                      <div className="rounded-lg border border-white/10 bg-surface-2 p-2 text-xs font-mono text-ink flex items-center gap-2">
+                        <span className="h-5 w-5 rounded-md bg-[#D92D20] text-white font-bold flex items-center justify-center text-[10px]">
                           {fIdx + 1}
                         </span>
                         <span>{fId}</span>
                       </div>
                       {fIdx < (p.finding_rule_ids.length - 1) && (
-                        <span className="text-[#00A86B] font-bold text-sm">&rarr;</span>
+                        <span className="text-ok font-bold text-sm">&rarr;</span>
                       )}
                     </React.Fragment>
                   ))}
@@ -317,9 +318,9 @@ export const AttackPathGraph: React.FC<AttackPathGraphProps> = ({ auditId, onBac
 
               {/* Break Rule / Severance Command for this path */}
               {p.break_why && (
-                <div className="bg-[#EAEAE7] border border-[#B9B9B4] p-3 text-xs space-y-1">
-                  <div className="text-[10px] text-[#5E5E5E] font-bold uppercase">SEVERANCE RATIONALE:</div>
-                  <div className="text-xs font-bold text-[#171717]">{p.break_why}</div>
+                <div className="rounded-xl bg-surface-2 border border-white/10 p-4 space-y-1.5">
+                  <div className="font-mono text-[11px] font-bold uppercase tracking-widest text-faint">Severance rationale</div>
+                  <div className="text-[14px] font-semibold text-ink">{p.break_why}</div>
                 </div>
               )}
             </div>
