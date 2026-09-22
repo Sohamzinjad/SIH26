@@ -93,8 +93,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#D9D9D6] text-[#111111] font-sans flex flex-col selection:bg-[#171717] selection:text-white">
-      {/* TRINETRA Command Header & Navigation Rail */}
+    <div className="min-h-screen bg-bg text-ink font-sans flex flex-col">
       <Navbar
         currentTab={currentTab}
         setCurrentTab={navigateToTab}
@@ -105,9 +104,8 @@ export const App: React.FC = () => {
         canGoBack={tabHistory.length > 1}
       />
 
-      {/* Main Operational Workspace (Offset by 240px sidebar on desktop) */}
-      <div className="md:ml-60 flex-1 flex flex-col min-h-[calc(100vh-3.5rem)]">
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+      <div className="flex-1 flex flex-col">
+        <main className="flex-1 w-full mx-auto max-w-[1440px] px-5 sm:px-8 lg:px-12 py-10 lg:py-14">
           {currentTab === 'dashboard' && (
             <DashboardView
               overview={overview}
@@ -162,42 +160,45 @@ export const App: React.FC = () => {
           )}
 
           {(currentTab === 'devices' || currentTab === 'findings' || currentTab === 'reports' || currentTab === 'settings') && (
-            <div className="bg-[#F1F1EF] border border-[#B9B9B4] trinetra-chamfer p-8 text-center space-y-4 shadow-sm my-8">
-              <Shield className="w-12 h-12 text-[#171717] mx-auto" />
-              <h2 className="text-xl font-bold font-mono tracking-wide text-[#171717] uppercase">
-                TRINETRA {currentTab.toUpperCase()} MODULE ACTIVE
-              </h2>
-              <p className="text-xs font-mono text-[#5E5E5E] max-w-md mx-auto">
-                Deterministic compliance auditing active for CIS Cisco, FortiOS, NIST SP 800-53 and DISA STIG benchmarks.
-              </p>
-              <button
-                onClick={() => setCurrentTab('dashboard')}
-                className="bg-[#171717] text-white font-mono text-xs font-bold px-4 py-2 trinetra-chamfer hover:bg-[#232323] transition"
-              >
-                &larr; RETURN TO DASHBOARD
-              </button>
+            <div className="relative card overflow-hidden p-10 text-center max-w-2xl mx-auto mt-8">
+              {/* Decorative shapes allowed in empty states only */}
+              <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
+                <div className="orb orb-violet orb-drift-a -top-16 -left-12 h-48 w-48 opacity-60" />
+                <div className="orb orb-indigo orb-drift-b -bottom-20 -right-14 h-56 w-56 opacity-50" />
+              </div>
+              <div className="relative z-10 space-y-4">
+                <Shield className="w-10 h-10 text-accent-hover mx-auto" />
+                <h2 className="section-title uppercase tracking-wide">
+                  TRINETRA {currentTab.toUpperCase()} Module
+                </h2>
+                <p className="text-body text-muted max-w-md mx-auto">
+                  Deterministic compliance auditing active for CIS Cisco, FortiOS, NIST SP 800-53 and DISA STIG benchmarks.
+                </p>
+                <button onClick={() => setCurrentTab('dashboard')} className="btn btn-solid">
+                  &larr; Return to Dashboard
+                </button>
+              </div>
             </div>
           )}
         </main>
 
-        {/* TRINETRA Footer */}
-        <footer className="bg-[#171717] border-t border-[#232323] py-4 px-6 text-[#B9B9B4] font-mono text-xs mt-auto">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+        <footer className="border-t border-white/10 bg-[#0c0c0e] py-6 px-6">
+          <div className="max-w-[1440px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center space-x-3">
-              <Lock className="w-3.5 h-3.5 text-[#00A86B]" />
-              <span className="font-bold text-white tracking-widest uppercase">TRINETRA DEFENSE ENGINE</span>
-              <span className="text-[#5E5E5E]">&bull;</span>
-              <span className="text-[#5E5E5E] text-[11px]">
-                Air-Gapped High Assurance Compliance & Threat Intelligence
+              <Lock className="w-3.5 h-3.5 text-[#4ade80]" />
+              <span className="font-display font-bold text-sm tracking-[0.14em] text-ink uppercase">TRINETRA Defense Engine</span>
+              <span className="text-faint">&bull;</span>
+              <span className="font-mono text-[11px] text-faint">
+                Air-Gapped High Assurance Compliance &amp; Threat Intelligence
               </span>
             </div>
 
-            <div className="flex items-center space-x-6 text-[11px]">
-              <div className="flex items-center space-x-1.5 text-[#00A86B] font-bold">
-                <span className="w-2 h-2 rounded-full bg-[#00A86B]"></span>
+            <div className="flex items-center space-x-6 font-mono text-[11px]">
+              <div className="flex items-center space-x-1.5 text-[#4ade80] font-bold">
+                <span className="w-2 h-2 rounded-full bg-[#4ade80]"></span>
                 <span>FOR A SAFER TOMORROW</span>
               </div>
-              <span className="text-[#5E5E5E]">v0.1.0-defense</span>
+              <span className="text-faint">v0.1.0-defense</span>
             </div>
           </div>
         </footer>

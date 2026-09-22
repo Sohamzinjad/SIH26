@@ -1,19 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  LayoutDashboard, 
-  UploadCloud, 
-  FolderGit2, 
-  HardDrive, 
-  ShieldAlert, 
-  GitFork, 
-  Workflow, 
-  History, 
-  FileCheck2, 
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  LayoutDashboard,
+  FolderGit2,
+  Workflow,
+  History,
+  HardDrive,
+  ShieldAlert,
+  GitFork,
+  FileCheck2,
   SlidersHorizontal,
+  UploadCloud,
+  ArrowLeft,
+  Menu,
+  X,
+  ChevronDown,
   Search,
-  Bell,
-  Shield,
-  ArrowLeft
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -26,6 +27,21 @@ interface NavbarProps {
   canGoBack?: boolean;
 }
 
+const PRIMARY_LINKS = [
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'fleet', label: 'Fleet Audit', icon: FolderGit2 },
+  { id: 'mappings', label: 'Mappings', icon: Workflow },
+  { id: 'audit-trail', label: 'Audit Trail', icon: History },
+];
+
+const MODULE_LINKS = [
+  { id: 'devices', label: 'Devices', icon: HardDrive },
+  { id: 'findings', label: 'Findings', icon: ShieldAlert },
+  { id: 'attack-path', label: 'Attack Paths', icon: GitFork },
+  { id: 'reports', label: 'Reports', icon: FileCheck2 },
+  { id: 'settings', label: 'Settings', icon: SlidersHorizontal },
+];
+
 export const Navbar: React.FC<NavbarProps> = ({
   currentTab,
   setCurrentTab,
@@ -33,182 +49,199 @@ export const Navbar: React.FC<NavbarProps> = ({
   onBack,
   canGoBack,
 }) => {
-  const [timeStr, setTimeStr] = useState<string>('');
-  const [dateStr, setDateStr] = useState<string>('');
+  const [modulesOpen, setModulesOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const modulesRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      setTimeStr(now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
-      setDateStr(now.toLocaleDateString('en-US', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' }));
+    const onClickOutside = (e: MouseEvent) => {
+      if (modulesRef.current && !modulesRef.current.contains(e.target as Node)) {
+        setModulesOpen(false);
+      }
     };
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
+    document.addEventListener('mousedown', onClickOutside);
+    return () => document.removeEventListener('mousedown', onClickOutside);
   }, []);
 
-  const navItems = [
-    { id: 'dashboard', label: 'DASHBOARD', icon: LayoutDashboard },
-    { id: 'upload', label: 'UPLOAD & AUDIT', icon: UploadCloud },
-    { id: 'fleet', label: 'FLEET AUDIT', icon: FolderGit2 },
-    { id: 'devices', label: 'DEVICES', icon: HardDrive },
-    { id: 'findings', label: 'FINDINGS', icon: ShieldAlert },
-    { id: 'attack-path', label: 'ATTACK PATHS', icon: GitFork },
-    { id: 'mappings', label: 'MAPPINGS', icon: Workflow, badge: pendingCount },
-    { id: 'audit-trail', label: 'AUDIT TRAIL', icon: History },
-    { id: 'reports', label: 'REPORTS', icon: FileCheck2 },
-    { id: 'settings', label: 'SETTINGS', icon: SlidersHorizontal },
-  ];
+  const nav = (id: string) => {
+    setCurrentTab(id);
+    setModulesOpen(false);
+    setMobileOpen(false);
+  };
+
+  const isModuleActive = MODULE_LINKS.some((m) => m.id === currentTab);
+
+  const linkCls = (active: boolean) =>
+    `px-3 py-2 rounded-full text-[13px] font-medium transition-colors duration-150 ${
+      active ? 'bg-accent-soft text-white' : 'text-muted hover:text-ink hover:bg-surface-3'
+    }`;
 
   return (
-    <>
-      {/* Top Black Command Bar (#181818) */}
-      <header className="bg-[#181818] border-b border-white/10 text-[#F7F6F3] sticky top-0 z-40 h-14 flex items-center justify-between px-4 sm:px-6 shadow-tactical-dark">
-        {/* Left: Back Button + Tagline */}
-        <div className="flex items-center space-x-4">
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0a0b]/85 backdrop-blur-xl">
+      <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between gap-4 px-5 sm:px-8 lg:px-12">
+        {/* Left: back + brand */}
+        <div className="flex min-w-0 items-center gap-3">
           {canGoBack && onBack && (
             <button
               onClick={onBack}
-              className="flex items-center space-x-1.5 px-3 py-1 bg-[#262626] hover:bg-[#3A3A3A] text-white border border-white/20 text-xs font-mono font-bold transition trinetra-chamfer"
+              className="btn btn-ghost btn-sm !px-3"
               title="Return to previous page"
             >
-              <ArrowLeft className="w-4 h-4 text-[#00A86B]" />
-              <span>&larr; BACK</span>
+              <ArrowLeft className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Back</span>
             </button>
           )}
 
-          <div className="hidden xl:flex items-center space-x-2 text-[11px] font-mono tracking-[0.12em] text-[#A0A0A0]">
-            <span className="text-[#00A86B] font-bold">AI PROPOSES.</span>
-            <span>DETERMINISTIC CODE DECIDES.</span>
-            <span className="text-white font-semibold">HUMANS APPROVE.</span>
-          </div>
+          <button
+            onClick={() => nav('dashboard')}
+            className="flex items-center gap-2.5 group"
+            aria-label="TRINETRA home"
+          >
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 bg-surface-2 transition-colors group-hover:border-accent/60">
+              <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-2">
+                <polygon points="12 2 22 20 2 20" />
+                <circle cx="12" cy="13" r="3" fill="#D92D20" stroke="none" />
+              </svg>
+            </span>
+            <span className="hidden flex-col items-start leading-none sm:flex">
+              <span className="font-display text-[17px] font-bold tracking-[0.12em] text-ink">
+                TRINETRA
+              </span>
+              <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-faint mt-1">
+                Defense Intelligence
+              </span>
+            </span>
+          </button>
         </div>
 
-        {/* Center: Search & NTRO Organization Seal */}
-        <div className="flex items-center space-x-6">
-          <div className="relative hidden md:block w-72">
-            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#777777]" />
-            <input 
+        {/* Center: primary links */}
+        <nav className="hidden items-center gap-1 lg:flex" aria-label="Primary">
+          {PRIMARY_LINKS.map((item) => {
+            const Icon = item.icon;
+            const active = currentTab === item.id;
+            return (
+              <button key={item.id} onClick={() => nav(item.id)} className={linkCls(active)}>
+                <span className="flex items-center gap-2">
+                  <Icon className={`h-4 w-4 ${active ? 'text-accent-hover' : ''}`} />
+                  {item.label}
+                  {item.id === 'mappings' && pendingCount > 0 && (
+                    <span className="ml-0.5 rounded-full bg-crit px-1.5 py-0.5 font-mono text-[10px] font-bold leading-none text-white">
+                      {pendingCount}
+                    </span>
+                  )}
+                </span>
+              </button>
+            );
+          })}
+
+          {/* Secondary modules dropdown */}
+          <div className="relative" ref={modulesRef}>
+            <button
+              onClick={() => setModulesOpen((o) => !o)}
+              className={`${linkCls(isModuleActive)} flex items-center gap-1.5`}
+              aria-expanded={modulesOpen}
+            >
+              Modules
+              <ChevronDown className={`h-3.5 w-3.5 transition-transform ${modulesOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {modulesOpen && (
+              <div className="absolute left-0 top-full z-50 mt-2 w-52 overflow-hidden rounded-2xl border border-white/10 bg-surface-2 p-1.5 shadow-lift">
+                {MODULE_LINKS.map((m) => {
+                  const Icon = m.icon;
+                  const active = currentTab === m.id;
+                  return (
+                    <button
+                      key={m.id}
+                      onClick={() => nav(m.id)}
+                      className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-[13px] transition-colors ${
+                        active ? 'bg-accent-soft text-white' : 'text-muted hover:bg-surface-3 hover:text-ink'
+                      }`}
+                    >
+                      <Icon className={`h-4 w-4 ${active ? 'text-accent-hover' : ''}`} />
+                      {m.label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </nav>
+
+        {/* Right: status + search + primary CTA + user */}
+        <div className="flex items-center gap-3">
+          <div className="relative hidden xl:block">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-faint" />
+            <input
               type="text"
               placeholder="Search devices, audits, findings..."
-              className="w-full bg-[#262626] border border-white/10 text-xs text-[#F7F6F3] placeholder-[#777777] pl-8 pr-3 py-1.5 focus:outline-none focus:border-white/30 font-mono transition"
+              className="field !w-64 !rounded-full !py-2 !pl-9 !text-[12px]"
             />
           </div>
 
-          <div className="hidden lg:flex items-center space-x-2 px-3 py-1 bg-[#262626] border border-white/10 text-[10px] text-[#C0C0C0] tracking-[0.15em] font-semibold uppercase">
-            <Shield className="w-3.5 h-3.5 text-[#00A86B]" />
-            <span>NATIONAL TECHNICAL RESEARCH ORGANISATION</span>
-          </div>
-        </div>
-
-        {/* Right: Air-Gap Indicator & User Badge */}
-        <div className="flex items-center space-x-4 text-xs font-mono">
-          <div className="flex items-center space-x-2 px-2.5 py-1 bg-[#262626] border border-white/10 text-[11px]">
-            <span className="w-2 h-2 rounded-full bg-[#00A86B] animate-pulse"></span>
-            <span className="text-[#F7F6F3] font-bold">AIR-GAPPED MODE</span>
-            <span className="text-[#666666]">&bull;</span>
-            <span className="text-[#A0A0A0]">Local AI (Ollama)</span>
+          <div className="hidden items-center gap-2 rounded-full border border-white/10 bg-surface-2 px-3 py-1.5 md:flex">
+            <span className="h-2 w-2 rounded-full bg-[#067647] ring-2 ring-[#067647]/30" />
+            <span className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-muted">
+              Air-gapped
+            </span>
           </div>
 
-          <button className="p-1.5 hover:bg-[#262626] text-[#A0A0A0] hover:text-white transition">
-            <Bell className="w-4 h-4" />
+          <button onClick={() => nav('upload')} className="btn btn-primary btn-sm hidden sm:inline-flex">
+            <UploadCloud className="h-4 w-4" />
+            New Audit
           </button>
 
-          <div className="flex items-center space-x-2.5 pl-3 border-l border-white/10">
-            <div className="w-7 h-7 bg-[#262626] border border-white/20 text-white flex items-center justify-center text-xs font-bold">
+          <div className="hidden items-center gap-2.5 border-l border-white/10 pl-3 md:flex">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-surface-3 font-mono text-[11px] font-bold text-ink">
               AT
             </div>
-            <div className="hidden sm:block text-left">
-              <div className="text-xs font-bold text-white leading-none">Ayush Thakur</div>
-              <div className="text-[10px] text-[#8E8E8E] leading-tight mt-0.5">Analyst / SOC</div>
+            <div className="hidden flex-col leading-tight xl:flex">
+              <span className="text-[12px] font-semibold text-ink">Ayush Thakur</span>
+              <span className="font-mono text-[10px] text-faint">Analyst / SOC</span>
             </div>
           </div>
-        </div>
-      </header>
 
-      {/* Left Charcoal Navigation Rail (#1F1F1F) */}
-      <aside className="fixed left-0 top-14 bottom-0 w-60 bg-[#1F1F1F] border-r border-white/10 text-white z-30 flex flex-col justify-between hidden md:flex shadow-tactical-dark">
-        <div>
-          {/* Brand Header */}
-          <div 
-            className="p-5 border-b border-white/10 bg-[#161616] cursor-pointer group"
-            onClick={() => setCurrentTab('dashboard')}
+          <button
+            onClick={() => setMobileOpen((o) => !o)}
+            className="btn btn-ghost btn-sm !rounded-full lg:hidden"
+            aria-label="Toggle menu"
           >
-            <div className="flex items-center space-x-3">
-              <div className="relative w-9 h-9 bg-[#181818] border border-white/20 flex items-center justify-center trinetra-chamfer">
-                <svg viewBox="0 0 24 24" className="w-6 h-6 text-white fill-none stroke-current stroke-2">
-                  <polygon points="12 2 22 20 2 20" />
-                  <circle cx="12" cy="13" r="3" fill="#D64545" />
-                </svg>
-              </div>
+            {mobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+          </button>
+        </div>
+      </div>
 
-              <div>
-                <div className="font-display font-black text-lg tracking-[0.15em] text-white leading-none">
-                  TRINETRA
-                </div>
-                <div className="text-[9px] font-mono tracking-[0.12em] text-[#8E8E8E] uppercase mt-1">
-                  DEFENSE INTELLIGENCE
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Nav Items List */}
-          <nav className="p-3 space-y-1 font-mono">
-            {navItems.map((item) => {
+      {/* Mobile menu */}
+      {mobileOpen && (
+        <div className="border-t border-white/10 bg-[#0a0a0b]/97 px-5 py-4 lg:hidden">
+          <nav className="flex flex-col gap-1">
+            {[...PRIMARY_LINKS, ...MODULE_LINKS].map((item) => {
               const Icon = item.icon;
-              const isActive = currentTab === item.id;
+              const active = currentTab === item.id;
               return (
                 <button
                   key={item.id}
-                  onClick={() => setCurrentTab(item.id)}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs tracking-[0.1em] font-bold transition ${
-                    isActive
-                      ? 'bg-[#F7F6F3] text-[#171717] trinetra-chamfer shadow-tactical-elevated'
-                      : 'text-[#C0C0C0] hover:bg-[#282828] hover:text-white'
+                  onClick={() => nav(item.id)}
+                  className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors ${
+                    active ? 'bg-accent-soft text-white' : 'text-muted hover:bg-surface-3 hover:text-ink'
                   }`}
                 >
-                  <div className="flex items-center space-x-3">
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-[#00A86B]' : 'text-[#8E8E8E]'}`} />
-                    <span>{item.label}</span>
-                  </div>
-
-                  {item.badge !== undefined && item.badge > 0 && (
-                    <span className="px-1.5 py-0.5 text-[10px] bg-[#D64545] text-white font-bold font-mono">
-                      {item.badge}
+                  <Icon className={`h-4 w-4 ${active ? 'text-accent-hover' : ''}`} />
+                  {item.label}
+                  {item.id === 'mappings' && pendingCount > 0 && (
+                    <span className="ml-auto rounded-full bg-crit px-1.5 py-0.5 font-mono text-[10px] font-bold text-white">
+                      {pendingCount}
                     </span>
                   )}
                 </button>
               );
             })}
+            <button onClick={() => nav('upload')} className="btn btn-primary mt-2 w-full">
+              <UploadCloud className="h-4 w-4" />
+              New Audit
+            </button>
           </nav>
         </div>
-
-        {/* Bottom Rail Section */}
-        <div className="p-4 border-t border-white/10 bg-[#161616] space-y-3 font-mono">
-          <div className="h-16 w-full bg-[#181818] border border-white/10 relative overflow-hidden trinetra-chamfer p-2.5 flex flex-col justify-between">
-            <div className="trinetra-dark-grid-bg absolute inset-0 opacity-20"></div>
-            <div className="relative z-10 flex items-center justify-between text-[10px] text-[#A0A0A0]">
-              <span className="font-bold text-white tracking-wider">GRID MONITOR</span>
-              <span className="text-[#00A86B] font-bold">ACTIVE</span>
-            </div>
-            <div className="relative z-10 text-[9px] text-[#666666] tracking-[0.15em] uppercase">
-              DEFENSE INTELLIGENCE
-            </div>
-          </div>
-
-          <div className="text-[10px] text-[#8E8E8E] space-y-0.5 tracking-[0.15em] font-semibold">
-            <div>SEE</div>
-            <div>UNDERSTAND</div>
-            <div>SECURE</div>
-          </div>
-
-          <div className="flex items-center justify-between text-[10px] text-[#666666] pt-2 border-t border-white/10">
-            <span>TRINETRA v0.1.0</span>
-            <span className="text-white font-bold">NTRO</span>
-          </div>
-        </div>
-      </aside>
-    </>
+      )}
+    </header>
   );
 };
