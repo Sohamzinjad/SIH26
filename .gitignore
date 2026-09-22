@@ -44,3 +44,7 @@ start.sh
 .auto-commit.pid
 .auto-commit.log
 .git-rewrite/
+replace_expressions.txt
+*.local.txt
+export_*.txt
+
