@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { fetchFleetSummary, fetchDashboardOverview } from '../api/client';
 import { FleetSummary, DashboardOverview } from '../types';
-import { ShieldAlert, Search, AlertTriangle, ShieldCheck, Filter, FileText } from 'lucide-react';
+import { Reveal } from './Reveal';
+import { ShieldAlert, Search } from 'lucide-react';
 
 interface FindingsViewProps {
   onSelectAudit?: (auditId: number) => void;
@@ -45,111 +46,108 @@ export const FindingsView: React.FC<FindingsViewProps> = ({ onSelectAudit }) => 
 
   if (loading) {
     return (
-      <div className="flex flex-col justify-center items-center h-96 space-y-3 font-mono">
-        <div className="w-10 h-10 border-4 border-[#171717] border-t-transparent animate-spin"></div>
-        <p className="text-xs text-[#5E5E5E] tracking-widest uppercase">CORRELATING GLOBAL FINDINGS...</p>
+      <div className="flex flex-col justify-center items-center h-96 space-y-4">
+        <div className="h-10 w-10 rounded-full border-4 border-accent border-t-transparent animate-spin"></div>
+        <p className="font-mono text-xs text-faint tracking-[0.18em] uppercase">Correlating global findings…</p>
       </div>
     );
   }
 
+  const sevBadge = (sev: string) => {
+    if (sev.toLowerCase() === 'critical') return <span className="badge badge-critical">Critical</span>;
+    if (sev.toLowerCase() === 'high') return <span className="badge badge-high">High</span>;
+    if (sev.toLowerCase() === 'medium') return <span className="badge badge-medium">Medium</span>;
+    return <span className="badge badge-low">Low</span>;
+  };
+
   return (
-    <div className="space-y-6 animate-fadeIn pb-12 font-sans">
+    <div className="space-y-10 pb-16">
       {/* Header */}
-      <div className="border-b border-[#B9B9B4] pb-5 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
-        <div>
-          <div className="text-[11px] font-mono tracking-widest text-[#5E5E5E] uppercase font-bold">
-            GLOBAL FINDINGS EXPLORER
+      <Reveal>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+          <div>
+            <div className="kicker mb-3">Global findings explorer</div>
+            <h1 className="font-display font-bold text-h1 tracking-tight text-ink">
+              Rule violations &amp; vulnerabilities
+              <span className="ml-4 align-middle badge badge-critical">{failingRules.length} active rules</span>
+            </h1>
+            <p className="mt-3 max-w-2xl text-body text-muted">
+              Aggregated compliance findings across CIS Cisco, FortiOS, NIST SP 800-53, and DISA STIG benchmarks.
+            </p>
           </div>
-          <h1 className="text-2xl font-black text-[#171717] tracking-tight uppercase font-display mt-0.5 flex items-center space-x-3">
-            <span>RULE VIOLATIONS & VULNERABILITIES</span>
-            <span className="text-xs font-mono font-bold px-2.5 py-0.5 bg-[#D64545] text-white">
-              {failingRules.length} ACTIVE RULES
-            </span>
-          </h1>
-          <p className="text-xs text-[#5E5E5E] font-sans mt-1">
-            Aggregated compliance findings across CIS Cisco, FortiOS, NIST SP 800-53, and DISA STIG benchmarks.
-          </p>
         </div>
-      </div>
+      </Reveal>
 
       {/* Controls */}
-      <div className="bg-[#F1F1EF] border border-[#B9B9B4] trinetra-chamfer p-4 space-y-4 shadow-sm font-mono text-xs">
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#5E5E5E]" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search rule ID or title..."
-              className="w-full bg-[#EAEAE7] border border-[#B9B9B4] text-xs text-[#171717] pl-8 pr-3 py-1.5 focus:outline-none"
-            />
+      <Reveal delayMs={40}>
+        <div className="card p-4 sm:p-5 space-y-4">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-faint" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search rule ID or title..."
+                className="field pl-9"
+              />
+            </div>
+
+            <select
+              value={severityFilter}
+              onChange={(e) => setSeverityFilter(e.target.value)}
+              className="field !w-auto"
+            >
+              <option value="ALL">All severities</option>
+              <option value="critical">Critical</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
           </div>
 
-          <select
-            value={severityFilter}
-            onChange={(e) => setSeverityFilter(e.target.value)}
-            className="bg-[#EAEAE7] border border-[#B9B9B4] text-xs text-[#171717] px-3 py-1.5 focus:outline-none font-mono"
-          >
-            <option value="ALL">ALL SEVERITIES</option>
-            <option value="critical">CRITICAL</option>
-            <option value="high">HIGH</option>
-            <option value="medium">MEDIUM</option>
-            <option value="low">LOW</option>
-          </select>
-        </div>
-
-        {/* Rule Aggregates Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left font-mono text-xs">
-            <thead className="text-[10px] text-[#5E5E5E] border-b border-[#B9B9B4] uppercase bg-[#EAEAE7]">
-              <tr>
-                <th className="py-2.5 px-3">Rule Identifier</th>
-                <th className="py-2.5 px-3">Benchmark Framework</th>
-                <th className="py-2.5 px-3">Severity</th>
-                <th className="py-2.5 px-3">Devices Failing</th>
-                <th className="py-2.5 px-3">Compliance Rate</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#B9B9B4]/40">
-              {filteredRules.map((r, idx) => (
-                <tr key={idx} className="hover:bg-[#EAEAE7] transition">
-                  <td className="py-3 px-3">
-                    <div className="font-bold text-[#171717]">{r.rule_id}</div>
-                    <div className="text-[11px] text-[#5E5E5E]">{r.title}</div>
-                  </td>
-                  <td className="py-3 px-3">
-                    <span className="text-xs font-mono font-bold px-2 py-0.5 bg-[#171717] text-white uppercase">
-                      {r.framework}
-                    </span>
-                  </td>
-                  <td className="py-3 px-3">
-                    <span className={`px-2 py-0.5 text-[10px] font-bold uppercase ${
-                      r.severity === 'critical' || r.severity === 'high' ? 'bg-[#D64545] text-white' : 'bg-[#D4A017] text-white'
-                    }`}>
-                      {r.severity}
-                    </span>
-                  </td>
-                  <td className="py-3 px-3 text-[#D64545] font-bold">
-                    {r.devices_failing} / {r.devices_present} Devices
-                  </td>
-                  <td className="py-3 px-3 font-bold text-[#171717]">
-                    {r.compliance_pct.toFixed(1)}%
-                  </td>
-                </tr>
-              ))}
-
-              {filteredRules.length === 0 && (
+          {/* Rule Aggregates Table */}
+          <div className="overflow-x-auto">
+            <table className="data-table min-w-[720px]">
+              <thead>
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-[#5E5E5E]">
-                    No security rule findings match current search or filter criteria.
-                  </td>
+                  <th>Rule Identifier</th>
+                  <th>Benchmark Framework</th>
+                  <th>Severity</th>
+                  <th>Devices Failing</th>
+                  <th>Compliance Rate</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredRules.map((r, idx) => (
+                  <tr key={idx} className="row-hover">
+                    <td className="py-3 px-3">
+                      <div className="font-bold font-mono text-[12px] text-ink">{r.rule_id}</div>
+                      <div className="text-caption text-muted">{r.title}</div>
+                    </td>
+                    <td>
+                      <span className="badge badge-neutral uppercase">{r.framework}</span>
+                    </td>
+                    <td>{sevBadge(r.severity)}</td>
+                    <td className="font-bold text-crit">
+                      {r.devices_failing} / {r.devices_present} Devices
+                    </td>
+                    <td className="font-bold text-ink">{r.compliance_pct.toFixed(1)}%</td>
+                  </tr>
+                ))}
+
+                {filteredRules.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="py-8 text-center text-muted">
+                      No security rule findings match current search or filter criteria.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      </Reveal>
     </div>
   );
 };
