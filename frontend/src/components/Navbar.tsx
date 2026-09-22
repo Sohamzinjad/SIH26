@@ -15,6 +15,7 @@ import {
   X,
   ChevronDown,
   Search,
+  Compass,
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -28,6 +29,7 @@ interface NavbarProps {
 }
 
 const PRIMARY_LINKS = [
+  { id: 'landing', label: 'Platform', icon: Compass },
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'fleet', label: 'Fleet Audit', icon: FolderGit2 },
   { id: 'mappings', label: 'Mappings', icon: Workflow },
@@ -93,7 +95,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           )}
 
           <button
-            onClick={() => nav('dashboard')}
+            onClick={() => nav('landing')}
             className="flex items-center gap-2.5 group"
             aria-label="TRINETRA home"
           >
