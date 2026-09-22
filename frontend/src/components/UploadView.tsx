@@ -8,9 +8,11 @@ import {
   Check, 
   ArrowRight,
   Shield,
-  Info
+  Info,
+  Archive,
+  Layers
 } from 'lucide-react';
-import { uploadConfig } from '../api/client';
+import { uploadConfig, uploadFleetBatch, FleetBatchResponse } from '../api/client';
 
 interface UploadViewProps {
   onAuditCompleted: (auditId: number) => void;
@@ -132,54 +134,72 @@ export const UploadView: React.FC<UploadViewProps> = ({
 }) => {
   const [rawText, setRawText] = useState(SAMPLE_CONFIGS.cisco_compliant);
   const [filename, setFilename] = useState('cisco_hardened.cfg');
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activePreset, setActivePreset] = useState<string>('cisco_compliant');
+  const [batchResult, setBatchResult] = useState<FleetBatchResponse | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setSelectedFile(file);
-      setFilename(file.name);
+    if (e.target.files && e.target.files.length > 0) {
+      const filesArr = Array.from(e.target.files);
+      setSelectedFiles(filesArr);
+      setFilename(filesArr.length === 1 ? filesArr[0].name : `${filesArr.length} files selected`);
       setActivePreset('');
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setRawText((event.target?.result as string) || '');
-      };
-      reader.readAsText(file);
+      setBatchResult(null);
+
+      // If single text file, display content in textarea preview
+      if (filesArr.length === 1 && !filesArr[0].name.toLowerCase().endsWith('.zip')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          setRawText((event.target?.result as string) || '');
+        };
+        reader.readAsText(filesArr[0]);
+      } else if (filesArr[0].name.toLowerCase().endsWith('.zip')) {
+        setRawText(`! Archive: ${filesArr[0].name}\n! Batch Zip upload mode active. Click 'RUN COMPLIANCE AUDIT' to extract and audit all configs in parallel.`);
+      }
     }
   };
 
   const loadPreset = (key: keyof typeof SAMPLE_CONFIGS, name: string) => {
     setRawText(SAMPLE_CONFIGS[key]);
     setFilename(name);
-    setSelectedFile(null);
+    setSelectedFiles([]);
     setActivePreset(key);
+    setBatchResult(null);
     setError(null);
   };
 
   const handleAuditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!rawText.trim() && !selectedFile) {
+    const isZip = selectedFiles.length > 0 && selectedFiles[0].name.toLowerCase().endsWith('.zip');
+    const isMultiFile = selectedFiles.length > 1;
+
+    if (!rawText.trim() && selectedFiles.length === 0) {
       setError('Please paste a configuration file or upload one.');
       return;
     }
 
     setIsSubmitting(true);
     setError(null);
+    setBatchResult(null);
 
     try {
-      const res = await uploadConfig({
-        file: selectedFile || undefined,
-        rawText: rawText || undefined,
-        filename: filename,
-      });
-
-      if (res.ai_mapping_pending) {
-        onAIMappingCreated();
+      if (isZip || isMultiFile) {
+        const batchRes = await uploadFleetBatch(selectedFiles);
+        setBatchResult(batchRes);
       } else {
-        onAuditCompleted(res.audit_id);
+        const res = await uploadConfig({
+          file: selectedFiles.length === 1 ? selectedFiles[0] : undefined,
+          rawText: rawText || undefined,
+          filename: filename,
+        });
+
+        if (res.ai_mapping_pending) {
+          onAIMappingCreated();
+        } else {
+          onAuditCompleted(res.audit_id);
+        }
       }
     } catch (err: any) {
       setError(err.message || 'Audit execution failed');
@@ -321,24 +341,71 @@ export const UploadView: React.FC<UploadViewProps> = ({
 
           <div>
             <label className="block text-[11px] font-bold text-[#171717] uppercase tracking-wider mb-2">
-              Upload Config (.cfg, .txt, .conf):
+              Upload Config File or ZIP Archive (.zip, .cfg, .txt):
             </label>
             <label className="flex items-center justify-between px-3.5 py-2 bg-[#EAEAE7] border border-[#B9B9B4] hover:border-[#171717] cursor-pointer transition">
-              <span className="text-xs text-[#5E5E5E] truncate max-w-[200px]">
-                {selectedFile ? selectedFile.name : 'Choose file...'}
+              <span className="text-xs text-[#5E5E5E] truncate max-w-[240px]">
+                {selectedFiles.length > 0 ? (selectedFiles.length === 1 ? selectedFiles[0].name : `${selectedFiles.length} files selected`) : 'Choose file or .zip archive...'}
               </span>
-              <span className="text-[11px] font-bold bg-[#171717] text-white px-2.5 py-0.5">
+              <span className="text-[11px] font-bold bg-[#171717] text-white px-2.5 py-0.5 flex items-center gap-1">
+                <Archive className="w-3 h-3 text-[#00A86B]" />
                 Browse
               </span>
               <input
                 type="file"
-                accept=".cfg,.txt,.conf,.log"
+                multiple
+                accept=".zip,.tar.gz,.cfg,.txt,.conf,.log"
                 onChange={handleFileChange}
                 className="hidden"
               />
             </label>
           </div>
         </div>
+
+        {/* Batch Upload Summary Display */}
+        {batchResult && (
+          <div className="bg-[#171717] border border-[#00A86B] text-white p-5 trinetra-chamfer space-y-4 font-mono">
+            <div className="flex items-center justify-between border-b border-[#333] pb-3">
+              <div className="flex items-center space-x-2">
+                <Layers className="w-5 h-5 text-[#00A86B]" />
+                <span className="font-bold text-sm tracking-wider uppercase">FLEET BATCH AUDIT COMPLETE</span>
+              </div>
+              <span className="text-xs text-[#00A86B] bg-[#00A86B]/10 px-2.5 py-1 rounded border border-[#00A86B]/30 font-bold">
+                {batchResult.completed_count} / {batchResult.total_files} Configs Audited
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 divide-y divide-[#232323] max-h-60 overflow-y-auto text-xs">
+              {batchResult.results.map((r) => (
+                <div key={r.audit_id || r.filename} className="py-2.5 flex items-center justify-between hover:bg-[#232323]/50 px-2 transition">
+                  <div className="flex items-center space-x-3">
+                    <span className="font-bold text-[#F1F1EF]">{r.filename}</span>
+                    <span className="text-[10px] uppercase text-[#888] bg-[#222] px-1.5 py-0.5">{r.vendor}</span>
+                  </div>
+
+                  <div className="flex items-center space-x-4">
+                    <div className="text-right">
+                      <span className={`font-bold ${r.compliance_score >= 80 ? 'text-[#00A86B]' : r.compliance_score >= 50 ? 'text-[#D4A017]' : 'text-[#D64545]'}`}>
+                        {r.compliance_score.toFixed(1)}% Score
+                      </span>
+                      <span className="text-[10px] text-[#888] block">{r.failed_findings} fails &bull; {r.attack_paths_count} threats</span>
+                    </div>
+
+                    {r.audit_id && (
+                      <button
+                        type="button"
+                        onClick={() => onAuditCompleted(r.audit_id)}
+                        className="bg-[#00A86B] hover:bg-[#008f5a] text-black font-bold px-2.5 py-1 text-[11px] transition"
+                      >
+                        View Audit &rarr;
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Textarea */}
         <div className="space-y-2 font-mono">

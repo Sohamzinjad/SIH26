@@ -6,11 +6,8 @@ class Settings(BaseSettings):
     APP_NAME: str = "SIH26155 Network Security Compliance Auditor"
     APP_ENV: str = os.getenv("APP_ENV", "development")
     
-    # Neon PostgreSQL by default with automatic fallback logic in database.py
-    DATABASE_URL: str = os.getenv(
-        "DATABASE_URL",
-        "postgresql://neondb_owner:npg_cl1pStId8FZP@ep-divine-butterfly-b5cb9bp6-pooler.c-7.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
-    )
+    # Database connection (PostgreSQL when configured, automatic SQLite fallback when empty/offline)
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "")
     SQLITE_FALLBACK_URL: str = "sqlite:///./auditor.db"
     
     # Ollama Local AI Configuration (NTRO air-gapped environment)

@@ -1,0 +1,261 @@
+{
+  "part_a": {
+    "pytest_exit_code": 0,
+    "passed_count": 33,
+    "failed_count": 0,
+    "skipped_count": 0,
+    "passed_tests": [
+      "backend/tests/test_audit_trail_chain.py::test_compute_entry_hash_byte_for_byte_canonicalization",
+      "backend/tests/test_audit_trail_chain.py::test_compute_entry_hash_details_key_order_is_irrelevant",
+      "backend/tests/test_audit_trail_chain.py::test_compute_entry_hash_none_predhash_equals_empty_prev",
+      "backend/tests/test_audit_trail_chain.py::test_compute_entry_hash_created_at_enters_hash",
+      "backend/tests/test_audit_trail_chain.py::test_get_latest_hash_orders_by_id_not_created_at",
+      "backend/tests/test_audit_trail_chain.py::test_verify_chain_pure_chain_is_verified",
+      "backend/tests/test_audit_trail_chain.py::test_verify_chain_empty_table_is_verified",
+      "backend/tests/test_audit_trail_chain.py::test_verify_chain_detects_modified_details",
+      "backend/tests/test_audit_trail_chain.py::test_verify_chain_detects_broken_prev_link",
+      "backend/tests/test_audit_trail_chain.py::test_verify_chain_first_row_prev_hash_must_be_none",
+      "backend/tests/test_calibration.py::test_calibration_text_provenance",
+      "backend/tests/test_calibration.py::test_confidence_ordinal",
+      "backend/tests/test_chain_validation.py::test_pre_registered_verdicts_exist_and_predate_this_test",
+      "backend/tests/test_chain_validation.py::test_all_chain_fixtures_match_preregistered_verdicts",
+      "backend/tests/test_corpus.py::test_labelled_corpus_evaluation",
+      "backend/tests/test_corpus.py::test_structural_fallback_is_derived_from_input",
+      "backend/tests/test_correlation.py::test_attack_path_correlation",
+      "backend/tests/test_cve_enrichment.py::test_cve_cache_committed_before_this_test",
+      "backend/tests/test_cve_enrichment.py::test_builder_reproduces_committed_cache_byte_identically",
+      "backend/tests/test_cve_enrichment.py::test_load_cve_cache_is_offline_and_real",
+      "backend/tests/test_cve_enrichment.py::test_enrichment_is_additive_only_for_fails",
+      "backend/tests/test_cve_enrichment.py::test_enrichment_raises_on_fabricated_or_unknown_external_call",
+      "backend/tests/test_fleet_zip_security.py::test_fleet_zip_size_cap_rejected",
+      "backend/tests/test_fleet_zip_security.py::test_fleet_zip_member_cap_rejected",
+      "backend/tests/test_heldout.py::test_heldout_real_world_configs",
+      "backend/tests/test_heldout.py::test_dialect_cache_does_not_reuse_device_identity",
+      "backend/tests/test_parsers.py::test_cisco_parser",
+      "backend/tests/test_parsers.py::test_fortios_parser",
+      "backend/tests/test_rules.py::test_hardened_cisco_high_score",
+      "backend/tests/test_rules.py::test_vulnerable_cisco_low_score",
+      "backend/tests/test_vendor_detect.py::test_detect_cisco",
+      "backend/tests/test_vendor_detect.py::test_detect_fortios",
+      "backend/tests/test_vendor_detect.py::test_detect_unknown"
+    ],
+    "failed_tests": []
+  },
+  "part_b": {
+    "step_1": {
+      "name": "Upload known-vendor config",
+      "status": "PASS",
+      "request": {
+        "endpoint": "POST /api/audit/upload",
+        "file": "cisco_non_compliant.cfg"
+      },
+      "response": {
+        "audit_id": 90,
+        "device_id": 7,
+        "hostname": "Branch-Gateway-99",
+        "vendor_detected": "cisco_ios",
+        "detection_method": "heuristic",
+        "status": "COMPLETED",
+        "compliance_score": 0.0,
+        "total_findings": 28,
+        "failed_findings": 28,
+        "attack_paths_count": 8,
+        "ai_mapping_pending": false,
+        "ai_mapping_id": null,
+        "mapping_latency_ms": 0.1,
+        "total_latency_ms": 0.2,
+        "mapping_source": "deterministic_parser"
+      }
+    },
+    "step_2": {
+      "name": "Upload unknown-vendor config (PENDING_AI_MAPPING)",
+      "status": "PASS",
+      "request": {
+        "endpoint": "POST /api/audit/upload",
+        "file": "novel_edge_112858467721.cfg"
+      },
+      "response": {
+        "audit_id": 91,
+        "device_id": 21,
+        "hostname": "Edge-Gateway-112858467721",
+        "vendor_detected": "unknown",
+        "detection_method": "ai_mapping",
+        "status": "PENDING_AI_MAPPING",
+        "compliance_score": 0.0,
+        "total_findings": 0,
+        "failed_findings": 0,
+        "attack_paths_count": 0,
+        "ai_mapping_pending": true,
+        "ai_mapping_id": 7,
+        "mapping_latency_ms": 12524.8,
+        "total_latency_ms": 20650.8,
+        "mapping_source": "ollama"
+      }
+    },
+    "step_3": {
+      "name": "Approve AI mapping with API key auth",
+      "status": "PASS",
+      "unauthorized_attempt": {
+        "status_code": 401,
+        "response": {
+          "detail": "Invalid or missing API key"
+        }
+      },
+      "authorized_attempt": {
+        "status_code": 200,
+        "response": {
+          "message": "Mapping approved and audit completed successfully",
+          "audit_id": 91,
+          "score": 0.0,
+          "status": "COMPLETED",
+          "vendor": "Novel-EdgeOS"
+        }
+      }
+    },
+    "step_4": {
+      "name": "Inspect approved audit details",
+      "status": "PASS",
+      "request": {
+        "endpoint": "GET /api/audit/91"
+      },
+      "response": {
+        "audit_id": 91,
+        "score": 0.0,
+        "status": "COMPLETED",
+        "findings_count": 10,
+        "attack_paths_count": 3
+      }
+    },
+    "step_5": {
+      "name": "Check CVE enrichment context & caveat",
+      "status": "PASS",
+      "request": {
+        "endpoint": "GET /api/findings/90"
+      },
+      "enriched_findings_count": 3,
+      "sample_cve": {
+        "cve_id": "CVE-2017-6742",
+        "rule_id": "CIS-CISCO-1.4.1",
+        "title": "Cisco IOS and IOS XE Software SNMP Remote Code Execution Vulnerability",
+        "severity": "critical",
+        "cvss_base_score": 9.8,
+        "source": "offline-cache",
+        "advisory_url": "https://nvd.nist.gov/vuln/detail/CVE-2017-6742",
+        "caveat": "Offline heuristic: this CVE reference is attached because the finding flags a configuration condition (an SNMP read/read-write community string, or community exposure without an ACL) matching the documented precondition of the linked Cisco advisory (CVE-2017-6742: SNMP subsystem buffer overflow requiring knowledge of the community string). This enrichment NEVER asserts the audited device's own IOS version is confirmed exploitable \u2014 verify the exact IOS release against the vendor advisory before acting."
+      }
+    },
+    "step_6": {
+      "name": "View attack-path threat chains and single key fix",
+      "status": "PASS",
+      "request": {
+        "endpoint": "GET /api/audit/90"
+      },
+      "attack_paths_count": 8,
+      "active_chains": [
+        "CHAIN-NET-MGMT-TAKEOVER",
+        "CHAIN-NET-SNMP-RECON-WRITE",
+        "CHAIN-NET-CRED-EXPOSURE",
+        "CHAIN-NET-WEB-EXPLOITATION",
+        "CHAIN-NET-SPOOFING-BYPASS",
+        "CHAIN-WB-MGMT-TAKEOVER",
+        "CHAIN-WB-ACCOUNT-COMPROMISE",
+        "CHAIN-WB-SNMP-RECON-WRITE"
+      ],
+      "single_fix_recommendation": {
+        "rule_id": "CIS-CISCO-1.1.8",
+        "rule_title": "Apply an 'access-class' ACL to VTY lines",
+        "remediation": "configure terminal\n ip access-list standard MGMT-HOSTS\n  permit 10.0.0.0 0.0.0.255\n line vty 0 4\n  access-class MGMT-HOSTS in\nend",
+        "paths_broken_count": 1,
+        "paths_broken_names": [
+          "Cleartext Management Plane to Full Device Compromise"
+        ],
+        "remaining_paths_count": 7,
+        "impact_score": 40.0,
+        "why": "Applying an access-class to VTY lines cuts off network reachability for all administrative protocols at once, rendering credential sniffing and Telnet brute-force impossible from untrusted segments."
+      }
+    },
+    "step_7": {
+      "name": "Waive failing finding with governance auth",
+      "status": "PASS",
+      "unauthorized_status": 401,
+      "authorized_status": 200,
+      "raw_score": 0.0,
+      "effective_score_after_waiver": 3.6,
+      "audit_trail_action": "FINDING_WAIVED",
+      "audit_trail_entry_hash": "7f097b0386917d058828e0c8886d6c13d97585378771a590a922e3f8adf1aee1"
+    },
+    "step_8": {
+      "name": "Device drift detection on re-audit",
+      "status": "PASS",
+      "drift_response": {
+        "device_id": 7,
+        "comparable": true,
+        "drift_score": 0.0,
+        "same_count": 28,
+        "improved_count": 0,
+        "worsened_count": 0,
+        "rules_tracked": 28
+      }
+    },
+    "step_9": {
+      "name": "Fleet batch upload and aggregate summary",
+      "status": "PASS",
+      "batch_result": {
+        "total_files": 3,
+        "completed_count": 3
+      },
+      "fleet_summary": {
+        "total_devices": 82,
+        "total_audits": 82,
+        "rules_aggregated": 33,
+        "chains_aggregated": 8
+      }
+    },
+    "step_10": {
+      "name": "Audit-trail hash chain verification",
+      "status": "PASS",
+      "request": {
+        "endpoint": "GET /api/audit-trail/verify"
+      },
+      "response": {
+        "verified": true,
+        "total_entries": 106,
+        "first_broken_entry_id": null,
+        "first_broken_reason": null
+      }
+    },
+    "step_11": {
+      "name": "Audit-trail demo-tamper detection",
+      "status": "PASS",
+      "tamper_response": {
+        "tampered_entry_id": 106,
+        "details_json": {
+          "hostname": "HQ-FW-01",
+          "vendor": "fortios",
+          "score": 71.9,
+          "findings": 15,
+          "detection_method": "heuristic",
+          "latency_ms": 1172.2,
+          "tampered_by_demo": true
+        }
+      },
+      "verify_after_tamper": {
+        "verified": false,
+        "total_entries": 106,
+        "first_broken_entry_id": 106,
+        "first_broken_reason": "entry_hash_mismatch"
+      }
+    },
+    "step_12": {
+      "name": "HTML compliance report generation",
+      "status": "PASS",
+      "request": {
+        "endpoint": "GET /api/reports/90/html"
+      },
+      "content_type": "text/html; charset=utf-8",
+      "content_length_bytes": 36939,
+      "html_snippet": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Security Compliance Audit Report - Branch-Gatew"
+    }
+  },
+  "errors": []
+}

@@ -17,16 +17,20 @@ import {
   FileCheck,
   History,
   Shield,
-  Info
+  Info,
+  ArrowLeft,
+  Workflow
 } from 'lucide-react';
 
 interface AuditDetailViewProps {
   auditId: number;
   onViewDeviceHistory?: (deviceId: number) => void;
   onViewAttackPath?: (auditId: number) => void;
+  onBack?: () => void;
+  onNavigateTab?: (tab: string) => void;
 }
 
-export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onViewDeviceHistory, onViewAttackPath }) => {
+export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onViewDeviceHistory, onViewAttackPath, onBack, onNavigateTab }) => {
   const [detail, setDetail] = useState<AuditDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -101,6 +105,19 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onVie
 
   return (
     <div className="space-y-6 animate-fadeIn pb-12 font-sans">
+      {/* Top Back Navigation Bar */}
+      {onBack && (
+        <div className="pb-1 border-b border-[#B9B9B4]/40">
+          <button
+            onClick={onBack}
+            className="bg-[#171717] hover:bg-[#232323] text-white font-mono text-xs font-bold px-4 py-2 trinetra-chamfer transition flex items-center space-x-2 shadow-sm"
+          >
+            <ArrowLeft className="w-4 h-4 text-[#00A86B]" />
+            <span>&larr; BACK TO PREVIOUS MODULE</span>
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#B9B9B4] pb-5">
         <div>
@@ -140,6 +157,38 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onVie
           </a>
         </div>
       </div>
+
+      {/* Pending AI Mapping Banner (if unknown dialect file) */}
+      {audit.status === 'PENDING_AI_MAPPING' && (
+        <div className="bg-[#171717] text-[#F1F1EF] border-2 border-[#D4A017] trinetra-chamfer p-6 space-y-4 shadow-sm font-mono">
+          <div className="flex items-center space-x-3 text-[#D4A017] font-bold text-sm">
+            <AlertTriangle className="w-5 h-5 text-[#D4A017]" />
+            <span>UNKNOWN VENDOR DIALECT &bull; PENDING AI MAPPING APPROVAL</span>
+          </div>
+          <p className="text-xs text-[#B9B9B4]">
+            This configuration file (<strong>{audit.hostname}</strong>) belongs to an unmapped vendor dialect. Compliance rules cannot be evaluated until an analyst approves the AI proposal in the Mappings module.
+          </p>
+          <div className="flex flex-wrap gap-3 pt-2">
+            {onNavigateTab && (
+              <button
+                onClick={() => onNavigateTab('mappings')}
+                className="bg-[#D4A017] hover:bg-[#b58711] text-white font-bold text-xs px-4 py-2 trinetra-chamfer transition flex items-center space-x-2"
+              >
+                <Workflow className="w-4 h-4" />
+                <span>REVIEW & APPROVE IN MAPPINGS MODULE &rarr;</span>
+              </button>
+            )}
+            {onBack && (
+              <button
+                onClick={onBack}
+                className="bg-[#232323] hover:bg-[#3A3A3A] text-white font-bold text-xs px-4 py-2 trinetra-chamfer transition border border-white/20"
+              >
+                &larr; BACK TO FLEET AUDIT
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Single Key Fix Hero Banner (if present) */}
       {single_fix_recommendation && (

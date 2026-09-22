@@ -18,6 +18,7 @@ from backend.correlation.remediation import compute_single_key_fix
 from backend.ai.ollama_client import ollama_client
 from backend.ai.structural_fallback import extract_structural_mapping
 from backend.ai.fingerprint_cache import lookup_cached_mapping, build_normalized_config_from_mapping
+from backend.enrichment.cve import enrich_findings
 
 router = APIRouter(prefix="/api/audit", tags=["Audit"])
 
@@ -299,6 +300,7 @@ def get_audit_detail(audit_id: int, db: Session = Depends(get_db)):
         )
         for f in db_findings
     ]
+    findings_dto = enrich_findings(findings_dto)
 
     # Effective compliance — a genuinely waived finding (waived_at NOT NULL)
     # is removed from the effective fail count. Computed from REAL rows; when

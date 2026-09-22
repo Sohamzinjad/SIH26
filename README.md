@@ -29,7 +29,7 @@
 ### 1. Air-Gapped High Assurance Architecture
 Designed specifically for defense/intelligence deployment environments where public cloud LLMs (OpenAI, Anthropic) are strictly prohibited:
 - Runs locally using **Ollama (`llama3.2:3b`)** or built-in offline structural heuristics.
-- **Dual-database resilience**: Automatically connects to PostgreSQL (Neon DB) with instant zero-configuration fallback to SQLite when operating in isolated, air-gapped field environments.
+- **Dual-database resilience**: Automatically connects to PostgreSQL with instant zero-configuration fallback to SQLite when operating in isolated, air-gapped field environments.
 
 ### 2. Human-in-the-Loop AI with Persistent Dialect Caching
 - **Deterministic First:** Known vendor configurations (**Cisco IOS**, **FortiOS**) are parsed with 100% deterministic, line-exact regex state machines.
@@ -312,7 +312,7 @@ SIh26/
 │   │   └── neutral_config.py
 │   ├── tests/              # Pytest test suite & labelled corpus benchmarks
 │   ├── config.py           # Configuration & settings loader
-│   ├── database.py         # Database engine with Neon + SQLite fallback
+│   ├── database.py         # Database engine with PostgreSQL + SQLite fallback
 │   ├── Dockerfile
 │   ├── main.py             # FastAPI entrypoint
 │   └── requirements.txt

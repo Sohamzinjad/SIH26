@@ -96,9 +96,10 @@ def _audit_single(
             os_version=getattr(normalized, "os_version", None) if normalized else None,
         )
         db.add(device)
+        db.flush()
 
     audit = Audit(
-        device_id=None,
+        device_id=device.id,
         filename=fname,
         config_text=config_text,
         status="PENDING_AI_MAPPING" if vendor == "unknown" else "COMPLETED",
@@ -109,11 +110,7 @@ def _audit_single(
         completed_at=datetime.utcnow(),
     )
     db.add(audit)
-    db.commit()
-    db.refresh(audit)
-    db.refresh(device)
-    audit.device_id = device.id
-    db.commit()
+    db.flush()
 
     db_findings = []
     for f in findings:
@@ -151,6 +148,7 @@ def _audit_single(
     now = datetime.utcnow()
     trail = AuditTrailEntry(
         action="FLEET_AUDIT_RUN",
+        actor="system",
         target_type="audit",
         target_id=audit.id,
         details_json={
@@ -188,49 +186,83 @@ def _audit_single(
         failed_findings=fail_cnt,
         attack_paths_count=len(attack_paths),
         ai_mapping_pending=(vendor == "unknown"),
+        detection_method=detection_method,
+        mapping_source=mapping_source,
+        latency_ms=round((time.perf_counter() - t_start) * 1000, 1),
     )
 
 
 async def _collect_files(files: List[UploadFile], zip_files: List[UploadFile]) -> List[tuple[str, str]]:
     """Flatten multi-upload + zip contents into (filename, config_text) pairs."""
     collected: List[tuple[str, str]] = []
-    for up in files:
-        raw = await up.read()
-        collected.append((up.filename or "config.cfg", raw.decode("utf-8", errors="replace")))
-    for zp in zip_files:
-        blob = await zp.read()
-        try:
-            archive = zipfile.ZipFile(io.BytesIO(blob))
-        except zipfile.BadZipFile:
-            raise HTTPException(status_code=400, detail=f"{zp.filename} is not a valid zip")
-        if len(archive.namelist()) > ZIP_MAX_MEMBERS:
-            raise HTTPException(status_code=400, detail=f"{zp.filename} exceeds zip member cap ({ZIP_MAX_MEMBERS})")
-        cumulative_size = 0
-        for member in archive.namelist():
-            if member.endswith("/") or member.startswith("__MACOSX"):
-                continue
-            fname = member.rsplit("/", 1)[-1]
-            data = archive.read(member)
-            cumulative_size += len(data)
-            if cumulative_size > ZIP_SIZE_CAP:
-                raise HTTPException(status_code=400, detail=f"{zp.filename} exceeds cumulative decompressed size cap ({ZIP_SIZE_CAP} bytes)")
-            collected.append((fname, data.decode("utf-8", errors="replace")))
+    all_uploads = (files or []) + (zip_files or [])
+    for up in all_uploads:
+        if not up or not up.filename:
+            continue
+        blob = await up.read()
+        if up.filename.lower().endswith(".zip"):
+            try:
+                archive = zipfile.ZipFile(io.BytesIO(blob))
+            except zipfile.BadZipFile:
+                raise HTTPException(status_code=400, detail=f"{up.filename} is not a valid zip")
+            if len(archive.namelist()) > ZIP_MAX_MEMBERS:
+                raise HTTPException(status_code=400, detail=f"{up.filename} exceeds zip member cap ({ZIP_MAX_MEMBERS})")
+            cumulative_size = 0
+            for member in archive.namelist():
+                if member.endswith("/") or member.startswith("__MACOSX") or member.startswith("."):
+                    continue
+                fname = member.rsplit("/", 1)[-1]
+                data = archive.read(member)
+                cumulative_size += len(data)
+                if cumulative_size > ZIP_SIZE_CAP:
+                    raise HTTPException(status_code=400, detail=f"{up.filename} exceeds cumulative decompressed size cap ({ZIP_SIZE_CAP} bytes)")
+                collected.append((fname, data.decode("utf-8", errors="replace")))
+        else:
+            collected.append((up.filename or "config.cfg", blob.decode("utf-8", errors="replace")))
     return collected
 
 
 @router.post("/batch", response_model=FleetBatchResponse)
 async def fleet_batch(
-    files: List[UploadFile] = File(...),
+    files: List[UploadFile] = File(default=[]),
     zip_files: List[UploadFile] = File(default=[]),
     db: Session = Depends(get_db),
 ):
     pairs = await _collect_files(files, zip_files)
-    results = [_audit_single(db, text, fname) for fname, text in pairs]
+    results = []
+    for fname, text in pairs:
+        try:
+            res = _audit_single(db, text, fname)
+        except Exception as e:
+            res = FleetDeviceResult(
+                audit_id=0,
+                device_id=0,
+                hostname=fname,
+                vendor="unknown",
+                filename=fname,
+                status="FAILED",
+                compliance_score=0.0,
+                total_findings=0,
+                failed_findings=0,
+                attack_paths_count=0,
+                ai_mapping_pending=False,
+                detection_method="error",
+                mapping_source="error",
+                latency_ms=0.0,
+                error=str(e),
+            )
+        results.append(res)
+
+    completed_cnt = sum(1 for r in results if r.status == "COMPLETED")
+    pending_cnt = sum(1 for r in results if "PENDING" in r.status)
+    failed_cnt = sum(1 for r in results if r.status == "FAILED" or r.error)
+
     return FleetBatchResponse(
         total_files=len(pairs),
         results=results,
-        completed_count=sum(1 for r in results if r.status == "COMPLETED"),
-        pending_count=sum(1 for r in results if "PENDING" in r.status),
+        completed_count=completed_cnt,
+        pending_count=pending_cnt,
+        failed_count=failed_cnt,
     )
 
 

@@ -43,3 +43,4 @@ auto-commit.sh
 start.sh
 .auto-commit.pid
 .auto-commit.log
+.git-rewrite/

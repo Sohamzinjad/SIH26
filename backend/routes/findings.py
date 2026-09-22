@@ -7,6 +7,7 @@ from backend.models.device import Finding
 from backend.models.audit_trail import AuditTrailEntry
 from backend.models.audit_trail_chain import get_latest_hash, compute_entry_hash
 from backend.schemas.finding import FindingDTO, EvidenceModel, WaiveFindingRequest
+from backend.enrichment.cve import enrich_findings
 from backend.auth import require_api_key
 
 router = APIRouter(prefix="/api/findings", tags=["Findings"])
@@ -46,7 +47,8 @@ def list_findings_for_audit(
         query = query.filter(Finding.status == status.lower())
 
     records = query.all()
-    return [_finding_to_dto(r) for r in records]
+    dtos = [_finding_to_dto(r) for r in records]
+    return enrich_findings(dtos)
 
 
 @router.post("/{finding_id}/waive", response_model=FindingDTO)

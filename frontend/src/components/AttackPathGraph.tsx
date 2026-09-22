@@ -5,7 +5,14 @@ import {
   ArrowLeft,
   ShieldAlert,
   GitFork,
-  Zap
+  Zap,
+  Play,
+  Pause,
+  RotateCcw,
+  SkipForward,
+  Activity,
+  Terminal,
+  ShieldCheck
 } from 'lucide-react';
 
 interface AttackPathGraphProps {
@@ -17,6 +24,12 @@ export const AttackPathGraph: React.FC<AttackPathGraphProps> = ({ auditId, onBac
   const [detail, setDetail] = useState<AuditDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Simulation state
+  const [activePathIdx, setActivePathIdx] = useState<number>(0);
+  const [currentStep, setCurrentStep] = useState<number>(0);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [simSpeed, setSimSpeed] = useState<number>(1500);
 
   useEffect(() => {
     let cancelled = false;
@@ -36,6 +49,25 @@ export const AttackPathGraph: React.FC<AttackPathGraphProps> = ({ auditId, onBac
       cancelled = true;
     };
   }, [auditId]);
+
+  // Simulation Timer
+  useEffect(() => {
+    if (!isPlaying || !detail?.attack_paths?.length) return;
+    const currentPath = detail.attack_paths[activePathIdx];
+    const maxSteps = currentPath?.finding_rule_ids?.length || 0;
+
+    const timer = setInterval(() => {
+      setCurrentStep((prev) => {
+        if (prev + 1 >= maxSteps) {
+          setIsPlaying(false);
+          return maxSteps - 1;
+        }
+        return prev + 1;
+      });
+    }, simSpeed);
+
+    return () => clearInterval(timer);
+  }, [isPlaying, activePathIdx, detail, simSpeed]);
 
   if (loading) {
     return (
@@ -57,6 +89,19 @@ export const AttackPathGraph: React.FC<AttackPathGraphProps> = ({ auditId, onBac
 
   const { audit, attack_paths, single_fix_recommendation } = detail;
   const paths: AttackPath[] = attack_paths || [];
+  const selectedPath = paths[activePathIdx] || paths[0];
+  const totalSteps = selectedPath?.finding_rule_ids?.length || 0;
+
+  const handleNextStep = () => {
+    if (currentStep < totalSteps - 1) {
+      setCurrentStep(prev => prev + 1);
+    }
+  };
+
+  const handleResetSim = () => {
+    setIsPlaying(false);
+    setCurrentStep(0);
+  };
 
   return (
     <div className="space-y-6 animate-fadeIn pb-12 font-sans">
@@ -69,8 +114,8 @@ export const AttackPathGraph: React.FC<AttackPathGraphProps> = ({ auditId, onBac
                 onClick={onBack}
                 className="text-xs font-mono font-bold text-[#171717] hover:underline flex items-center space-x-1"
               >
-                <ArrowLeft className="w-3.5 h-3.5" />
-                <span>BACK TO AUDIT</span>
+                <ArrowLeft className="w-3.5 h-3.5 text-[#00A86B]" />
+                <span>&larr; BACK TO AUDIT</span>
               </button>
             )}
             <span className="text-[11px] font-mono tracking-widest text-[#5E5E5E] uppercase font-bold">
@@ -106,15 +151,131 @@ export const AttackPathGraph: React.FC<AttackPathGraphProps> = ({ auditId, onBac
         </div>
       )}
 
-      {/* Graph Area */}
+      {/* Graph & Simulation Area */}
       {paths.length === 0 ? (
         <div className="bg-[#F1F1EF] border border-[#B9B9B4] trinetra-chamfer p-12 text-center space-y-3 font-mono">
-          <ShieldAlert className="w-10 h-10 text-[#00A86B] mx-auto" />
+          <ShieldCheck className="w-10 h-10 text-[#00A86B] mx-auto" />
           <div className="font-bold text-sm text-[#171717]">NO ACTIVE ATTACK PATHS DETECTED</div>
           <div className="text-xs text-[#5E5E5E]">Device configuration has passed critical chain correlation.</div>
         </div>
       ) : (
         <div className="space-y-6">
+          {/* Interactive Simulation Controls */}
+          <div className="bg-[#171717] text-[#F1F1EF] border border-[#232323] trinetra-chamfer p-4 space-y-4 shadow-sm font-mono">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#232323] pb-3 gap-3">
+              <div className="flex items-center space-x-2 text-xs font-bold text-[#00A86B] tracking-widest uppercase">
+                <Activity className="w-4 h-4 text-[#00A86B] animate-pulse" />
+                <span>ADVERSARY PIVOT SIMULATOR</span>
+              </div>
+
+              {/* Playback Controls */}
+              <div className="flex items-center space-x-2 text-xs">
+                <button
+                  onClick={() => setIsPlaying(!isPlaying)}
+                  className="bg-[#00A86B] hover:bg-[#008f5b] text-white px-3 py-1.5 font-bold trinetra-chamfer flex items-center space-x-1.5 transition"
+                >
+                  {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                  <span>{isPlaying ? 'PAUSE' : 'SIMULATE PIVOT'}</span>
+                </button>
+
+                <button
+                  onClick={handleNextStep}
+                  disabled={currentStep >= totalSteps - 1}
+                  className="bg-[#232323] hover:bg-[#3A3A3A] disabled:opacity-40 text-white px-2.5 py-1.5 border border-white/10 flex items-center space-x-1 transition"
+                >
+                  <SkipForward className="w-3.5 h-3.5" />
+                  <span>STEP</span>
+                </button>
+
+                <button
+                  onClick={handleResetSim}
+                  className="bg-[#232323] hover:bg-[#3A3A3A] text-white px-2.5 py-1.5 border border-white/10 flex items-center space-x-1 transition"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>RESET</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Path selector buttons */}
+            <div className="flex flex-wrap gap-2 text-xs">
+              {paths.map((p, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    setActivePathIdx(idx);
+                    setCurrentStep(0);
+                    setIsPlaying(false);
+                  }}
+                  className={`px-3 py-1.5 border font-bold transition ${
+                    activePathIdx === idx
+                      ? 'bg-[#D64545] text-white border-[#D64545]'
+                      : 'bg-[#232323] text-[#B9B9B4] border-[#3A3A3A] hover:bg-[#2A2A2A]'
+                  }`}
+                >
+                  PATH #{idx + 1}: {p.name}
+                </button>
+              ))}
+            </div>
+
+            {/* Interactive Step Visualizer */}
+            {selectedPath && (
+              <div className="space-y-4 pt-2">
+                <div className="flex flex-wrap items-center gap-3 bg-[#000000] p-4 border border-[#232323]">
+                  {selectedPath.finding_rule_ids?.map((fId, fIdx) => {
+                    const isPassed = fIdx < currentStep;
+                    const isCurrent = fIdx === currentStep;
+                    return (
+                      <React.Fragment key={fIdx}>
+                        <div
+                          className={`p-3 border font-mono text-xs flex items-center space-x-2 transition-all ${
+                            isCurrent
+                              ? 'bg-[#D64545] text-white border-white scale-105 shadow-lg animate-pulse'
+                              : isPassed
+                              ? 'bg-[#00A86B]/20 text-[#00A86B] border-[#00A86B]'
+                              : 'bg-[#181818] text-[#5E5E5E] border-[#2A2A2A]'
+                          }`}
+                        >
+                          <span className={`w-5 h-5 font-bold flex items-center justify-center text-[10px] ${
+                            isCurrent ? 'bg-white text-[#D64545]' : isPassed ? 'bg-[#00A86B] text-white' : 'bg-[#3A3A3A] text-white'
+                          }`}>
+                            {fIdx + 1}
+                          </span>
+                          <div className="text-left">
+                            <div className="font-bold">{fId}</div>
+                            <div className="text-[9px] opacity-80">
+                              {isCurrent ? 'EXPLOITING NOW...' : isPassed ? 'PIVOT SUCCEEDED' : 'PENDING'}
+                            </div>
+                          </div>
+                        </div>
+                        {fIdx < (selectedPath.finding_rule_ids.length - 1) && (
+                          <span className={`font-bold text-sm ${isPassed ? 'text-[#00A86B]' : 'text-[#3A3A3A]'}`}>
+                            &rarr;
+                          </span>
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
+                </div>
+
+                {/* Simulation Terminal Output */}
+                <div className="bg-[#0A0A0A] border border-[#232323] p-3 font-mono text-xs text-[#00A86B] flex items-start space-x-2">
+                  <Terminal className="w-4 h-4 text-[#00A86B] mt-0.5 shrink-0" />
+                  <div>
+                    <span className="text-[#B9B9B4]">SIMULATION STEP [{currentStep + 1}/{totalSteps}]:</span>{' '}
+                    <span>
+                      Adversary exploits rule violation <strong className="text-white">{selectedPath.finding_rule_ids[currentStep]}</strong>.
+                    </span>
+                    <div className="text-[11px] text-[#A0A0A0] mt-1">
+                      Rationale: {selectedPath.narrative}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Detailed Path List */}
           {paths.map((p, idx) => (
             <div key={idx} className="bg-[#F1F1EF] border border-[#B9B9B4] trinetra-chamfer p-5 space-y-4 shadow-sm font-mono">
               <div className="flex items-center justify-between border-b border-[#B9B9B4] pb-3">

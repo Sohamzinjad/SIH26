@@ -1,0 +1,4 @@
+postgresql://neondb_owner:npg_cl1pStId8FZP@ep-divine-butterfly-b5cb9bp6-pooler.c-7.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require==>postgresql://user:password@localhost:5432/dbname
+npg_cl1pStId8FZP==>REDACTED_PASSWORD
+ep-divine-butterfly-b5cb9bp6-pooler.c-7.us-east-2.aws.neon.tech==>localhost:5432
+neondb_owner==>postgres_user

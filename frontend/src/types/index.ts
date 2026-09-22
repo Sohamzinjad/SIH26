@@ -100,10 +100,13 @@ export interface DashboardOverview {
   }>;
   recent_audits: Array<{
     id: number;
+    device_id?: number;
     hostname: string;
     vendor: string;
     score: number;
+    pass_count?: number;
     fail_count: number;
+    total_count?: number;
     status: string;
     started_at: string;
   }>;

@@ -12,6 +12,7 @@ import {
   CornerDownRight,
   ShieldCheck,
   Layers,
+  ArrowLeft,
 } from 'lucide-react';
 
 interface DeviceHistoryViewProps {
@@ -70,6 +71,14 @@ export const DeviceHistoryView: React.FC<DeviceHistoryViewProps> = ({ deviceId, 
       <div className="p-8 text-center text-rose-400 bg-rose-500/10 border border-rose-500/30 rounded-xl max-w-xl mx-auto space-y-3">
         <AlertTriangle className="w-8 h-8 mx-auto text-rose-400" />
         <p className="font-semibold text-sm">{error || 'Device not found'}</p>
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="mt-4 bg-[#171717] text-white px-4 py-2 font-mono text-xs font-bold"
+          >
+            &larr; BACK
+          </button>
+        )}
       </div>
     );
   }
@@ -80,6 +89,19 @@ export const DeviceHistoryView: React.FC<DeviceHistoryViewProps> = ({ deviceId, 
 
   return (
     <div className="space-y-8 animate-fadeIn">
+      {/* Top Back Navigation Bar */}
+      {onBack && (
+        <div className="pb-1 border-b border-[#22262F]">
+          <button
+            onClick={onBack}
+            className="bg-[#171717] hover:bg-[#232323] text-white font-mono text-xs font-bold px-4 py-2 trinetra-chamfer transition flex items-center space-x-2 shadow-sm"
+          >
+            <ArrowLeft className="w-4 h-4 text-[#00A86B]" />
+            <span>&larr; BACK TO PREVIOUS MODULE</span>
+          </button>
+        </div>
+      )}
+
       {/* Breadcrumbs & Header */}
       <div className="border-b border-[#22262F] pb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>

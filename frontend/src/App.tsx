@@ -14,6 +14,7 @@ import { Lock, Shield } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<string>('dashboard');
+  const [tabHistory, setTabHistory] = useState<string[]>(['dashboard']);
   const [activeAuditId, setActiveAuditId] = useState<number | null>(null);
   const [activeDeviceId, setActiveDeviceId] = useState<number | null>(null);
   const [overview, setOverview] = useState<DashboardOverview | null>(null);
@@ -38,35 +39,56 @@ export const App: React.FC = () => {
     }
   };
 
+  const navigateToTab = (newTab: string) => {
+    setTabHistory((prev) => {
+      if (prev[prev.length - 1] === newTab) return prev;
+      return [...prev, newTab];
+    });
+    setCurrentTab(newTab);
+  };
+
+  const handleBack = () => {
+    setTabHistory((prev) => {
+      if (prev.length <= 1) {
+        setCurrentTab('dashboard');
+        return ['dashboard'];
+      }
+      const newHist = prev.slice(0, prev.length - 1);
+      const last = newHist[newHist.length - 1];
+      setCurrentTab(last);
+      return newHist;
+    });
+  };
+
   const handleSelectAudit = (auditId: number) => {
     setActiveAuditId(auditId);
-    setCurrentTab('audit-detail');
+    navigateToTab('audit-detail');
   };
 
   const handleViewDeviceHistory = (deviceId: number) => {
     setActiveDeviceId(deviceId);
-    setCurrentTab('device-history');
+    navigateToTab('device-history');
   };
 
   const handleViewAttackPath = (auditId: number) => {
     setActiveAuditId(auditId);
-    setCurrentTab('attack-path');
+    navigateToTab('attack-path');
   };
 
   const handleAuditCompleted = (auditId: number) => {
     setActiveAuditId(auditId);
-    setCurrentTab('audit-detail');
+    navigateToTab('audit-detail');
     loadData();
   };
 
   const handleAIMappingCreated = () => {
-    setCurrentTab('mappings');
+    navigateToTab('mappings');
     loadData();
   };
 
   const handleMappingApproved = (auditId: number) => {
     setActiveAuditId(auditId);
-    setCurrentTab('audit-detail');
+    navigateToTab('audit-detail');
     loadData();
   };
 
@@ -75,10 +97,12 @@ export const App: React.FC = () => {
       {/* TRINETRA Command Header & Navigation Rail */}
       <Navbar
         currentTab={currentTab}
-        setCurrentTab={setCurrentTab}
+        setCurrentTab={navigateToTab}
         pendingCount={pendingCount}
         activeAuditId={activeAuditId}
         activeDeviceId={activeDeviceId}
+        onBack={handleBack}
+        canGoBack={tabHistory.length > 1}
       />
 
       {/* Main Operational Workspace (Offset by 240px sidebar on desktop) */}
@@ -89,7 +113,7 @@ export const App: React.FC = () => {
               overview={overview}
               loading={loading}
               onSelectAudit={handleSelectAudit}
-              onNewAudit={() => setCurrentTab('upload')}
+              onNewAudit={() => navigateToTab('upload')}
             />
           )}
 
@@ -105,18 +129,24 @@ export const App: React.FC = () => {
               auditId={activeAuditId}
               onViewDeviceHistory={handleViewDeviceHistory}
               onViewAttackPath={handleViewAttackPath}
+              onBack={handleBack}
+              onNavigateTab={navigateToTab}
             />
           )}
 
           {currentTab === 'attack-path' && activeAuditId && (
             <AttackPathGraph
               auditId={activeAuditId}
-              onBack={() => setCurrentTab('audit-detail')}
+              onBack={handleBack}
             />
           )}
 
           {currentTab === 'device-history' && activeDeviceId && (
-            <DeviceHistoryView deviceId={activeDeviceId} onSelectAudit={handleSelectAudit} />
+            <DeviceHistoryView
+              deviceId={activeDeviceId}
+              onSelectAudit={handleSelectAudit}
+              onBack={handleBack}
+            />
           )}
 
           {currentTab === 'fleet' && (

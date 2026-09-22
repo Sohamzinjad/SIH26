@@ -12,7 +12,8 @@ import {
   SlidersHorizontal,
   Search,
   Bell,
-  Shield
+  Shield,
+  ArrowLeft
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -21,12 +22,16 @@ interface NavbarProps {
   pendingCount: number;
   activeAuditId: number | null;
   activeDeviceId?: number | null;
+  onBack?: () => void;
+  canGoBack?: boolean;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   currentTab,
   setCurrentTab,
   pendingCount,
+  onBack,
+  canGoBack,
 }) => {
   const [timeStr, setTimeStr] = useState<string>('');
   const [dateStr, setDateStr] = useState<string>('');
@@ -59,8 +64,19 @@ export const Navbar: React.FC<NavbarProps> = ({
     <>
       {/* Top Black Command Bar (#181818) */}
       <header className="bg-[#181818] border-b border-white/10 text-[#F7F6F3] sticky top-0 z-40 h-14 flex items-center justify-between px-4 sm:px-6 shadow-tactical-dark">
-        {/* Left: Security Tagline */}
+        {/* Left: Back Button + Tagline */}
         <div className="flex items-center space-x-4">
+          {canGoBack && onBack && (
+            <button
+              onClick={onBack}
+              className="flex items-center space-x-1.5 px-3 py-1 bg-[#262626] hover:bg-[#3A3A3A] text-white border border-white/20 text-xs font-mono font-bold transition trinetra-chamfer"
+              title="Return to previous page"
+            >
+              <ArrowLeft className="w-4 h-4 text-[#00A86B]" />
+              <span>&larr; BACK</span>
+            </button>
+          )}
+
           <div className="hidden xl:flex items-center space-x-2 text-[11px] font-mono tracking-[0.12em] text-[#A0A0A0]">
             <span className="text-[#00A86B] font-bold">AI PROPOSES.</span>
             <span>DETERMINISTIC CODE DECIDES.</span>
