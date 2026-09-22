@@ -90,7 +90,7 @@ export const MappingsView: React.FC<MappingsViewProps> = ({ onMappingApproved })
           </p>
         </div>
 
-        <div className="rounded-2xl border border-accent/35 bg-accent-soft/40 px-6 py-5 flex items-center gap-5">
+        <div className="rounded-2xl border border-accent/35 bg-accent/10 px-6 py-5 flex items-center gap-5">
           <div className="stat-number-sm text-accent-hover">{mappings.length}</div>
           <div>
             <div className="stat-label">Pending sign-off</div>

@@ -126,7 +126,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
         {/* Governance trust signal — its own hero moment */}
         <Reveal delayMs={60}>
-          <div className="mt-12 flex flex-col items-start gap-8 rounded-[24px] border border-accent/35 bg-accent-soft/40 px-8 py-10 sm:px-12 lg:flex-row lg:items-center lg:gap-16">
+          <div className="mt-12 flex flex-col items-start gap-8 rounded-[24px] border border-accent/35 bg-accent/10 px-8 py-10 sm:px-12 lg:flex-row lg:items-center lg:gap-16">
             <div>
               <div className="stat-number !text-[clamp(4rem,9vw,7rem)] text-accent-hover">
                 {humanApprovedPct}%

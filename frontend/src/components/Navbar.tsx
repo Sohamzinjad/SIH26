@@ -212,7 +212,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="border-t border-white/10 bg-[#0a0a0b]/97 px-5 py-4 lg:hidden">
+        <div className="border-t border-white/10 bg-[#0a0a0b]/95 px-5 py-4 lg:hidden">
           <nav className="flex flex-col gap-1">
             {[...PRIMARY_LINKS, ...MODULE_LINKS].map((item) => {
               const Icon = item.icon;

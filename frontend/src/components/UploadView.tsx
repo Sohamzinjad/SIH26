@@ -341,7 +341,7 @@ export const UploadView: React.FC<UploadViewProps> = ({
               <span className="badge badge-accent">{batchResult.completed_count} / {batchResult.total_files} configs audited</span>
             </div>
 
-            <div className="grid grid-cols-1 divide-y divide-white/8 max-h-60 overflow-y-auto text-[13px]">
+            <div className="grid grid-cols-1 divide-y divide-white/10 max-h-60 overflow-y-auto text-[13px]">
               {batchResult.results.map((r) => (
                 <div key={r.audit_id || r.filename} className="py-2.5 flex items-center justify-between gap-3 hover:bg-surface-2/60 px-2 rounded-lg transition-colors duration-100">
                   <div className="flex items-center space-x-3 min-w-0">
