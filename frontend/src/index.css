@@ -3,121 +3,440 @@
 @tailwind utilities;
 
 :root {
-  --bg-canvas: #D4D3CF;
-  --surface-base: #DDDDDA;
-  --surface-card: #E8E7E4;
-  --surface-elevated: #EFEEEB;
-  --surface-pure: #F7F6F3;
-  --surface-white: #FFFFFF;
-  --charcoal: #1F1F1F;
-  --graphite: #181818;
-  --border-subtle: rgba(0, 0, 0, 0.07);
-  --border-dark: rgba(255, 255, 255, 0.08);
+  --bg: #0a0a0b;
+  --surface: #121214;
+  --surface-2: #17171a;
+  --surface-3: #1d1d21;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.16);
+  --ink: #f4f4f5;
+  --muted: #a1a1aa;
+  --faint: #71717a;
+  --accent: #6e56ff;
+  --accent-hover: #7f6bff;
+  --accent-soft: rgba(110, 86, 255, 0.14);
+
+  /* Severity / status colors — conventional red / amber / blue / green family,
+     kept solid and high-contrast regardless of theme. */
+  --sev-critical: #d92d20;
+  --sev-high: #f79009;
+  --sev-medium: #1570ef;
+  --sev-low: #475467;
+  --sev-pass: #067647;
+  --sev-fail: #d92d20;
+
+  --text-critical: #ff8585;
+  --text-high: #ffb224;
+  --text-medium: #6bb0ff;
+  --text-pass: #4ade80;
 }
 
 @layer base {
+  html {
+    background-color: var(--bg);
+    color-scheme: dark;
+  }
+
   body {
-    background-color: var(--bg-canvas);
-    color: #171717;
-    font-family: 'Inter', 'IBM Plex Sans', sans-serif;
+    background-color: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: #ffffff;
   }
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar — dark */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-canvas);
+  background: var(--bg);
 }
 ::-webkit-scrollbar-thumb {
-  background: #B5B4AF;
+  background: #2b2b31;
+  border-radius: 8px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #8E8E8E;
+  background: #3d3d45;
 }
 
-/* Chamfered / Angled corners clip-path */
-.trinetra-chamfer {
-  clip-path: polygon(
-    0 0,
-    calc(100% - 10px) 0,
-    100% 10px,
-    100% 100%,
-    0 100%
-  );
-}
-
-.trinetra-chamfer-lg {
-  clip-path: polygon(
-    0 0,
-    calc(100% - 16px) 0,
-    100% 16px,
-    100% 100%,
-    0 100%
-  );
-}
-
-.trinetra-chamfer-both {
-  clip-path: polygon(
-    0 0,
-    calc(100% - 12px) 0,
-    100% 12px,
-    100% calc(100% - 12px),
-    calc(100% - 12px) 100%,
-    0 100%
-  );
-}
-
-/* Subtle Material Gradient & Card Elevation */
-.trinetra-panel {
-  background: linear-gradient(180deg, #FFFFFF 0%, #F7F6F3 100%);
-  border: 1px solid rgba(0, 0, 0, 0.07);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03), 0 10px 30px rgba(0, 0, 0, 0.05);
-  position: relative;
-}
-
-.trinetra-panel-dark {
-  background: linear-gradient(180deg, #222222 0%, #181818 100%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
-  color: #F7F6F3;
-  position: relative;
-}
-
-/* Tactical Radar Grid Background */
-.trinetra-grid-bg {
-  background-image: 
-    linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
-  background-size: 24px 24px;
-}
-
-.trinetra-dark-grid-bg {
-  background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 24px 24px;
-}
-
-/* Glowing dot animation */
-@keyframes radar-glow {
-  0% {
-    transform: scale(0.95);
-    opacity: 0.6;
+@layer components {
+  /* ---------- Typography primitives ---------- */
+  .kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--faint);
   }
-  50% {
-    transform: scale(1.35);
+
+  .display {
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.04;
+    color: var(--ink);
+  }
+
+  .section-title {
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.5rem, 2.4vw, 2rem);
+    letter-spacing: -0.015em;
+    line-height: 1.1;
+    color: var(--ink);
+  }
+
+  .stat-number {
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: clamp(2.5rem, 4.5vw, 3.75rem);
+    letter-spacing: -0.035em;
+    line-height: 1;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-number-sm {
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ---------- Cards ---------- */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+  }
+
+  .card-raise {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+  }
+
+  /* Hover depth — fast, gentle lift + accent edge. Not for action-critical controls. */
+  .card-hover {
+    transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-3px);
+    border-color: rgba(110, 86, 255, 0.45);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(110, 86, 255, 0.14);
+  }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-radius: 9999px;
+    padding: 0.7rem 1.4rem;
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease,
+      opacity 150ms ease;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #ffffff;
+    border: 1px solid transparent;
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: var(--accent-hover);
+  }
+
+  .btn-solid {
+    background: var(--ink);
+    color: #0a0a0b;
+    border: 1px solid transparent;
+  }
+  .btn-solid:hover:not(:disabled) {
+    background: #ffffff;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--line-strong);
+  }
+  .btn-ghost:hover:not(:disabled) {
+    background: var(--surface-3);
+    border-color: rgba(255, 255, 255, 0.28);
+  }
+
+  .btn-danger {
+    background: var(--sev-critical);
+    color: #ffffff;
+    border: 1px solid transparent;
+  }
+  .btn-danger:hover:not(:disabled) {
+    background: #b42318;
+  }
+
+  .btn-sm {
+    padding: 0.45rem 0.95rem;
+    font-size: 11px;
+  }
+
+  /* ---------- Inputs ---------- */
+  .field {
+    width: 100%;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    color: var(--ink);
+    font-size: 13px;
+    padding: 0.55rem 0.85rem;
+    outline: none;
+    transition: border-color 150ms ease;
+  }
+  .field::placeholder {
+    color: var(--faint);
+  }
+  .field:focus {
+    border-color: rgba(110, 86, 255, 0.65);
+  }
+  select.field {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    cursor: pointer;
+  }
+
+  /* ---------- Tables (data-dense: no decoration, max legibility) ---------- */
+  .data-table {
+    width: 100%;
+    text-align: left;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .data-table thead th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--faint);
+    border-bottom: 1px solid var(--line-strong);
+    padding: 0.65rem 0.75rem;
+    white-space: nowrap;
+  }
+  .data-table tbody td {
+    padding: 0.7rem 0.75rem;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink);
+    vertical-align: middle;
+  }
+  .data-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+  .data-table tbody tr.row-hover {
+    transition: background-color 120ms ease;
+  }
+  .data-table tbody tr.row-hover:hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  /* ---------- Severity / status badges (solid + conventional) ---------- */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+    white-space: nowrap;
+    line-height: 1.5;
+  }
+  .badge-critical {
+    background: var(--sev-critical);
+    color: #ffffff;
+  }
+  .badge-high {
+    background: var(--sev-high);
+    color: #1c1917;
+  }
+  .badge-medium {
+    background: var(--sev-medium);
+    color: #ffffff;
+  }
+  .badge-low {
+    background: var(--sev-low);
+    color: #ffffff;
+  }
+  .badge-pass {
+    background: var(--sev-pass);
+    color: #ffffff;
+  }
+  .badge-fail {
+    background: var(--sev-fail);
+    color: #ffffff;
+  }
+  .badge-pending {
+    background: var(--sev-high);
+    color: #1c1917;
+  }
+  .badge-accent {
+    background: var(--accent-soft);
+    color: #a99bff;
+    border: 1px solid rgba(110, 86, 255, 0.4);
+  }
+  .badge-neutral {
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--muted);
+    border: 1px solid var(--line);
+  }
+
+  .text-crit { color: var(--text-critical); }
+  .text-high { color: var(--text-high); }
+  .text-med { color: var(--text-medium); }
+  .text-ok { color: var(--text-pass); }
+
+  /* ---------- Banners ---------- */
+  .banner {
+    border-radius: 16px;
+    padding: 1.1rem 1.35rem;
+    font-size: 13px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+  }
+  .banner-error {
+    background: rgba(217, 45, 32, 0.12);
+    border-color: rgba(217, 45, 32, 0.5);
+    color: #ffb4ad;
+  }
+  .banner-success {
+    background: rgba(6, 118, 71, 0.15);
+    border-color: rgba(6, 118, 71, 0.55);
+    color: #86efac;
+  }
+
+  /* ---------- Code surfaces ---------- */
+  .code-surface {
+    background: #0c0c0e;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.65;
+    overflow: auto;
+  }
+
+  /* ---------- Entrance motion (fast, non-blocking) ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  .reveal.is-visible {
     opacity: 1;
+    transform: translateY(0);
+    transition: opacity 220ms ease-out, transform 220ms ease-out;
   }
-  100% {
-    transform: scale(0.95);
-    opacity: 0.6;
+
+  .fade-rise {
+    animation: fade-rise 220ms ease-out both;
+  }
+
+  /* ---------- Decorative floating shapes (LOW-density areas only) ---------- */
+  .orb {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(70px);
+    pointer-events: none;
+    will-change: transform;
+  }
+  .orb-violet {
+    background: rgba(110, 86, 255, 0.35);
+  }
+  .orb-indigo {
+    background: rgba(59, 45, 178, 0.4);
+  }
+  .orb-rose {
+    background: rgba(160, 40, 120, 0.22);
+  }
+  .orb-drift-a {
+    animation: drift-a 16s ease-in-out infinite alternate;
+  }
+  .orb-drift-b {
+    animation: drift-b 20s ease-in-out infinite alternate;
   }
 }
 
-.animate-radar-glow {
-  animation: radar-glow 2.5s infinite ease-in-out;
+@keyframes fade-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes drift-a {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(28px, -22px, 0) scale(1.06);
+  }
+}
+
+@keyframes drift-b {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(-24px, 18px, 0) scale(0.95);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal.is-visible,
+  .fade-rise,
+  .card-hover,
+  .orb-drift-a,
+  .orb-drift-b {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
