@@ -8,13 +8,16 @@ import { FleetView } from './components/FleetView';
 import { DeviceHistoryView } from './components/DeviceHistoryView';
 import { AttackPathGraph } from './components/AttackPathGraph';
 import { AuditTrailView } from './components/AuditTrailView';
+import { LandingView } from './components/LandingView';
+import { DevicesView } from './components/DevicesView';
+import { FindingsView } from './components/FindingsView';
 import { fetchDashboardOverview, fetchPendingMappings } from './api/client';
 import { DashboardOverview } from './types';
 import { Lock, Shield } from 'lucide-react';
 
 export const App: React.FC = () => {
-  const [currentTab, setCurrentTab] = useState<string>('dashboard');
-  const [tabHistory, setTabHistory] = useState<string[]>(['dashboard']);
+  const [currentTab, setCurrentTab] = useState<string>('landing');
+  const [tabHistory, setTabHistory] = useState<string[]>(['landing']);
   const [activeAuditId, setActiveAuditId] = useState<number | null>(null);
   const [activeDeviceId, setActiveDeviceId] = useState<number | null>(null);
   const [overview, setOverview] = useState<DashboardOverview | null>(null);
@@ -106,6 +109,16 @@ export const App: React.FC = () => {
 
       <div className="flex-1 flex flex-col">
         <main className="flex-1 w-full mx-auto max-w-[1440px] px-5 sm:px-8 lg:px-12 py-10 lg:py-14">
+          {currentTab === 'landing' && (
+            <LandingView
+              onEnterDashboard={() => navigateToTab('dashboard')}
+              onNewAudit={() => navigateToTab('upload')}
+              onExploreFleet={() => navigateToTab('fleet')}
+              onOpenMappings={() => navigateToTab('mappings')}
+              onOpenAuditTrail={() => navigateToTab('audit-trail')}
+            />
+          )}
+
           {currentTab === 'dashboard' && (
             <DashboardView
               overview={overview}
@@ -159,7 +172,20 @@ export const App: React.FC = () => {
             <AuditTrailView />
           )}
 
-          {(currentTab === 'devices' || currentTab === 'findings' || currentTab === 'reports' || currentTab === 'settings') && (
+          {currentTab === 'devices' && (
+            <DevicesView
+              onSelectAudit={handleSelectAudit}
+              onViewDeviceHistory={handleViewDeviceHistory}
+            />
+          )}
+
+          {currentTab === 'findings' && (
+            <FindingsView
+              onSelectAudit={handleSelectAudit}
+            />
+          )}
+
+          {(currentTab === 'reports' || currentTab === 'settings') && (
             <div className="relative card overflow-hidden p-10 text-center max-w-2xl mx-auto mt-8">
               {/* Decorative shapes allowed in empty states only */}
               <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
