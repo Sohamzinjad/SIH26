@@ -75,8 +75,7 @@ export const DevicesView: React.FC<DevicesViewProps> = ({ onSelectAudit, onViewD
       </Reveal>
 
       {/* Controls */}
-      <Reveal delayMs={40}>
-        <div className="card p-4 sm:p-5 space-y-4">
+      <div className="card p-4 sm:p-5 space-y-4">
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
               <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-faint" />
@@ -163,8 +162,7 @@ export const DevicesView: React.FC<DevicesViewProps> = ({ onSelectAudit, onViewD
               </tbody>
             </table>
           </div>
-        </div>
-      </Reveal>
+      </div>
     </div>
   );
 };

@@ -285,17 +285,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </tbody>
               </table>
             </div>
-          </Reveal>
         </div>
 
         <div className="lg:col-span-5 space-y-6">
-          <Reveal delayMs={60}>
-            <div className="mb-6">
-              <div className="kicker mb-2">Real-time telemetry</div>
-              <h2 className="section-title">Recent audits</h2>
-            </div>
-            <div className="card p-2 sm:p-4 overflow-x-auto">
-              <table className="data-table">
+          <div className="mb-6">
+            <div className="kicker mb-2">Real-time telemetry</div>
+            <h2 className="section-title">Recent audits</h2>
+          </div>
+          <div className="card p-2 sm:p-4 overflow-x-auto">
+            <table className="data-table">
                 <thead>
                   <tr>
                     <th>Host</th>
@@ -330,7 +328,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </tbody>
               </table>
             </div>
-          </Reveal>
 
           <Reveal delayMs={100}>
             <div className="card p-5 space-y-4">

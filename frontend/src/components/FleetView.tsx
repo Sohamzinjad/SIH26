@@ -198,7 +198,7 @@ export const FleetView: React.FC<FleetViewProps> = ({ onBatchCompleted, onBatchF
 
       {/* Results Section & Filters */}
       {lastBatch && (
-        <Reveal delayMs={60}>
+        <div>
           <div className="mb-6">
             <div className="kicker mb-2">Fleet batch results</div>
             <h2 className="section-title">
@@ -302,7 +302,6 @@ export const FleetView: React.FC<FleetViewProps> = ({ onBatchCompleted, onBatchF
               </table>
             </div>
           </div>
-        </Reveal>
       )}
     </div>
   );
