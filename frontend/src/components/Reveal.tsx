@@ -21,6 +21,14 @@ export const Reveal: React.FC<RevealProps> = ({ children, className = '', delayM
       setVisible(true);
       return;
     }
+
+    // Immediate viewport check on mount to prevent initial flash-of-unrevealed-content
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      setVisible(true);
+      return;
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -30,7 +38,7 @@ export const Reveal: React.FC<RevealProps> = ({ children, className = '', delayM
           }
         });
       },
-      { threshold: 0.08, rootMargin: '0px 0px -24px 0px' }
+      { threshold: 0.05, rootMargin: '0px 0px -20px 0px' }
     );
     observer.observe(el);
     return () => observer.disconnect();

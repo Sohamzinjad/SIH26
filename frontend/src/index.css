@@ -160,10 +160,18 @@
     text-transform: uppercase;
     border-radius: 9999px;
     padding: 0.7rem 1.4rem;
-    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease,
-      opacity 150ms ease;
+    transition: background-color 150ms cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 150ms cubic-bezier(0.16, 1, 0.3, 1),
+      color 150ms cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 150ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 150ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 150ms cubic-bezier(0.16, 1, 0.3, 1);
     cursor: pointer;
     white-space: nowrap;
+    user-select: none;
+  }
+  .btn:active:not(:disabled) {
+    transform: scale(0.98);
   }
   .btn:disabled {
     opacity: 0.5;
@@ -373,6 +381,34 @@
     animation: fade-rise 220ms ease-out both;
   }
 
+  /* ---------- View-to-view navigation transition ---------- */
+  .view-transition {
+    animation: view-enter 200ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    will-change: opacity, transform;
+  }
+
+  /* ---------- Smooth Collapsible Grid (0fr -> 1fr) ---------- */
+  .collapsible-grid {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition: grid-template-rows 220ms cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 200ms ease-out;
+  }
+  .collapsible-grid.is-expanded {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+  .collapsible-inner {
+    overflow: hidden;
+  }
+
+  /* ---------- Tab preview cross-fade ---------- */
+  .tab-crossfade {
+    animation: tab-enter 200ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    will-change: opacity, transform;
+  }
+
   /* ---------- Decorative floating shapes (LOW-density areas only) ---------- */
   .orb {
     position: absolute;
@@ -395,6 +431,28 @@
   }
   .orb-drift-b {
     animation: drift-b 20s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes view-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes tab-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -427,16 +485,29 @@
   }
 }
 
+/* Universal reduced-motion accessibility override */
 @media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
   .reveal,
   .reveal.is-visible,
   .fade-rise,
   .card-hover,
   .orb-drift-a,
-  .orb-drift-b {
+  .orb-drift-b,
+  .view-transition,
+  .tab-crossfade,
+  .collapsible-grid {
     animation: none !important;
     transition: none !important;
     opacity: 1 !important;
     transform: none !important;
+    grid-template-rows: 1fr !important;
   }
 }
