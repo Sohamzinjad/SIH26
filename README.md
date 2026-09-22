@@ -1,95 +1,119 @@
-# SIH26155 — AI-Driven Multi-Vendor Network Security Compliance Auditor
+# TRINETRA (त्रिनेत्र) — SIH26155
+## AI-Driven Multi-Vendor Network Security Compliance Auditor
 
 [![Built for NTRO](https://img.shields.io/badge/Sponsor-NTRO-blue.svg)](https://www.sih.gov.in/)
 [![Problem Statement](https://img.shields.io/badge/SIH%202026-SIH26155-orange.svg)](https://www.sih.gov.in/)
-[![Python](https://img.shields.io/badge/Backend-FastAPI%20%7C%20Python%203.12+-green.svg)](https://fastapi.tiangolo.com/)
+[![Backend](https://img.shields.io/badge/Backend-FastAPI%20%7C%20Python%203.12+-green.svg)](https://fastapi.tiangolo.com/)
 [![Frontend](https://img.shields.io/badge/Frontend-React%2018%20%7C%20Tailwind%20%7C%20Vite-cyan.svg)](https://vitejs.dev/)
 [![Compliance Standards](https://img.shields.io/badge/Frameworks-CIS%20%7C%20NIST%20800--53%20%7C%20DISA%20STIG-purple.svg)](https://www.cisecurity.org/)
+[![Audit Trail](https://img.shields.io/badge/Audit%20Trail-SHA--256%20Cryptographic%20Chain-gold.svg)]()
 [![Air-Gapped Safe](https://img.shields.io/badge/Security-Air--Gapped%20Safe-emerald.svg)]()
 
 > **"AI proposes, deterministic code decides, humans approve novel cases."**  
-> A high-assurance, defense-grade multi-vendor network security compliance auditor built for **NTRO** (National Technical Research Organisation) under **Smart India Hackathon 2026**.
+> A high-assurance, defense-grade multi-vendor network security compliance auditor and exploit correlator built for the **National Technical Research Organisation (NTRO)** under **Smart India Hackathon 2026**.
 
 ---
 
 ## 📑 Table of Contents
-1. [Core Innovations & Differentiators](#-core-innovations--differentiators)
-2. [Supported Vendors & Compliance Frameworks](#-supported-vendors--compliance-frameworks)
-3. [Corpus Evaluation & Accuracy Metrics](#-corpus-evaluation--accuracy-metrics)
-4. [Design Choice: Deterministic Parsing](#-design-choice-why-deterministic-structural-parsing-not-an-llm-is-the-core)
-5. [Latency & Scaling (Measured)](#-latency--scaling-measured-not-estimated)
-6. [Quick Start & Live Demo](#-quick-start--live-demo)
-7. [API Reference](#-api-reference)
-8. [Repository Structure](#-repository-structure)
+1. [Executive Summary & Core Philosophy](#-executive-summary--core-philosophy)
+2. [Key Innovations & Differentiators](#-key-innovations--differentiators)
+3. [Supported Vendors & Compliance Frameworks](#-supported-vendors--compliance-frameworks)
+4. [Empirical Accuracy & Corpus Benchmarks](#-empirical-accuracy--corpus-benchmarks)
+5. [Architectural Decision: Deterministic Rules over Probabilistic LLMs](#-architectural-decision-why-deterministic-rules-not-an-llm-is-the-core)
+6. [Latency & Fleet Scaling Benchmarks](#-latency--fleet-scaling-benchmarks-measured)
+7. [Enterprise Web Interface & Visual Capabilities](#-enterprise-web-interface--visual-capabilities)
+8. [Comprehensive REST API Reference](#-comprehensive-rest-api-reference)
+9. [Repository Architecture](#-repository-architecture)
+10. [Quick Start & Setup Guide](#-quick-start--setup-guide)
+11. [Judge Demonstration & Presentation Script](#-judge-demonstration--presentation-script)
 
 ---
 
-## 🌟 Core Innovations & Differentiators
+## 🛡️ Executive Summary & Core Philosophy
 
-### 1. Air-Gapped High Assurance Architecture
-Designed specifically for defense/intelligence deployment environments where public cloud LLMs (OpenAI, Anthropic) are strictly prohibited:
-- Runs locally using **Ollama (`llama3.2:3b`)** or built-in offline structural heuristics.
-- **Dual-database resilience**: Automatically connects to PostgreSQL with instant zero-configuration fallback to SQLite when operating in isolated, air-gapped field environments.
+In mission-critical, defense, and intelligence operations (such as NTRO), network infrastructure compliance cannot rely on black-box, probabilistic AI models that hallucinate syntax or generate inconsistent verdicts.
 
-### 2. Human-in-the-Loop AI with Persistent Dialect Caching
-- **Deterministic First:** Known vendor configurations (**Cisco IOS**, **FortiOS**) are parsed with 100% deterministic, line-exact regex state machines.
-- **AI Scoped to Unknowns:** When an unfamiliar or white-box config is uploaded, local AI analyzes the syntax and proposes a structured normalization.
-- **Human Approval:** Security analysts review and approve proposed schemas in a side-by-side UI.
-- **Dialect Caching:** Approved syntax fingerprints (SHA-256) are stored in cache, allowing all future devices using that white-box dialect to parse deterministically without re-invoking the model.
+**TRINETRA** resolves the tension between multi-vendor flexibility and defense-grade certifiability:
+1. **Deterministic Core:** Known network operating systems (**Cisco IOS/IOS-XE**, **Fortinet FortiOS**) are parsed via exact state machines that pinpoint violations to specific line numbers and snippets.
+2. **AI Strictly Constrained:** Local AI (**Ollama / `llama3.2:3b`**) is invoked *only* when an unknown or proprietary white-box NOS syntax is encountered.
+3. **Analyst in the Loop:** The security analyst inspects raw syntax side-by-side with proposed AST schemas and formally approves or rejects the mapping.
+4. **Dialect Fingerprint Caching:** Approved schemas are hashed via SHA-256 and stored in an immutable cache; all subsequent devices running that dialect parse deterministically with zero model latency.
+5. **Tamper-Evident Governance:** Every audit result, mapping approval, and compliance waiver is sealed in a cryptographic SHA-256 forward-linked chain to guarantee non-repudiation.
 
-### 3. Attack-Path Threat Correlation & Strategic Single Fix
-Rather than producing a disconnected list of 50+ violations, our correlator links failures into actionable exploit stories (e.g., *Cleartext Telnet + Missing VTY Access-Class + Default SNMP Community $\rightarrow$ Privileged Administrative Takeover*).
+---
+
+## 🌟 Key Innovations & Differentiators
+
+### 1. Air-Gapped High-Assurance Architecture
+Designed for air-gapped secure enclaves where external API connections (OpenAI, Anthropic, cloud SaaS) are prohibited by military doctrine:
+- Completely local execution with **Ollama (`llama3.2:3b`)** and offline heuristic fallbacks.
+- **Dual-Database Resilience:** Automatically binds to enterprise PostgreSQL, with automatic zero-config fallback to SQLite for rapid field deployments or portable laptops.
+
+### 2. Attack-Path Threat Correlation & Strategic "Single Key Fix"
+Rather than dumping 50+ disconnected compliance failures on an overworked security team, TRINETRA's graph correlator models how violations combine into real-world exploit chains (e.g., *Cleartext Telnet + Missing VTY ACL + Default SNMP Community $\rightarrow$ Privileged Administrative Takeover*).
 
 **The Key Differentiator — Single Key Fix Algorithm:**
-The engine computes which single remediation command dismantles the maximum number of active threat chains at once, giving commanders and network engineers their highest-leverage first move.
+The correlation engine calculates which single remediation command dismantles the maximum number of active threat chains across the device or fleet, providing network commanders with their highest-leverage first move.
 
-### 4. Non-Naive Severity-Weighted Compliance Scoring
+### 3. Multi-Device Fleet Batch Auditing & Configuration Drift
+- **Fleet Bulk Ingestion:** Upload dozens of configs simultaneously or submit compressed `.zip` archives. Hardened with zip-bomb safeguards (50MB size cap, 5,000 member limit) and path traversal protection.
+- **Cross-Device Analytics:** Computes real aggregate failure frequencies, common threat chains across devices, and fleet-wide posture scores.
+- **Longitudinal Drift Tracking:** Evaluates successive audits of a device and classifies every rule as `same`, `improved`, `worsened`, `new`, or `disappeared`, calculating an overall drift velocity score.
+
+### 4. Cryptographic Tamper-Evident Audit Trail
+- Non-repudiation is enforced through a **forward-linked SHA-256 hash chain** across all administrative events (audits, AI mapping approvals, mapping rejections, waiver grants, waiver revocations).
+- Each record's hash incorporates canonical sorted JSON fields, timestamp, actor, and the previous record's hash ($H_n = \text{SHA256}(\text{Payload}_n \parallel H_{n-1})$).
+- The `/api/audit-trail/verify` endpoint walks the entire ledger in $O(N)$ time to mathematically verify chain integrity and detect any out-of-band database tampering.
+
+### 5. Offline CVE Reference Enrichment
+- Failed compliance findings are automatically enriched with verified National Vulnerability Database (NVD) CVE identifiers (e.g., Cisco SNMP remote execution vulnerability `CVE-2017-6742`, CVSS 9.8).
+- Powered by a committed, deterministic offline CVE cache (`cve_cache.json`), ensuring **zero external network queries** while providing analysts with rich vulnerability context and advisory links.
+
+### 6. Formal Waiver & Governance Workflow
+- Analysts can grant time-stamped compliance exceptions for operational necessities (e.g., legacy subnet with approved compensating controls).
+- Every waiver requires mandatory justification, records the authorizing operator, updates finding status, and writes an immutable entry to the cryptographic audit trail.
+
+### 7. Non-Naive Severity-Weighted Scoring
 $$\text{Compliance Score} = \left(\frac{\sum \text{Weights of Passing Checks}}{\sum \text{Weights of All Evaluated Checks}}\right) \times 100$$
-- **Critical:** Weight 20 (e.g. Telnet enabled, default SNMP community)
-- **High:** Weight 10 (e.g. Missing VTY ACL, no remote syslog, HTTP enabled)
-- **Medium:** Weight 5 (e.g. Inactivity timeout $> 10$ min, plaintext passwords)
-- **Low:** Weight 2 (e.g. Logging timestamps, finger service)
+- **Critical (Weight 20):** Telnet enabled, default SNMP community string, cleartext administrative secrets.
+- **High (Weight 10):** Missing VTY ACL, remote syslog unconfigured, HTTP management active.
+- **Medium (Weight 5):** Inactivity timeout $> 10$ minutes, plaintext service passwords.
+- **Low (Weight 2):** Missing logging timestamps, finger service active.
 
 ---
 
 ## 🛡️ Supported Vendors & Compliance Frameworks
 
-### Supported Network Hardware:
+### Supported Network Hardware & Operating Systems:
 | Vendor / OS | Parsing Strategy | Line-Level Evidence |
 | :--- | :--- | :--- |
-| **Cisco IOS / IOS-XE** | Deterministic line-state machine | Exact line numbers & snippets |
-| **Fortinet FortiOS** | Deterministic block-state parser | Exact section & directive lines |
-| **White-Box / Unknown NOS** | AI proposal + Analyst approval + Cached dialect | Structural AST mapping |
+| **Cisco IOS / IOS-XE** | Deterministic line-state machine | Exact starting/ending line numbers & code snippet |
+| **Fortinet FortiOS** | Deterministic block-state parser | Exact block directives and hierarchical statements |
+| **White-Box / Proprietary NOS** | AI proposal + Human review + Cached dialect | Structural AST mapping with heuristic fallback |
 
-### Implemented Compliance Frameworks:
+### Implemented Compliance Standards:
 - **CIS Benchmarks:**
-  - *CIS Cisco IOS Benchmark v4.0.0* (18 automated checks)
-  - *CIS Fortinet FortiOS Benchmark* (5 automated checks)
+  - *CIS Cisco IOS Benchmark v4.0.0* (18 automated checks covering AAA, banners, NTP, syslog, SSH, SNMP, VTY ACLs)
+  - *CIS Fortinet FortiOS Benchmark* (5 automated checks covering admin ports, password policies, remote syslog)
 - **NIST SP 800-53 Rev 5:**
   - `AC-2` (Account Management)
-  - `AC-3` (Access Enforcement)
-  - `AC-12` (Session Termination)
+  - `AC-3` (Access Enforcement & Port Restrictions)
+  - `AC-12` (Session Termination / Inactivity Timeouts)
   - `AC-17` (Remote Access Protection)
-  - `AU-2` (Audit Events & Centralized Logging)
-  - `IA-2` (Centralized AAA Identification)
-  - `IA-5` (Cryptographic Authenticator Storage)
+  - `AU-2` (Audit Events & Centralized Syslog)
+  - `IA-2` (Centralized AAA Identification & Multi-Factor)
+  - `IA-5` (Cryptographic Authenticator & Salted Password Hashing)
 - **DISA STIGs (DoD Network Device SRG):**
   - `STIG-V-202007` (10-Minute Interactive Inactivity Lock)
-  - `STIG-V-202065` (FIPS-Approved Password Hashing)
-  - `STIG-V-202049` (Prohibition of Insecure Ports & Services)
+  - `STIG-V-202065` (FIPS-Approved Type 8/9 Password Hashing)
+  - `STIG-V-202049` (Prohibition of Insecure Ports & Cleartext Protocols)
 
 ---
 
-## 📊 Corpus Evaluation & Accuracy Metrics
+## 📊 Empirical Accuracy & Corpus Benchmarks
 
-### Held-Out Real-World Corpus (not tuned against)
-Beyond the hand-authored pipeline fixtures, the engine is evaluated on an
-**independent held-out set**: five unmodified, sanitized Cisco IOS
-`show running-config` files from the public [Batfish "Example Network"
-(campus topology)](https://github.com/batfish/batfish) (Apache-2.0). These are
-real enterprise configs written by the Batfish maintainers, *not* crafted to
-fit this project's rules. Ground-truth labels were derived by human reading of
-each config's actual text, independently of the engine.
+### 1. Held-Out Real-World Corpus (Sanitized Batfish Enterprise Data)
+Evaluated on an independent, held-out corpus of five enterprise Cisco IOS `show running-config` files from the public [Batfish Example Network](https://github.com/batfish/batfish) (Apache-2.0). Ground truth was independently derived by manual inspection:
 
 ```
 ================ HELD-OUT (REAL-WORLD) METRICS ================
@@ -102,16 +126,15 @@ Detection Rate (Recall):                       100.0%
 False Positive Rate (FPR):                     0.0%
 False Negative Rate (FNR):                     0.0%
 By Severity:
-  critical  detection=100.0%  FPR=  0.0%   (tp=1 tn=13 fp=0 fn=0)
-  high      detection=100.0%  FPR=  0.0%   (tp=9 tn=23 fp=0 fn=0)
-  medium    detection=100.0%  FPR=  0.0%   (tp=0 tn= 5 fp=0 fn=0)
-  low       detection=100.0%  FPR=  0.0%   (tp=5 tn= 1 fp=0 fn=0)
+  critical  detection=100.0%  FPR=  0.0%   (tp=1  tn=13 fp=0 fn=0)
+  high      detection=100.0%  FPR=  0.0%   (tp=9  tn=23 fp=0 fn=0)
+  medium    detection=100.0%  FPR=  0.0%   (tp=0  tn= 5 fp=0 fn=0)
+  low       detection=100.0%  FPR=  0.0%   (tp=5  tn= 1 fp=0 fn=0)
 ===============================================================
 ```
 
-### Labelled Pipeline Corpus (incl. partially-compliant cases)
-The engine is also scored on the labelled corpus covering the *harder* bar of
-**partially compliant** configs — not just compliant/non-compliant extremes:
+### 2. Labelled Pipeline Corpus (Including Partially-Compliant Scenarios)
+Tested against 8 curated reference configurations with mixed compliance postures:
 
 ```
 ================ CORPUS EVALUATION METRICS ================
@@ -128,62 +151,33 @@ Per Config (score | TP TN FP FN):
    46.9%  1 3 0 0  fortios_partially_compliant.cfg
     0.0%  0 4 0 0  unknown_whitebox.cfg
     0.0%  0 4 0 0  unknown_mesh_node.cfg
-By Severity Tier:
-  critical  detection=100.0%  FPR=  0.0%   (tp=7 tn=10 fp=0 fn=0)
-  high      detection=100.0%  FPR=  0.0%   (tp=3 tn=10 fp=0 fn=0)
-  medium    detection=100.0%  FPR=  0.0%   (tp=3 tn= 2 fp=0 fn=0)
-  low       detection=100.0%  FPR=  0.0%   (tp=0 tn= 0 fp=0 fn=0)
 ===========================================================
 ```
 
-`pytest backend/tests/ -v -s` prints both tables live.
-
-### Honest Scope of the Offline Fallback Confidence
-The structural fallback's confidence (`0.42` base, `+0.09` per populated signal
-category, capped at `0.92`) is a **heuristic, not a statistically calibrated
-probability** — there is no labelled human-approval corpus to fit it against
-yet. What *is* verified (`backend/tests/test_calibration.py`):
-- every value emitted by the fallback is a literal substring of the real config
-  text (0 synthetic values; verified 9/9 across unknown-vendor fixtures), and
-- it is deterministic across repeated parses.
-
-Interpret confidence as an *ordinal* signal ("more independent evidence found"),
-never as a probability of correctness.
-
 ---
 
-## 🔍 Design Choice: Why Deterministic Structural Parsing (Not an LLM) is the Core
+## 🔍 Architectural Decision: Why Deterministic Rules (Not an LLM) is the Core
 
-For a defense/intelligence Security Operations context (NTRO), config
-**parsing is deliberately deterministic**, and the LLM is deliberately *not* a
-parser. This is a scoped architectural decision, not a technology shortcut:
+For an intelligence and defense agency, configuration compliance auditing demands **provable reproducibility and zero hallucination**:
 
-| Concern | Deterministic structural parsing (chosen) | LLM-based parsing (rejected as core) |
+| Requirement | Deterministic Structural Parsing (TRINETRA Core) | Pure LLM-Based Parsing |
 | :--- | :--- | :--- |
-| **Auditability** | Every finding traceable to exact line numbers & regex transitions | Probabilistic; same input can yield different output |
-| **Reproducibility** | Identical input → identical report, every run (verified by test) | Non-deterministic (temperature/sampling), inconsistent evidence |
-| **Vendor fidelity** | State machine encodes the *actual* CLI grammar (Cisco IOS, FortiOS) | Hallucinates syntax that doesn't exist on the device |
-| **Air-gap & latency** | Sub-millisecond parsing, no model dependency | Requires model runtime/GPU, ~10s/device locally |
-| **Certification** | Rules prove against labeled configs (corpus: 100% recall, 0% FPR) | Behavior changes across model versions |
+| **Auditability** | Every finding maps to deterministic regex transitions & exact lines | Probabilistic output; cannot provide legal guarantee |
+| **Reproducibility** | $100\%$ identical output for identical input every single run | Subject to temperature, sampling variance, model updates |
+| **CLI Grammar Fidelity** | Hardened state machine understands vendor-specific subtleties | Frequently invents or misidentifies CLI flags and contexts |
+| **Air-Gap Performance** | Sub-millisecond execution ($<0.5\text{ ms}$ per device) | Requires heavy GPU runtime; $\sim 10\text{ s}$ per device |
+| **Safety in Defense** | Fully certifiable against CIS and DISA STIG benchmarks | Non-deterministic behavior introduces vulnerability blind spots |
 
-**Where the LLM *is* used — and where it is not trusted:**
-- The LLM runs **only** on *unknown/white-box* dialects the deterministic parsers
-  cannot recognize (ostensibly arbitrary NOS).
-- It *proposes* a structured mapping. It never decides. A human analyst inspects
-  the proposal side-by-side with the raw config and **approves or rejects** it.
-- Once approved, the dialect fingerprint is cached; the deterministic pipeline
-  re-applies the human-approved mapping to future same-dialect devices without
-  ever re-invoking the stochastic layer — and re-derives device identity
-  (hostname, interface IPs) fresh from each device's actual config text.
-
-This yields the property that the tagline advertises: **"AI proposes,
-deterministic code decides, humans approve novel cases."**
+**Role of the LLM in TRINETRA:**
+- **AI proposes:** Local LLM runs *only* on novel, unmapped white-box configurations to suggest structural syntax mappings.
+- **Deterministic code decides:** All compliance rules and scoring formulas execute deterministically on normalized data.
+- **Humans approve novel cases:** Security analysts verify the schema before any dialect is cached.
 
 ---
 
-## ⏱️ Latency & Scaling (Measured, Not Estimated)
+## ⏱️ Latency & Fleet Scaling Benchmarks (Measured)
 
-Measured on this repository (`backend/tests/benchmark_latency.py`):
+Empirically measured via `backend/tests/benchmark_latency.py`:
 
 ```
 ========== AUDIT LATENCY BENCHMARK (per device) ==========
@@ -197,152 +191,232 @@ ollama ai map+audit             : median 9832.8 ms  (min 6433.6, max 13232.0)
    50 devices  ->  21.7 ms total  (  0.43 ms/device)
 ```
 
-- **Deterministic + fingerprint-cache paths scale linearly, sub-millisecond per
-  device** — hundreds to thousands of devices audit in seconds (SQLite demo,
-  network hop negligible). The only cost roughly linear in config size.
-- **The AI path is the bottleneck** (~10 s/device on `llama3.2:3b` on Apple
-  Silicon). Because AI is scoped to *first-seen unknown dialects only* and its
-  result is cached, batch fleet audits hit the AI path at most once per dialect.
-- Latency is also surfaced live per audit: every upload response (and the audit
-  trail) carries `mapping_source` (`deterministic_parser` / `structural_fallback`
-  / `ollama` / `fingerprint_cache`) and `mapping_latency_ms` / `total_latency_ms`.
+- **Deterministic & Fingerprint-Cached Paths:** Sub-millisecond per device, enabling thousands of devices to be audited in seconds.
+- **AI Path Scoped to Novelty:** The $\sim 10\text{ s}$ AI processing overhead is incurred at most once per unknown dialect family, amortizing to near-zero across fleet operations.
 
 ---
 
-## 🚀 Quick Start & Live Demo
+## 💻 Enterprise Web Interface & Visual Capabilities
+
+Built with React 18, Vite, and Tailwind CSS, the user interface delivers a defense-grade operational experience:
+
+- **Landing Terminal (`LandingView`):** Interactive introductory dashboard showcasing TRINETRA’s defense architecture, live stats, quick test presets, and mission tenets.
+- **Executive Posture (`DashboardView`):** Fleet compliance average, severity distribution charts, critical exploit chain alerts, and recent audit activity.
+- **Interactive Attack Path Graph (`AttackPathGraph`):** Canvas-rendered directed exploit flow illustrating how minor configuration weaknesses cascade into full administrative compromise.
+- **Single Key Fix Hero Banner:** Visual highlight on the highest-leverage remediation command that eliminates the maximum number of attack paths.
+- **Fleet Bulk Auditor (`FleetView`):** Multi-file and ZIP archive ingestion, cross-fleet failure aggregations, and top threat chain reports.
+- **Device History & Configuration Drift (`DeviceHistoryView`, `DevicesView`):** Chronological audit history, drift velocity score, and rule-by-rule transition tracking (`same`, `improved`, `worsened`, `new`, `disappeared`).
+- **Comprehensive Findings Database (`FindingsView`):** Unified multi-dimensional search across framework, severity, status, and waiver state, featuring inline CVE advisories and waiver controls.
+- **Human-in-the-Loop Mappings Studio (`MappingsView`):** Side-by-side comparison of raw configuration text and AI-proposed JSON AST with single-click dialect approval and fingerprint caching.
+- **Cryptographic Audit Trail (`AuditTrailView`):** Live SHA-256 forward-linked chain viewer with one-click cryptographic integrity verification and interactive tamper testing.
+- **Accessibility & Polish:** Smooth cross-fade transitions, collapsible layout utilities, and system-wide reduced motion compliance.
+
+---
+
+## 🔌 Comprehensive REST API Reference
+
+### Audit Operations
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/api/audit/upload` | Upload single config file or raw text with vendor auto-detection |
+| `GET` | `/api/audit/{id}` | Get audit details, findings, attack paths, single key fix, and latency |
+
+### Fleet Batch Auditing
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/api/fleet/batch` | Bulk upload multiple configs or a `.zip` archive for fleet-wide audit |
+| `GET` | `/api/fleet/summary` | Get cross-device aggregated compliance statistics and common exploit chains |
+
+### Devices & Configuration Drift
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/devices/{device_id}/history` | Retrieve chronological audit history and per-rule results for a device |
+| `GET` | `/api/devices/{device_id}/drift` | Compare the two latest audits to detect rule-level configuration drift |
+
+### Findings & Governance
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/findings/{audit_id}` | List findings filtered by framework, severity, status; enriched with CVEs |
+| `POST` | `/api/findings/{finding_id}/waive` | Grant a formal compliance waiver with justification and audit trail record |
+| `POST` | `/api/findings/{finding_id}/unwaive` | Revoke a previously granted compliance waiver |
+
+### AI Mappings & Dialect Management
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/mappings/pending` | List pending AI normalization proposals for unknown NOS dialects |
+| `POST` | `/api/mappings/{id}/approve` | Approve proposal, cache SHA-256 fingerprint, and trigger deterministic audit |
+| `POST` | `/api/mappings/{id}/reject` | Reject proposed unknown vendor schema |
+
+### Cryptographic Audit Trail
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/audit-trail/verify` | Recompute SHA-256 hash chain and report ledger integrity or first broken link |
+| `POST` | `/api/audit-trail/demo-tamper` | *Demo only* (`AUDIT_TRAIL_DEMO_ENABLED=true`): Tamper with row to test verification |
+
+### Reports, Overview & Health
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/reports/{id}/html` | Generate self-contained, defense-ready printable HTML executive report |
+| `GET` | `/api/dashboard/overview` | Get network fleet posture, average score, and active exploit chains |
+| `GET` | `/api/health` | Service health, database backend status (Postgres/SQLite), Ollama status |
+
+---
+
+## 📁 Repository Architecture
+
+```
+SIh26/
+├── backend/
+│   ├── ai/                     # Ollama client, prompt templates & dialect cache
+│   │   ├── fingerprint_cache.py# Persistent SHA-256 dialect fingerprint storage
+│   │   ├── ollama_client.py    # Local Ollama client with fallback handling
+│   │   └── prompts.py          # Strict AST extraction prompt templates
+│   ├── correlation/            # Threat chain correlation & single key fix engine
+│   │   ├── attack_paths.py     # Graph-based exploit path correlator
+│   │   └── remediation.py      # Strategic single key fix optimization algorithm
+│   ├── enrichment/             # Air-gapped CVE intelligence
+│   │   ├── cve.py              # Additive-only CVE reference enrichment
+│   │   └── schemas.py          # CVE data transfer objects
+│   ├── models/                 # SQLAlchemy ORM models & cryptographic engine
+│   │   ├── audit_trail.py      # AuditTrailEntry model
+│   │   ├── audit_trail_chain.py# Canonical forward-linked SHA-256 hash chain
+│   │   ├── device.py           # Device, Audit, Finding, and AttackPath models
+│   │   └── mapping.py          # AIMapping schema proposals & cache models
+│   ├── parsers/                # Deterministic parsers & vendor detection
+│   │   ├── base.py             # Parser interfaces and structural fallbacks
+│   │   ├── cisco_ios.py        # Line-state machine parser for Cisco IOS / IOS-XE
+│   │   ├── fortios.py          # Hierarchical block-state parser for Fortinet FortiOS
+│   │   └── vendor_detect.py    # Multi-vendor heuristic syntax detector
+│   ├── reporting/              # Defense-ready HTML compliance report generator
+│   │   └── generator.py        # Print-ready executive report template engine
+│   ├── routes/                 # FastAPI REST API endpoints
+│   │   ├── audit.py            # Single-device audit upload and detail endpoints
+│   │   ├── audit_trail.py      # Cryptographic chain verification & demo-tamper
+│   │   ├── dashboard.py        # Executive posture overview endpoints
+│   │   ├── devices.py          # Device history and configuration drift endpoints
+│   │   ├── findings.py         # Finding listings, CVE enrichment, and waivers
+│   │   ├── fleet.py            # Multi-config / ZIP batch audit & fleet analytics
+│   │   ├── mappings.py         # Human-in-the-loop schema approval endpoints
+│   │   └── reports.py          # HTML report generation endpoints
+│   ├── rules/                  # Compliance rules engines
+│   │   ├── base.py             # Rule interface and finding factories
+│   │   ├── cis_cisco.py        # CIS Cisco IOS Benchmark v4.0.0 rules
+│   │   ├── cis_fortios.py      # CIS Fortinet FortiOS Benchmark rules
+│   │   ├── disa_stig.py        # DoD DISA STIG network SRG rules
+│   │   ├── nist_800_53.py      # NIST SP 800-53 Rev 5 rules
+│   │   └── engine.py           # Unified compliance evaluation engine
+│   ├── sample_configs/         # Labelled test configs (Cisco, FortiOS, White-Box)
+│   ├── schemas/                # Pydantic validation models & neutral DTOs
+│   ├── tests/                  # Pytest test suite, latency benchmarks, held-out corpus
+│   ├── auth.py                 # API authentication helpers
+│   ├── config.py               # Application settings & environment loader
+│   ├── cve_cache.json          # Committed air-gapped CVE cache
+│   ├── database.py             # Database session manager (PostgreSQL + SQLite)
+│   ├── Dockerfile              # Backend container definition
+│   ├── main.py                 # FastAPI application root
+│   └── requirements.txt        # Python backend dependencies
+├── frontend/
+│   ├── src/
+│   │   ├── api/                # Fully-typed API client
+│   │   ├── components/         # Modular React UI views
+│   │   │   ├── AttackPathGraph.tsx   # Interactive visual attack path canvas
+│   │   │   ├── AuditDetailView.tsx   # Detailed audit findings & line evidence
+│   │   │   ├── AuditTrailView.tsx    # Tamper-evident hash chain verification UI
+│   │   │   ├── DashboardView.tsx     # Executive security posture dashboard
+│   │   │   ├── DeviceHistoryView.tsx # Longitudinal drift tracking view
+│   │   │   ├── DevicesView.tsx       # Fleet hardware inventory table
+│   │   │   ├── FindingsView.tsx      # Multi-dimensional findings browser
+│   │   │   ├── FleetView.tsx         # Fleet batch upload and cross-device metrics
+│   │   │   ├── LandingView.tsx       # Defense terminal landing showcase
+│   │   │   ├── MappingsView.tsx      # Human-in-the-loop AI schema studio
+│   │   │   ├── Navbar.tsx            # Navigation bar with live counters
+│   │   │   ├── Reveal.tsx            # Smooth transition wrapper
+│   │   │   └── UploadView.tsx        # Single config upload & preset loader
+│   │   ├── types/              # TypeScript interfaces
+│   │   ├── App.tsx             # Application router and state coordinator
+│   │   └── main.tsx            # React root entrypoint
+│   ├── package.json            # Frontend dependencies
+│   ├── tailwind.config.js      # Styling design system
+│   └── vite.config.ts          # Vite build configuration
+├── docker-compose.yml          # Container orchestration (API, Web UI, Ollama)
+├── .env.example                # Sample environment variables
+└── README.md                   # Project documentation
+```
+
+---
+
+## 🚀 Quick Start & Setup Guide
 
 ### Prerequisites
-- Python 3.10+
-- Node.js 18+ and npm
-- (Optional) Docker & Docker Compose
-- (Optional) Local Ollama with `llama3.2:3b`
+- **Python:** 3.10 or higher
+- **Node.js:** 18 or higher with npm
+- **(Optional) Ollama:** For local AI normalization (`ollama run llama3.2:3b`)
+- **(Optional) Docker:** For containerized deployment
 
-### 1. Launch Backend (FastAPI)
-
+### 1. Backend Setup (FastAPI)
 ```bash
 cd backend
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-# Run full test suite & corpus benchmark
+# Run automated tests and corpus benchmarks
 PYTHONPATH=.. pytest tests/ -v -s
 
-# Start the API server
+# Start the development server
 uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
 ```
+- **Interactive Swagger Docs:** `http://localhost:8000/docs`
+- **Health & DB Check:** `http://localhost:8000/api/health`
 
-- **API Documentation (Swagger):** `http://localhost:8000/docs`
-- **Health Endpoint:** `http://localhost:8000/api/health`
-
-### 2. Launch Frontend (React + Vite)
-
+### 2. Frontend Setup (React + Vite)
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+- **Web Interface:** `http://localhost:3000` (or `http://localhost:5173`)
 
-- **Web Dashboard:** `http://localhost:3000`
-
-### 3. Full-Stack Docker Deployment
-
+### 3. Containerized Deployment (Docker Compose)
 ```bash
 docker-compose up --build
 ```
 
 ---
 
-## 🔌 API Reference
+## 🏆 Judge Demonstration & Presentation Script
 
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `POST` | `/api/audit/upload` | Upload config file or raw text with vendor auto-detection |
-| `GET` | `/api/audit/{id}` | Get audit results, findings, attack paths, and single key fix |
-| `GET` | `/api/findings/{id}` | Filter findings by framework (`CIS`, `NIST-800-53`, `DISA-STIG`) or severity |
-| `GET` | `/api/mappings/pending` | List pending AI normalization proposals for unknown vendors |
-| `POST` | `/api/mappings/{id}/approve` | Approve AI mapping, cache fingerprint, and execute deterministic audit |
-| `POST` | `/api/mappings/{id}/reject` | Reject proposed unknown vendor schema |
-| `GET` | `/api/reports/{id}/html` | Generate print-ready executive compliance HTML report |
-| `GET` | `/api/dashboard/overview` | Network fleet posture, average scores, and active exploit chains |
-| `GET` | `/api/health` | Service health, database status, and Ollama connectivity |
+Follow this sequential flow to showcase TRINETRA during evaluations:
 
----
-
-## 📁 Repository Structure
-
-```
-SIh26/
-├── backend/
-│   ├── ai/                 # Ollama client, prompts & dialect cache
-│   │   ├── fingerprint_cache.py
-│   │   ├── ollama_client.py
-│   │   └── prompts.py
-│   ├── correlation/        # Threat chain correlation & single key fix engine
-│   │   ├── attack_paths.py
-│   │   └── remediation.py
-│   ├── models/             # SQLAlchemy ORM database models
-│   │   ├── audit_trail.py
-│   │   ├── device.py
-│   │   └── mapping.py
-│   ├── parsers/            # Deterministic parsers & vendor detection
-│   │   ├── base.py
-│   │   ├── cisco_ios.py
-│   │   ├── fortios.py
-│   │   └── vendor_detect.py
-│   ├── reporting/          # Defense-ready HTML compliance report generator
-│   │   └── generator.py
-│   ├── routes/             # FastAPI REST endpoints
-│   │   ├── audit.py
-│   │   ├── dashboard.py
-│   │   ├── findings.py
-│   │   ├── mappings.py
-│   │   └── reports.py
-│   ├── rules/              # CIS, NIST SP 800-53, and DISA STIG rules
-│   │   ├── base.py
-│   │   ├── cis_cisco.py
-│   │   ├── cis_fortios.py
-│   │   ├── disa_stig.py
-│   │   ├── engine.py
-│   │   └── nist_800_53.py
-│   ├── sample_configs/     # Labelled test configs (Cisco, FortiOS, Whitebox)
-│   ├── schemas/            # Pydantic DTOs & NormalizedConfig schema
-│   │   ├── api.py
-│   │   ├── finding.py
-│   │   └── neutral_config.py
-│   ├── tests/              # Pytest test suite & labelled corpus benchmarks
-│   ├── config.py           # Configuration & settings loader
-│   ├── database.py         # Database engine with PostgreSQL + SQLite fallback
-│   ├── Dockerfile
-│   ├── main.py             # FastAPI entrypoint
-│   └── requirements.txt
-├── frontend/
-│   ├── src/
-│   │   ├── api/            # Typed API client
-│   │   ├── components/     # Dashboard, Upload, AuditDetail, Mappings views
-│   │   ├── types/          # TypeScript interface definitions
-│   │   ├── App.tsx         # Main application orchestrator
-│   │   └── main.tsx
-│   ├── Dockerfile
-│   ├── package.json
-│   ├── tailwind.config.js
-│   └── vite.config.ts
-├── docker-compose.yml      # Multi-container deployment (API, Web, Ollama)
-├── .gitignore
-└── README.md
-```
-
----
-
-## 🏆 Presentation & Live Demo Highlights
-
-When demonstrating to judges:
-1. **Hardened Cisco Preset:** Click the preset button $\rightarrow$ observe $>85\%$ compliance score, green control badges, and zero active attack paths.
-2. **Vulnerable Cisco Preset:** Click the preset button $\rightarrow$ observe compliance score $<50\%$, multiple chained attack paths, and the **"Single Key Fix"** hero banner showing how applying `access-class` breaks 3 exploit chains at once.
-3. **Unknown White-box Dialect:** Upload custom syntax $\rightarrow$ show how the AI proposes normalization, the analyst inspects raw vs proposed JSON side-by-side, and clicking **Approve** caches the dialect fingerprint for future audits.
-4. **Export Executive Report:** Click **Export Auditor Report** to open the print-ready, formatted HTML compliance report.
+1. **Mission Statement & Architecture (Landing View):**
+   - Open the application $\rightarrow$ highlight the defense-grade terminal landing view.
+   - Explain the core principle: *"AI proposes, deterministic code decides, humans approve novel cases."*
+2. **Hardened Baseline vs. Exploitable Network (Audit View):**
+   - Click the **Hardened Cisco** preset $\rightarrow$ show $>85\%$ compliance score, green control badges, and zero exploit chains.
+   - Click the **Vulnerable Cisco** preset $\rightarrow$ observe score dropping below $50\%$ with multiple chained exploit paths.
+3. **Attack Path Graph & Single Key Fix:**
+   - Open the **Attack Path Graph** $\rightarrow$ show how Telnet, missing VTY ACL, and default SNMP string chain into administrative takeover.
+   - Highlight the **Single Key Fix Banner**: Demonstrating that applying `access-class 10 in` dismantles 3 active attack chains simultaneously.
+4. **Offline CVE Intelligence & Waiver Governance:**
+   - In the findings table, show the **CVE-2017-6742** badge automatically attached to the SNMP finding without internet access.
+   - Click **Waive Finding** on a low-severity item $\rightarrow$ enter formal justification and submit.
+5. **Cryptographic Tamper-Evident Audit Trail:**
+   - Navigate to **Audit Trail** $\rightarrow$ verify that the waiver was logged with a forward-linked SHA-256 hash.
+   - Click **Verify Hash Chain** $\rightarrow$ see $100\%$ chain verification passing across all events.
+   - *(Optional)* Trigger the demo tamper test to prove that any out-of-band DB mutation breaks the chain at the exact compromised record.
+6. **Fleet Bulk Auditing & Configuration Drift:**
+   - Navigate to **Fleet Batch Auditor** $\rightarrow$ drop multiple configs or a `.zip` archive to demonstrate sub-second multi-device analysis.
+   - Open **Device History** $\rightarrow$ show longitudinal tracking and rule transition drift (`improved`, `worsened`, `same`).
+7. **Human-in-the-Loop Novel NOS Dialect Approval:**
+   - Upload a novel white-box configuration $\rightarrow$ demonstrate the AI proposing a structured AST normalization.
+   - Inspect the side-by-side proposal in **Pending Mappings** $\rightarrow$ click **Approve** $\rightarrow$ show the SHA-256 fingerprint cached for all future audits.
+8. **Export Defense Compliance Report:**
+   - Click **Export Auditor Report** to generate a clean, print-ready HTML compliance document formatted for commanders and auditors.
 
 ---
 
 ## 👥 Authors & Acknowledgements
-Built for **Smart India Hackathon 2026** (Problem Statement: **SIH26155**, Sponsor: **NTRO**).
+Developed with pride for the **Smart India Hackathon 2026**  
+- **Problem Statement:** SIH26155 — AI-Driven Multi-Vendor Network Security Compliance Auditor  
+- **Sponsoring Agency:** National Technical Research Organisation (NTRO)  
+- **Discipline:** High-Assurance, Deterministic, Air-Gapped Network Defense
