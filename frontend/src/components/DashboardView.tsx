@@ -238,12 +238,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* ============ VIOLATIONS MATRIX + RECENT AUDITS (dense data: no decoration) ============ */}
       <section className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         <div className="lg:col-span-7">
-          <Reveal>
-            <div className="mb-6">
-              <div className="kicker mb-2">Sorted by severity</div>
-              <h2 className="section-title">Critical &amp; compliance violations</h2>
-            </div>
-            <div className="card p-2 sm:p-4 overflow-x-auto">
+          <div className="mb-6">
+            <div className="kicker mb-2">Sorted by severity</div>
+            <h2 className="section-title">Critical &amp; compliance violations</h2>
+          </div>
+          <div className="card p-2 sm:p-4 overflow-x-auto">
               <table className="data-table min-w-[640px]">
                 <thead>
                   <tr>
