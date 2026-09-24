@@ -6,62 +6,68 @@ from backend.rules.engine import engine
 from backend.ai.structural_fallback import extract_structural_mapping
 from backend.ai.fingerprint_cache import build_normalized_config_from_mapping
 
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_SAMPLE_CONFIGS = os.path.join(_HERE, "..", "sample_configs")
+
+def _cfg(name):
+    return os.path.join(_SAMPLE_CONFIGS, name)
+
 def _whitebox_builder(content, filename):
     proposal = extract_structural_mapping(content)
     return build_normalized_config_from_mapping(proposal, content, filename)
 
 LABELLED_CORPUS = [
     {
-        "file": "backend/sample_configs/cisco_compliant.cfg",
+        "file": _cfg("cisco_compliant.cfg"),
         "vendor": "cisco_ios",
         "expected_posture": "compliant",
         "must_pass": ["CIS-CISCO-1.1.1", "CIS-CISCO-1.1.6", "CIS-CISCO-1.4.1", "CIS-CISCO-1.1.7"],
         "must_fail": []
     },
     {
-        "file": "backend/sample_configs/cisco_non_compliant.cfg",
+        "file": _cfg("cisco_non_compliant.cfg"),
         "vendor": "cisco_ios",
         "expected_posture": "non_compliant",
         "must_pass": [],
         "must_fail": ["CIS-CISCO-1.1.1", "CIS-CISCO-1.1.6", "CIS-CISCO-1.4.1", "CIS-CISCO-1.2.1"]
     },
     {
-        "file": "backend/sample_configs/cisco_partially_compliant.cfg",
+        "file": _cfg("cisco_partially_compliant.cfg"),
         "vendor": "cisco_ios",
         "expected_posture": "partially_compliant",
         "must_pass": ["CIS-CISCO-1.1.1", "CIS-CISCO-1.1.2", "CIS-CISCO-1.1.3", "CIS-CISCO-1.3.1", "CIS-CISCO-1.5.1"],
         "must_fail": ["CIS-CISCO-1.1.6", "CIS-CISCO-1.1.8", "CIS-CISCO-1.4.1", "CIS-CISCO-1.4.2"]
     },
     {
-        "file": "backend/sample_configs/fortios_compliant.cfg",
+        "file": _cfg("fortios_compliant.cfg"),
         "vendor": "fortios",
         "expected_posture": "compliant",
         "must_pass": ["CIS-FORTI-1.1.1", "CIS-FORTI-1.1.2", "CIS-FORTI-1.3.1"],
         "must_fail": []
     },
     {
-        "file": "backend/sample_configs/fortios_non_compliant.cfg",
+        "file": _cfg("fortios_non_compliant.cfg"),
         "vendor": "fortios",
         "expected_posture": "non_compliant",
         "must_pass": [],
         "must_fail": ["CIS-FORTI-1.1.1", "CIS-FORTI-1.1.2", "CIS-FORTI-1.3.1"]
     },
     {
-        "file": "backend/sample_configs/fortios_partially_compliant.cfg",
+        "file": _cfg("fortios_partially_compliant.cfg"),
         "vendor": "fortios",
         "expected_posture": "partially_compliant",
         "must_pass": ["CIS-FORTI-1.1.2"],
         "must_fail": ["CIS-FORTI-1.1.1", "CIS-FORTI-1.1.3", "CIS-FORTI-1.3.1"]
     },
     {
-        "file": "backend/sample_configs/unknown_whitebox.cfg",
+        "file": _cfg("unknown_whitebox.cfg"),
         "vendor": "whitebox_fallback",
         "expected_posture": "non_compliant",
         "must_pass": [],
         "must_fail": ["NIST-AC-17", "NIST-AC-3", "NIST-IA-5", "NIST-AU-2"]
     },
     {
-        "file": "backend/sample_configs/unknown_mesh_node.cfg",
+        "file": _cfg("unknown_mesh_node.cfg"),
         "vendor": "whitebox_fallback",
         "expected_posture": "non_compliant",
         "must_pass": [],
@@ -150,7 +156,7 @@ def test_labelled_corpus_evaluation():
 
 def test_structural_fallback_is_derived_from_input():
     """Two distinct unknown-vendor configs must yield distinct real values (not fixed sample data)."""
-    cfg_a = open("backend/sample_configs/unknown_whitebox.cfg").read()
+    cfg_a = open(_cfg("unknown_whitebox.cfg")).read()
     cfg_b = cfg_a.replace("172.16.10.1", "192.168.200.7").replace("admin", "operator").replace("telnet", "ssh")
 
     m_a = extract_structural_mapping(cfg_a)

@@ -1,10 +1,15 @@
+import os
+
 from backend.parsers.cisco_ios import CiscoIOSParser
 from backend.rules.engine import engine
 from backend.correlation.attack_paths import correlate_attack_paths
 from backend.correlation.remediation import compute_single_key_fix
 
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_SAMPLE_CONFIGS = os.path.join(_HERE, "..", "sample_configs")
+
 def test_attack_path_correlation():
-    with open("backend/sample_configs/cisco_non_compliant.cfg") as f:
+    with open(os.path.join(_SAMPLE_CONFIGS, "cisco_non_compliant.cfg")) as f:
         content = f.read()
 
     parser = CiscoIOSParser()

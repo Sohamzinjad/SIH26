@@ -1,8 +1,13 @@
+import os
+
 from backend.parsers.cisco_ios import CiscoIOSParser
 from backend.rules.engine import engine
 
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_SAMPLE_CONFIGS = os.path.join(_HERE, "..", "sample_configs")
+
 def test_hardened_cisco_high_score():
-    with open("backend/sample_configs/cisco_compliant.cfg") as f:
+    with open(os.path.join(_SAMPLE_CONFIGS, "cisco_compliant.cfg")) as f:
         content = f.read()
 
     parser = CiscoIOSParser()
@@ -14,7 +19,7 @@ def test_hardened_cisco_high_score():
     assert total_cnt >= 25
 
 def test_vulnerable_cisco_low_score():
-    with open("backend/sample_configs/cisco_non_compliant.cfg") as f:
+    with open(os.path.join(_SAMPLE_CONFIGS, "cisco_non_compliant.cfg")) as f:
         content = f.read()
 
     parser = CiscoIOSParser()

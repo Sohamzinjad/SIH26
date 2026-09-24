@@ -19,8 +19,8 @@ from backend.ai.ollama_client import ollama_client, extract_structural_mapping
 from backend.ai.fingerprint_cache import build_normalized_config_from_mapping
 
 ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
-CISCO = os.path.join(ROOT, "backend/sample_configs/heldout/as1border1.cfg")
-UNKNOWN = os.path.join(ROOT, "backend/sample_configs/unknown_whitebox.cfg")
+CISCO = os.path.join(ROOT, "backend", "sample_configs", "heldout", "as1border1.cfg")
+UNKNOWN = os.path.join(ROOT, "backend", "sample_configs", "unknown_whitebox.cfg")
 OLLAMA = ollama_client.is_available()
 
 

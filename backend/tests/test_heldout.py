@@ -203,7 +203,8 @@ def test_dialect_cache_does_not_reuse_device_identity():
     """Two devices sharing a structural dialect (same fingerprint) must NOT
     inherit the first device's cached hostname/IPs. Cache supplies approved
     semantics; value-bearing fields come fresh from the current config."""
-    base = open("backend/sample_configs/unknown_mesh_node.cfg").read()
+    base = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                             "..", "sample_configs", "unknown_mesh_node.cfg")).read()
     variant = (base.replace("BRANCH-MESH-09", "BRANCH-LAB-77")
                    .replace("10.88.0.14", "10.99.0.17"))
 
