@@ -11,9 +11,13 @@ We explicitly do NOT claim the confidence magnitude (0.42..0.92) is calibrated
 against analyst approval rates — no such labelled corpus exists yet.
 """
 import glob
+import os
 from backend.ai.structural_fallback import extract_structural_mapping
 
-UNKNOWN_CONFIGS = sorted(glob.glob("backend/sample_configs/unknown_*.cfg"))
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_SAMPLE_CONFIGS = os.path.join(_HERE, "..", "sample_configs")
+
+UNKNOWN_CONFIGS = sorted(glob.glob(os.path.join(_SAMPLE_CONFIGS, "unknown_*.cfg")))
 assert UNKNOWN_CONFIGS, "no unknown-vendor configs found for calibration probe"
 
 
