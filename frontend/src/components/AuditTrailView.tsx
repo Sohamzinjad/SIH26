@@ -65,15 +65,15 @@ export const AuditTrailView: React.FC = () => {
       </div>
 
       {error && (
-        <div className="banner banner-error">{error}</div>
+        <div className="banner border border-white/30 bg-surface-2 text-ink font-mono text-xs">{error}</div>
       )}
 
-      {/* Verification Status Card — actions are flat & immediate (no motion) */}
-      <div className="card p-6 sm:p-8 space-y-6">
+      {/* Verification Status Card */}
+      <div className="card p-6 sm:p-8 space-y-6 border border-white/20">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/10 pb-5">
           <div className="flex items-center gap-4">
-            <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${
-              verified ? 'bg-[#067647] text-white' : 'bg-[#D92D20] text-white'
+            <div className={`flex h-12 w-12 items-center justify-center rounded-md border ${
+              verified ? 'bg-surface-3 border-white/40 text-white' : 'bg-white text-black border-white'
             }`}>
               {verified ? <ShieldCheck className="w-6 h-6" /> : <ShieldAlert className="w-6 h-6" />}
             </div>
@@ -91,7 +91,7 @@ export const AuditTrailView: React.FC = () => {
             <button
               onClick={verify}
               disabled={loading}
-              className="btn btn-primary"
+              className="btn btn-solid"
             >
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
               Verify chain
@@ -110,26 +110,26 @@ export const AuditTrailView: React.FC = () => {
         {/* Verification Summary Details */}
         {result && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
-            <div className="rounded-2xl bg-surface-2 border border-white/10 p-4">
-              <div className="font-mono text-[10px] uppercase tracking-wider text-faint">Status</div>
+            <div className="rounded-md bg-surface-2 border border-white/20 p-4">
+              <div className="font-mono text-[10px] uppercase tracking-wider text-muted">Status</div>
               <div className={`flex items-center gap-1.5 font-bold text-[16px] mt-1 ${
-                verified ? 'text-ok' : 'text-crit'
+                verified ? 'text-white' : 'text-ink'
               }`}>
                 {verified ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
                 {verified ? 'PASS (100% intact)' : 'TAMPERED'}
               </div>
             </div>
 
-            <div className="rounded-2xl bg-surface-2 border border-white/10 p-4">
-              <div className="font-mono text-[10px] uppercase tracking-wider text-faint">Entries checked</div>
+            <div className="rounded-md bg-surface-2 border border-white/20 p-4">
+              <div className="font-mono text-[10px] uppercase tracking-wider text-muted">Entries checked</div>
               <div className="font-display font-bold text-[22px] text-ink mt-1">{result.total_entries}</div>
             </div>
 
-            <div className="rounded-2xl bg-surface-2 border border-white/10 p-4">
-              <div className="font-mono text-[10px] uppercase tracking-wider text-faint">Broken entry ID</div>
-              <div className="font-display font-bold text-[22px] mt-1 ${
-                result.first_broken_entry_id != null ? 'text-crit' : 'text-ok'
-              }">
+            <div className="rounded-md bg-surface-2 border border-white/20 p-4">
+              <div className="font-mono text-[10px] uppercase tracking-wider text-muted">Broken entry ID</div>
+              <div className={`font-display font-bold text-[22px] mt-1 ${
+                result.first_broken_entry_id != null ? 'text-ink font-mono' : 'text-muted'
+              }`}>
                 {result.first_broken_entry_id ?? 'None'}
               </div>
             </div>

@@ -187,21 +187,18 @@ export const App: React.FC = () => {
             )}
 
             {(currentTab === 'reports' || currentTab === 'settings') && (
-              <div className="relative card overflow-hidden p-10 text-center max-w-2xl mx-auto mt-8">
-                {/* Decorative shapes allowed in empty states only */}
-                <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
-                  <div className="orb orb-violet orb-drift-a -top-16 -left-12 h-48 w-48 opacity-60" />
-                  <div className="orb orb-indigo orb-drift-b -bottom-20 -right-14 h-56 w-56 opacity-50" />
-                </div>
-                <div className="relative z-10 space-y-4">
-                  <Shield className="w-10 h-10 text-accent-hover mx-auto" />
-                  <h2 className="section-title uppercase tracking-wide">
+              <div className="card p-10 text-center max-w-xl mx-auto mt-12 border border-white/15 bg-[#121215]">
+                <div className="space-y-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-md border border-white/20 bg-black mx-auto">
+                    <Shield className="w-6 h-6 text-white" />
+                  </div>
+                  <h2 className="text-lg font-bold tracking-tight text-white uppercase">
                     TRINETRA {currentTab.toUpperCase()} Module
                   </h2>
-                  <p className="text-body text-muted max-w-md mx-auto">
+                  <p className="text-xs text-[#a1a1aa] max-w-md mx-auto leading-relaxed">
                     Deterministic compliance auditing active for CIS Cisco, FortiOS, NIST SP 800-53 and DISA STIG benchmarks.
                   </p>
-                  <button onClick={() => setCurrentTab('dashboard')} className="btn btn-solid">
+                  <button onClick={() => setCurrentTab('dashboard')} className="btn btn-primary btn-sm">
                     &larr; Return to Dashboard
                   </button>
                 </div>
@@ -210,23 +207,23 @@ export const App: React.FC = () => {
           </div>
         </main>
 
-        <footer className="border-t border-white/10 bg-[#0c0c0e] py-6 px-6">
+        <footer className="border-t border-white/10 bg-[#09090b] py-5 px-6">
           <div className="max-w-[1440px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center space-x-3">
-              <Lock className="w-3.5 h-3.5 text-[#4ade80]" />
-              <span className="font-display font-bold text-sm tracking-[0.14em] text-ink uppercase">TRINETRA Defense Engine</span>
-              <span className="text-faint">&bull;</span>
-              <span className="font-mono text-[11px] text-faint">
+              <Lock className="w-3.5 h-3.5 text-white" />
+              <span className="font-sans font-bold text-xs tracking-[0.14em] text-white uppercase">TRINETRA Defense Engine</span>
+              <span className="text-[#71717a]">&bull;</span>
+              <span className="font-mono text-[11px] text-[#71717a]">
                 Air-Gapped High Assurance Compliance &amp; Threat Intelligence
               </span>
             </div>
 
             <div className="flex items-center space-x-6 font-mono text-[11px]">
-              <div className="flex items-center space-x-1.5 text-[#4ade80] font-bold">
-                <span className="w-2 h-2 rounded-full bg-[#4ade80]"></span>
-                <span>FOR A SAFER TOMORROW</span>
+              <div className="flex items-center space-x-2 text-white font-bold">
+                <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
+                <span className="tracking-wider">SECURE ASSURANCE ACTIVE</span>
               </div>
-              <span className="text-faint">v0.1.0-defense</span>
+              <span className="text-[#71717a]">v0.1.0-defense</span>
             </div>
           </div>
         </footer>

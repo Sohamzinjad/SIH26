@@ -47,14 +47,14 @@ export const DevicesView: React.FC<DevicesViewProps> = ({ onSelectAudit, onViewD
   if (loading) {
     return (
       <div className="flex flex-col justify-center items-center h-96 space-y-4">
-        <div className="h-10 w-10 rounded-full border-4 border-accent border-t-transparent animate-spin"></div>
-        <p className="font-mono text-xs text-faint tracking-[0.18em] uppercase">Loading infrastructure devices…</p>
+        <div className="h-10 w-10 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
+        <p className="font-mono text-xs text-muted tracking-[0.18em] uppercase">Loading infrastructure devices…</p>
       </div>
     );
   }
 
   const scoreCls = (score: number) =>
-    score >= 80 ? 'text-ok' : score >= 60 ? 'text-high' : 'text-crit';
+    score >= 80 ? 'text-white font-mono font-bold' : score >= 60 ? 'text-white font-mono' : 'text-muted font-mono';
 
   return (
     <div className="space-y-10 pb-16">
@@ -75,7 +75,7 @@ export const DevicesView: React.FC<DevicesViewProps> = ({ onSelectAudit, onViewD
       </Reveal>
 
       {/* Controls */}
-      <div className="card p-4 sm:p-5 space-y-4">
+      <div className="card p-4 sm:p-5 space-y-4 border border-white/20">
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
               <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-faint" />
@@ -117,9 +117,9 @@ export const DevicesView: React.FC<DevicesViewProps> = ({ onSelectAudit, onViewD
               <tbody>
                 {filteredAudits.map((a) => (
                   <tr key={a.id} className="row-hover">
-                    <td className="font-semibold">{a.hostname}</td>
+                    <td className="font-semibold text-ink">{a.hostname}</td>
                     <td>
-                      <span className="badge badge-neutral uppercase">{a.vendor}</span>
+                      <span className="badge badge-neutral uppercase font-mono">{a.vendor}</span>
                     </td>
                     <td>
                       {a.status === 'COMPLETED' ? (
@@ -128,12 +128,12 @@ export const DevicesView: React.FC<DevicesViewProps> = ({ onSelectAudit, onViewD
                         <span className="badge badge-pending">{a.status}</span>
                       )}
                     </td>
-                    <td className={`font-bold ${scoreCls(a.score)}`}>{a.score.toFixed(1)}%</td>
-                    <td className="text-muted">{a.pass_count} / {a.total_count}</td>
+                    <td className={scoreCls(a.score)}>{a.score.toFixed(1)}%</td>
+                    <td className="text-muted font-mono">{a.pass_count} / {a.total_count}</td>
                     <td className="text-right space-x-3">
                       <button
                         onClick={() => onSelectAudit(a.id)}
-                        className="text-[12px] font-semibold text-accent-hover hover:text-white inline-flex items-center gap-1"
+                        className="text-[12px] font-mono font-semibold text-white hover:underline inline-flex items-center gap-1"
                       >
                         <Eye className="w-3.5 h-3.5" />
                         Inspect
@@ -142,7 +142,7 @@ export const DevicesView: React.FC<DevicesViewProps> = ({ onSelectAudit, onViewD
                       {a.device_id && (
                         <button
                           onClick={() => onViewDeviceHistory(a.device_id!)}
-                          className="text-[12px] font-semibold text-muted hover:text-white inline-flex items-center gap-1"
+                          className="text-[12px] font-mono font-semibold text-muted hover:text-white inline-flex items-center gap-1"
                         >
                           <History className="w-3.5 h-3.5" />
                           Drift &amp; History

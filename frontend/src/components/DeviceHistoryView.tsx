@@ -23,10 +23,10 @@ interface DeviceHistoryViewProps {
 
 const DELTA_STYLE: Record<string, { label: string; cls: string; Icon: any }> = {
   same: { label: 'SAME', cls: 'border-white/15 bg-surface-3 text-muted', Icon: Minus },
-  improved: { label: 'IMPROVED', cls: 'border-[#067647] bg-[#067647]/15 text-ok', Icon: ArrowUpRight },
-  worsened: { label: 'WORSENED', cls: 'border-[#D92D20]/60 bg-[#D92D20]/15 text-crit', Icon: ArrowDownRight },
-  new: { label: 'NEW', cls: 'border-high/70 bg-high/15 text-high', Icon: Plus },
-  disappeared: { label: 'GONE', cls: 'border-med/70 bg-med/15 text-med', Icon: CornerDownRight },
+  improved: { label: 'IMPROVED', cls: 'border-white/40 bg-surface-3 text-white', Icon: ArrowUpRight },
+  worsened: { label: 'WORSENED', cls: 'border-white bg-white text-black font-bold', Icon: ArrowDownRight },
+  new: { label: 'NEW', cls: 'border-white/30 bg-surface-2 text-white', Icon: Plus },
+  disappeared: { label: 'GONE', cls: 'border-white/20 bg-surface-2 text-muted', Icon: CornerDownRight },
 };
 
 export const DeviceHistoryView: React.FC<DeviceHistoryViewProps> = ({ deviceId, onSelectAudit, onBack }) => {
@@ -60,17 +60,17 @@ export const DeviceHistoryView: React.FC<DeviceHistoryViewProps> = ({ deviceId, 
   if (loading) {
     return (
       <div className="flex flex-col justify-center items-center h-96 space-y-4">
-        <Loader2 className="w-10 h-10 text-ok animate-spin" />
-        <p className="text-xs text-faint font-mono tracking-[0.18em] uppercase">Loading device history &amp; drift…</p>
+        <div className="h-10 w-10 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
+        <p className="text-xs text-muted font-mono tracking-[0.18em] uppercase">Loading device history &amp; drift…</p>
       </div>
     );
   }
 
   if (error || !history) {
     return (
-      <div className="p-8 text-center text-crit bg-crit/10 border border-crit/40 rounded-2xl max-w-xl mx-auto space-y-3">
-        <AlertTriangle className="w-8 h-8 mx-auto text-crit" />
-        <p className="font-semibold text-sm">{error || 'Device not found'}</p>
+      <div className="p-8 text-center bg-surface-2 border border-white/30 rounded-lg max-w-xl mx-auto space-y-3">
+        <AlertTriangle className="w-8 h-8 mx-auto text-ink" />
+        <p className="font-semibold text-sm text-ink">{error || 'Device not found'}</p>
         {onBack && (
           <button onClick={onBack} className="btn btn-ghost">
             &larr; Back
@@ -82,7 +82,6 @@ export const DeviceHistoryView: React.FC<DeviceHistoryViewProps> = ({ deviceId, 
 
   const audits = history.audits;
   const comparable = drift?.comparable ?? false;
-  const counts = drift || null;
 
   return (
     <div className="space-y-10 pb-16">
@@ -104,10 +103,10 @@ export const DeviceHistoryView: React.FC<DeviceHistoryViewProps> = ({ deviceId, 
             <span>/</span>
             <span className="text-ink">{history.hostname}</span>
             <span>/</span>
-            <span className="text-ok">history &amp; drift</span>
+            <span className="text-white">history &amp; drift</span>
           </div>
           <h1 className="font-display font-bold text-h1 tracking-tight text-ink flex items-center gap-2.5">
-            <History className="w-5 h-5 text-ok" />
+            <History className="w-5 h-5 text-white" />
             {history.hostname}
           </h1>
           <p className="text-caption text-muted mt-2 font-mono">
@@ -118,10 +117,10 @@ export const DeviceHistoryView: React.FC<DeviceHistoryViewProps> = ({ deviceId, 
       </div>
 
       {/* Drift Card */}
-      <div className="card overflow-hidden">
-        <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
+      <div className="card overflow-hidden border border-white/20">
+        <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-surface-2">
           <h2 className="font-display font-semibold text-ink flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-ok" /> Drift Between Recent Audits
+            <ShieldCheck className="w-4 h-4 text-white" /> Drift Between Recent Audits
           </h2>
         </div>
 
@@ -137,34 +136,32 @@ export const DeviceHistoryView: React.FC<DeviceHistoryViewProps> = ({ deviceId, 
         ) : (
           <div className="p-6 space-y-6">
             <div className="grid grid-cols-2 sm:grid-cols-6 gap-3">
-              <div className="rounded-xl bg-surface-2 border border-white/10 p-3.5">
-                <div className="font-mono text-[10px] uppercase tracking-wider text-faint font-semibold">Drift Score</div>
-                <div className={`font-display font-bold text-2xl mt-1 ${
-                  (drift!.drift_score ?? 0) >= 0 ? 'text-ok' : 'text-crit'
-                }`}>
+              <div className="rounded bg-surface-2 border border-white/20 p-3.5">
+                <div className="font-mono text-[10px] uppercase tracking-wider text-muted font-semibold">Drift Score</div>
+                <div className="font-display font-bold text-2xl mt-1 text-white">
                   {drift!.drift_score}{drift!.drift_score >= 0 ? '+' : ''}
                 </div>
                 <div className="text-[10px] text-faint mt-0.5">improved vs worsened</div>
               </div>
-              <div className="rounded-xl bg-surface-2 border border-white/10 p-3.5">
-                <div className="font-mono text-[10px] uppercase tracking-wider text-faint font-semibold">Same</div>
+              <div className="rounded bg-surface-2 border border-white/10 p-3.5">
+                <div className="font-mono text-[10px] uppercase tracking-wider text-muted font-semibold">Same</div>
                 <div className="font-display font-bold text-xl text-ink mt-1">{drift!.same_count}</div>
               </div>
-              <div className="rounded-xl bg-surface-2 border border-white/10 p-3.5">
-                <div className="font-mono text-[10px] uppercase tracking-wider text-faint font-semibold">Improved</div>
-                <div className="font-display font-bold text-xl text-ok mt-1">{drift!.improved_count}</div>
+              <div className="rounded bg-surface-2 border border-white/10 p-3.5">
+                <div className="font-mono text-[10px] uppercase tracking-wider text-muted font-semibold">Improved</div>
+                <div className="font-display font-bold text-xl text-white mt-1">{drift!.improved_count}</div>
               </div>
-              <div className="rounded-xl bg-surface-2 border border-white/10 p-3.5">
-                <div className="font-mono text-[10px] uppercase tracking-wider text-faint font-semibold">Worsened</div>
-                <div className="font-display font-bold text-xl text-crit mt-1">{drift!.worsened_count}</div>
+              <div className="rounded bg-surface-2 border border-white/10 p-3.5">
+                <div className="font-mono text-[10px] uppercase tracking-wider text-muted font-semibold">Worsened</div>
+                <div className="font-display font-bold text-xl text-white font-mono font-bold mt-1">{drift!.worsened_count}</div>
               </div>
-              <div className="rounded-xl bg-surface-2 border border-white/10 p-3.5">
-                <div className="font-mono text-[10px] uppercase tracking-wider text-faint font-semibold">New</div>
-                <div className="font-display font-bold text-xl text-high mt-1">{drift!.new_count}</div>
+              <div className="rounded bg-surface-2 border border-white/10 p-3.5">
+                <div className="font-mono text-[10px] uppercase tracking-wider text-muted font-semibold">New</div>
+                <div className="font-display font-bold text-xl text-white mt-1">{drift!.new_count}</div>
               </div>
-              <div className="rounded-xl bg-surface-2 border border-white/10 p-3.5">
-                <div className="font-mono text-[10px] uppercase tracking-wider text-faint font-semibold">Resolved</div>
-                <div className="font-display font-bold text-xl text-med mt-1">{drift!.disappeared_count}</div>
+              <div className="rounded bg-surface-2 border border-white/10 p-3.5">
+                <div className="font-mono text-[10px] uppercase tracking-wider text-muted font-semibold">Resolved</div>
+                <div className="font-display font-bold text-xl text-muted mt-1">{drift!.disappeared_count}</div>
               </div>
             </div>
 
@@ -200,7 +197,7 @@ export const DeviceHistoryView: React.FC<DeviceHistoryViewProps> = ({ deviceId, 
                       return (
                         <tr key={r.rule_id} className="row-hover">
                           <td className="py-2.5 px-3">
-                            <span className="font-mono text-[12px] text-ok">{r.rule_id}</span>
+                            <span className="font-mono text-[12px] text-ink font-bold">{r.rule_id}</span>
                             {r.title && <div className="text-xs text-muted mt-0.5 max-w-xs truncate">{r.title}</div>}
                           </td>
                           <td className="py-2.5 px-3">
@@ -225,7 +222,7 @@ export const DeviceHistoryView: React.FC<DeviceHistoryViewProps> = ({ deviceId, 
                             )}
                           </td>
                           <td className="py-2.5 px-3">
-                            <span className={`inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded-md border ${d.cls}`}>
+                            <span className={`inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${d.cls}`}>
                               <Icon className="w-3 h-3" />
                               {d.label}
                             </span>
@@ -253,7 +250,7 @@ export const DeviceHistoryView: React.FC<DeviceHistoryViewProps> = ({ deviceId, 
                 {drift!.current_audit_id != null && (
                   <button
                     onClick={() => onSelectAudit?.(drift!.current_audit_id!)}
-                    className="btn btn-primary btn-sm"
+                    className="btn btn-solid btn-sm"
                   >
                     audit-{drift!.current_audit_id}
                   </button>
@@ -265,10 +262,10 @@ export const DeviceHistoryView: React.FC<DeviceHistoryViewProps> = ({ deviceId, 
       </div>
 
       {/* History Table */}
-      <div className="card overflow-hidden">
-        <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
+      <div className="card overflow-hidden border border-white/20">
+        <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-surface-2">
           <h2 className="font-display font-semibold text-ink flex items-center gap-2">
-            <Layers className="w-4 h-4 text-ok" /> Audit History ({audits.length})
+            <Layers className="w-4 h-4 text-white" /> Audit History ({audits.length})
           </h2>
           <span className="text-xs text-faint font-mono">newest first</span>
         </div>
@@ -292,23 +289,23 @@ export const DeviceHistoryView: React.FC<DeviceHistoryViewProps> = ({ deviceId, 
               <tbody>
                 {audits.map((a: DeviceAuditRecord) => (
                   <tr key={a.audit_id} className="row-hover">
-                    <td className="font-mono text-ok">audit-{a.audit_id}</td>
+                    <td className="font-mono text-ink font-bold">audit-{a.audit_id}</td>
                     <td className="text-xs text-muted font-mono">
                       {new Date(a.started_at).toLocaleString()}
                     </td>
                     <td>
                       <span className="badge badge-pass">{a.status}</span>
                     </td>
-                    <td className="font-mono text-ok">{a.compliance_score.toFixed ? a.compliance_score.toFixed(1) : a.compliance_score}%</td>
+                    <td className="font-mono text-white">{a.compliance_score.toFixed ? a.compliance_score.toFixed(1) : a.compliance_score}%</td>
                     <td className="text-muted text-xs">
-                      <span className="text-crit font-bold">{a.fail_count}</span> / {a.total_count}
+                      <span className="text-white font-bold">{a.fail_count}</span> / {a.total_count}
                     </td>
                     <td>
                       <button
                         onClick={() => onSelectAudit?.(a.audit_id)}
-                        className="text-xs text-accent-hover hover:text-white font-semibold flex items-center gap-1"
+                        className="text-xs text-white hover:underline font-semibold font-mono flex items-center gap-1"
                       >
-                        View
+                        View &rarr;
                       </button>
                     </td>
                   </tr>

@@ -78,8 +78,8 @@ export const MappingsView: React.FC<MappingsViewProps> = ({ onMappingApproved })
   if (loading) {
     return (
       <div className="flex flex-col justify-center items-center h-96 space-y-4">
-        <div className="h-10 w-10 rounded-full border-4 border-accent border-t-transparent animate-spin"></div>
-        <p className="font-mono text-xs text-faint tracking-[0.18em] uppercase">Fetching pending AI proposals…</p>
+        <div className="h-10 w-10 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
+        <p className="font-mono text-xs text-muted tracking-[0.18em] uppercase">Fetching pending AI proposals…</p>
       </div>
     );
   }
@@ -99,38 +99,33 @@ export const MappingsView: React.FC<MappingsViewProps> = ({ onMappingApproved })
           </p>
         </div>
 
-        <div className="rounded-2xl border border-accent/35 bg-accent/10 px-6 py-5 flex items-center gap-5">
-          <div className="stat-number-sm text-accent-hover">{mappings.length}</div>
+        <div className="rounded-md border border-white/20 bg-surface-2 px-6 py-5 flex items-center gap-5">
+          <div className="stat-number-sm text-ink">{mappings.length}</div>
           <div>
             <div className="stat-label">Pending sign-off</div>
-            <div className="text-caption text-faint mt-1">reviewed proposals are 100% human-approved</div>
+            <div className="text-caption text-muted mt-1">reviewed proposals are 100% human-approved</div>
           </div>
         </div>
       </div>
 
       {successMsg && (
-        <div className="banner banner-success flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4" />
+        <div className="banner border border-white/30 bg-surface-2 text-ink flex items-center gap-2 font-mono text-xs">
+          <CheckCircle2 className="w-4 h-4 text-white" />
           <span>{successMsg}</span>
         </div>
       )}
 
       {error && (
-        <div className="banner banner-error flex items-center gap-2">
-          <AlertCircle className="w-4 h-4" />
+        <div className="banner border border-white/30 bg-surface-2 text-ink flex items-center gap-2 font-mono text-xs">
+          <AlertCircle className="w-4 h-4 text-white" />
           <span>{error}</span>
         </div>
       )}
 
       {mappings.length === 0 ? (
-        <div className="relative card overflow-hidden p-14 text-center space-y-3">
-          {/* Decorative shapes allowed in empty states only */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
-            <div className="orb orb-violet orb-drift-a -top-20 left-[20%] h-52 w-52" />
-            <div className="orb orb-indigo orb-drift-b -bottom-24 right-[18%] h-60 w-60" />
-          </div>
+        <div className="card border border-white/20 p-14 text-center space-y-3">
           <div className="relative z-10 space-y-3">
-            <ShieldCheck className="w-10 h-10 text-ok mx-auto" />
+            <ShieldCheck className="w-10 h-10 text-white mx-auto" />
             <div className="font-semibold text-ink">All dialect proposals reviewed</div>
             <div className="text-caption text-muted">No pending white-box device mappings require human approval.</div>
           </div>
@@ -141,7 +136,7 @@ export const MappingsView: React.FC<MappingsViewProps> = ({ onMappingApproved })
             const rawConfigText = m.config_sample || '';
             const rawLines = rawConfigText.split('\n');
             return (
-              <div key={m.id} className="card p-6 space-y-5">
+              <div key={m.id} className="card p-6 space-y-5 border border-white/20">
                 <div className="flex flex-wrap justify-between items-start gap-3 border-b border-white/10 pb-4">
                   <div>
                     <span className="kicker">Proposal #{m.id}</span>
@@ -157,35 +152,35 @@ export const MappingsView: React.FC<MappingsViewProps> = ({ onMappingApproved })
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 text-[13px]">
                   {/* Left: Raw Config */}
                   <div className="space-y-2">
-                    <div className="font-mono text-[10px] text-faint font-bold uppercase tracking-wider flex items-center">
+                    <div className="font-mono text-[10px] text-muted font-bold uppercase tracking-wider flex items-center">
                       <Terminal className="w-3.5 h-3.5 mr-1.5" />
                       Raw unknown config text ({rawLines.length} lines)
                     </div>
-                    <pre className="code-surface h-80 p-4 text-muted leading-relaxed">
+                    <pre className="code-surface h-80 p-4 text-muted leading-relaxed border border-white/10">
                       {rawConfigText}
                     </pre>
                   </div>
 
                   {/* Right: AI Proposed Mapping */}
                   <div className="space-y-2">
-                    <div className="font-mono text-[10px] text-faint font-bold uppercase tracking-wider flex items-center">
-                      <Sparkles className="w-3.5 h-3.5 mr-1.5 text-ok" />
+                    <div className="font-mono text-[10px] text-muted font-bold uppercase tracking-wider flex items-center">
+                      <Sparkles className="w-3.5 h-3.5 mr-1.5 text-white" />
                       AI proposed structured mapping (neutral schema)
                     </div>
-                    <pre className="code-surface h-80 p-4 text-ok leading-relaxed">
+                    <pre className="code-surface h-80 p-4 text-white font-mono leading-relaxed border border-white/10">
                       {JSON.stringify(m.proposed_schema, null, 2)}
                     </pre>
                   </div>
                 </div>
 
-                {/* Expandable AST detail toggle with smooth collapsible animation */}
+                {/* Expandable AST detail toggle */}
                 <div className="pt-1">
                   <button
                     onClick={() => toggleExpand(m.id)}
                     className="btn btn-ghost btn-sm !py-1.5 !px-3 text-xs w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2"
                   >
                     <span className="flex items-center gap-1.5 font-mono text-[11px]">
-                      <Layers className="w-3.5 h-3.5 text-accent-hover" />
+                      <Layers className="w-3.5 h-3.5 text-white" />
                       {expandedIds.includes(m.id) ? 'Hide syntax parsing & schema metadata' : 'Inspect syntax parsing & schema metadata'}
                     </span>
                     <ChevronDown
@@ -197,19 +192,19 @@ export const MappingsView: React.FC<MappingsViewProps> = ({ onMappingApproved })
 
                   <div className={`collapsible-grid ${expandedIds.includes(m.id) ? 'is-expanded' : ''}`}>
                     <div className="collapsible-inner pt-3">
-                      <div className="rounded-xl border border-white/10 bg-surface-2 p-4 space-y-3 font-mono text-xs">
+                      <div className="rounded-md border border-white/10 bg-surface-2 p-4 space-y-3 font-mono text-xs">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                          <div className="rounded-lg bg-surface-3 p-3 border border-white/5 space-y-1">
-                            <span className="text-faint text-[10px] uppercase tracking-wider block">Full Fingerprint</span>
+                          <div className="rounded bg-surface-3 p-3 border border-white/10 space-y-1">
+                            <span className="text-muted text-[10px] uppercase tracking-wider block">Full Fingerprint</span>
                             <span className="text-ink break-all text-[11px]">{m.fingerprint_hash}</span>
                           </div>
-                          <div className="rounded-lg bg-surface-3 p-3 border border-white/5 space-y-1">
-                            <span className="text-faint text-[10px] uppercase tracking-wider block">Proposed Dialect Engine</span>
-                            <span className="text-ok font-bold">{m.vendor_guessed || 'Generic Multi-Vendor'}</span>
+                          <div className="rounded bg-surface-3 p-3 border border-white/10 space-y-1">
+                            <span className="text-muted text-[10px] uppercase tracking-wider block">Proposed Dialect Engine</span>
+                            <span className="text-white font-bold">{m.vendor_guessed || 'Generic Multi-Vendor'}</span>
                           </div>
-                          <div className="rounded-lg bg-surface-3 p-3 border border-white/5 space-y-1">
-                            <span className="text-faint text-[10px] uppercase tracking-wider block">Determinism Verification</span>
-                            <span className="text-accent-hover font-bold">100% Verifiable AST Grammar</span>
+                          <div className="rounded bg-surface-3 p-3 border border-white/10 space-y-1">
+                            <span className="text-muted text-[10px] uppercase tracking-wider block">Determinism Verification</span>
+                            <span className="text-white font-bold">100% Verifiable AST Grammar</span>
                           </div>
                         </div>
 
@@ -221,10 +216,10 @@ export const MappingsView: React.FC<MappingsViewProps> = ({ onMappingApproved })
                   </div>
                 </div>
 
-                {/* Bottom Approval Action Bar — flat, immediate, no motion */}
+                {/* Bottom Approval Action Bar */}
                 <div className="flex flex-wrap justify-between items-center gap-3 pt-4 border-t border-white/10">
                   <div className="text-[12px] text-muted flex items-center gap-1.5">
-                    <Info className="w-3.5 h-3.5 text-ok" />
+                    <Info className="w-3.5 h-3.5 text-white" />
                     <span>Approving stores SHA-256 dialect fingerprint in database cache.</span>
                   </div>
 
@@ -232,14 +227,14 @@ export const MappingsView: React.FC<MappingsViewProps> = ({ onMappingApproved })
                     <button
                       onClick={() => handleReject(m.id)}
                       disabled={processingId === m.id}
-                      className="btn btn-danger"
+                      className="btn btn-outline"
                     >
                       Reject mapping
                     </button>
                     <button
                       onClick={() => handleApprove(m)}
                       disabled={processingId === m.id}
-                      className="btn btn-primary"
+                      className="btn btn-solid"
                     >
                       {processingId === m.id ? 'Caching…' : 'Approve & cache dialect'}
                     </button>
