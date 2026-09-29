@@ -7,7 +7,6 @@ import {
   GitFork,
   Zap,
   ArrowRight,
-  ShieldCheck,
 } from 'lucide-react';
 
 interface DashboardViewProps {
@@ -43,16 +42,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         { id: 103, hostname: 'CORE-PANIPAT-SW', vendor: 'Cisco IOS', score: 45.9, fail_count: 7, status: 'COMPLETED', started_at: '20 Sep 2026, 11:22' },
         { id: 104, hostname: 'WHITEBOX-EDGE-03', vendor: 'White-Box', score: 62.1, fail_count: 4, status: 'COMPLETED', started_at: '20 Sep 2026, 09:31' },
       ];
-
-  const totalAudits = data.total_audits ?? 0;
-  const approvedAudits = data.human_approved_audits;
-  const humanApprovedPct =
-    approvedAudits != null && totalAudits > 0
-      ? Math.round((approvedAudits / totalAudits) * 100)
-      : 100;
-
-  const scoreTone =
-    data.average_score >= 80 ? 'text-ok' : data.average_score >= 60 ? 'text-high' : 'text-crit';
 
   return (
     <div className="space-y-16 lg:space-y-24 pb-16">
@@ -90,68 +79,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           </div>
         </div>
-      </section>
-
-      {/* ============ BIG-NUMBER STAT CALLOUTS ============ */}
-      <section>
-        <Reveal>
-          <div className="grid grid-cols-1 gap-x-8 gap-y-12 border-b border-white/10 pb-12 sm:grid-cols-2 lg:grid-cols-4">
-            <div>
-              <div className={`stat-number ${scoreTone}`}>{data.average_score}%</div>
-              <div className="stat-label mt-3">Fleet Compliance Score</div>
-              <div className="mt-1 text-caption text-faint">Weighted across all audited nodes</div>
-            </div>
-
-            <div>
-              <div className="stat-number">{data.total_devices}</div>
-              <div className="stat-label mt-3">Devices Audited</div>
-              <div className="mt-1 text-caption text-faint">Cisco &bull; Fortinet &bull; Whitebox</div>
-            </div>
-
-            <div>
-              <div className="stat-number text-crit">{data.critical_failures}</div>
-              <div className="stat-label mt-3">Critical Findings</div>
-              <div className="mt-1 text-caption text-faint">
-                + {data.high_failures} high severity open
-              </div>
-            </div>
-
-            <div>
-              <div className="stat-number">{data.active_attack_chains}</div>
-              <div className="stat-label mt-3">Active Attack Chains</div>
-              <div className="mt-1 text-caption text-faint">Telnet &bull; SNMP &bull; Priv escalation</div>
-            </div>
-          </div>
-        </Reveal>
-
-        {/* Governance trust signal — its own hero moment */}
-        <Reveal delayMs={60}>
-          <div className="mt-12 flex flex-col items-start gap-8 rounded-[24px] border border-accent/35 bg-accent/10 px-8 py-10 sm:px-12 lg:flex-row lg:items-center lg:gap-16">
-            <div>
-              <div className="stat-number !text-[clamp(4rem,9vw,7rem)] text-accent-hover">
-                {humanApprovedPct}%
-              </div>
-            </div>
-            <div className="max-w-xl">
-              <div className="flex items-center gap-2 text-[13px] font-semibold text-white">
-                <ShieldCheck className="h-4 w-4 text-accent-hover" />
-                AI proposes. Deterministic code decides. Humans approve.
-              </div>
-              <div className="section-title mt-2">
-                Human-approved mappings across every audit
-              </div>
-              <p className="mt-3 text-body text-muted">
-                {totalAudits} audits recorded &bull; every unknown vendor dialect signed off by an
-                analyst before evaluation &bull;{' '}
-                <span className="text-white font-semibold">
-                  {data.pending_ai_proposals} proposal{data.pending_ai_proposals === 1 ? '' : 's'}{' '}
-                  pending review
-                </span>
-                .
-              </p>
-            </div>
-          </div>
-        </Reveal>
       </section>
 
       {/* ============ FOUR-QUESTION POSTURE CARDS ============ */}
