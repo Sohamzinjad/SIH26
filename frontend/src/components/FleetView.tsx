@@ -119,7 +119,7 @@ export const FleetView: React.FC<FleetViewProps> = ({ onBatchCompleted, onBatchF
   };
 
   const scoreCls = (score: number) =>
-    score >= 80 ? 'text-ok' : score >= 60 ? 'text-high' : 'text-crit';
+    score >= 80 ? 'text-ink font-mono font-bold' : score >= 60 ? 'text-ink font-mono' : 'text-muted font-mono';
 
   return (
     <div className="space-y-10 pb-16">
@@ -149,21 +149,21 @@ export const FleetView: React.FC<FleetViewProps> = ({ onBatchCompleted, onBatchF
       </Reveal>
 
       {error && (
-        <div className="banner banner-error">
+        <div className="banner border border-white/30 bg-surface-2 text-ink">
           {error}
         </div>
       )}
 
       {/* Bulk Upload Dropzone */}
       <Reveal delayMs={40}>
-        <div className="card p-6 sm:p-8">
-          <div className="rounded-2xl border-2 border-dashed border-white/15 bg-surface-2/50 p-10 text-center space-y-4">
-            <div className="mx-auto h-12 w-12 rounded-2xl bg-accent-soft border border-accent/40 flex items-center justify-center">
-              <Upload className="w-6 h-6 text-accent-hover" />
+        <div className="card p-6 sm:p-8 border border-white/20">
+          <div className="rounded-md border-2 border-dashed border-white/20 bg-surface-2 p-10 text-center space-y-4">
+            <div className="mx-auto h-12 w-12 rounded-md bg-surface-3 border border-white/30 flex items-center justify-center">
+              <Upload className="w-6 h-6 text-ink" />
             </div>
             <div>
               <div className="text-[15px] font-semibold text-ink">Select a bulk archive (.zip) or drag config files here</div>
-              <div className="mt-1 text-caption text-faint">Multiple configs are extracted and audited in parallel</div>
+              <div className="mt-1 text-caption text-muted">Multiple configs are extracted and audited in parallel</div>
             </div>
             <input
               type="file"
@@ -174,7 +174,7 @@ export const FleetView: React.FC<FleetViewProps> = ({ onBatchCompleted, onBatchF
             />
             <label
               htmlFor="fleet-file-input"
-              className="btn btn-primary cursor-pointer inline-flex"
+              className="btn btn-solid cursor-pointer inline-flex"
             >
               <FileSpreadsheet className="w-4 h-4" />
               Browse files {files.length > 0 && `(${files.length} selected)`}
@@ -187,7 +187,7 @@ export const FleetView: React.FC<FleetViewProps> = ({ onBatchCompleted, onBatchF
               <button
                 onClick={runBatch}
                 disabled={isUploading}
-                className="btn btn-primary"
+                className="btn btn-solid"
               >
                 {isUploading ? 'Auditing fleet…' : 'Run parallel fleet audit'}
               </button>
@@ -213,7 +213,7 @@ export const FleetView: React.FC<FleetViewProps> = ({ onBatchCompleted, onBatchF
             </h2>
           </div>
 
-          <div className="card p-4 sm:p-5 space-y-4">
+          <div className="card p-4 sm:p-5 space-y-4 border border-white/20">
             {/* Search & Multi-criteria Controls */}
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
@@ -270,17 +270,17 @@ export const FleetView: React.FC<FleetViewProps> = ({ onBatchCompleted, onBatchF
                 <tbody>
                   {filteredResults.map((d: FleetDeviceResult, idx: number) => (
                     <tr key={idx} className="row-hover">
-                      <td className="font-semibold">{d.hostname}</td>
-                      <td className="text-muted uppercase">{d.vendor}</td>
+                      <td className="font-semibold text-ink">{d.hostname}</td>
+                      <td className="text-muted uppercase text-[12px] font-mono">{d.vendor}</td>
                       <td>{statusBadge(d)}</td>
-                      <td className={`font-bold ${scoreCls(d.compliance_score)}`}>{d.compliance_score}%</td>
-                      <td className="font-bold text-crit">{d.failed_findings}</td>
-                      <td className="font-bold">{d.attack_paths_count}</td>
+                      <td className={scoreCls(d.compliance_score)}>{d.compliance_score}%</td>
+                      <td className="font-bold text-ink">{d.failed_findings}</td>
+                      <td className="font-bold text-ink">{d.attack_paths_count}</td>
                       <td className="text-right">
                         {d.audit_id ? (
                           <button
                             onClick={() => openAudit(d.audit_id!)}
-                            className="text-[12px] font-semibold text-accent-hover hover:text-white inline-flex items-center gap-1"
+                            className="text-[12px] font-mono font-semibold text-white hover:underline inline-flex items-center gap-1"
                           >
                             Inspect <span aria-hidden>&rarr;</span>
                           </button>

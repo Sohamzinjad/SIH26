@@ -47,8 +47,8 @@ export const FindingsView: React.FC<FindingsViewProps> = ({ onSelectAudit }) => 
   if (loading) {
     return (
       <div className="flex flex-col justify-center items-center h-96 space-y-4">
-        <div className="h-10 w-10 rounded-full border-4 border-accent border-t-transparent animate-spin"></div>
-        <p className="font-mono text-xs text-faint tracking-[0.18em] uppercase">Correlating global findings…</p>
+        <div className="h-10 w-10 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
+        <p className="font-mono text-xs text-muted tracking-[0.18em] uppercase">Correlating global findings…</p>
       </div>
     );
   }
@@ -79,7 +79,7 @@ export const FindingsView: React.FC<FindingsViewProps> = ({ onSelectAudit }) => 
       </Reveal>
 
       {/* Controls */}
-      <div className="card p-4 sm:p-5 space-y-4">
+      <div className="card p-4 sm:p-5 space-y-4 border border-white/20">
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
               <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-faint" />
@@ -125,13 +125,13 @@ export const FindingsView: React.FC<FindingsViewProps> = ({ onSelectAudit }) => 
                       <div className="text-caption text-muted">{r.title}</div>
                     </td>
                     <td>
-                      <span className="badge badge-neutral uppercase">{r.framework}</span>
+                      <span className="badge badge-neutral uppercase font-mono">{r.framework}</span>
                     </td>
                     <td>{sevBadge(r.severity)}</td>
-                    <td className="font-bold text-crit">
+                    <td className="font-bold font-mono text-ink">
                       {r.devices_failing} / {r.devices_present} Devices
                     </td>
-                    <td className="font-bold text-ink">{r.compliance_pct.toFixed(1)}%</td>
+                    <td className="font-bold font-mono text-white">{r.compliance_pct.toFixed(1)}%</td>
                   </tr>
                 ))}
 

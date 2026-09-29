@@ -80,17 +80,17 @@ export const AttackPathGraph: React.FC<AttackPathGraphProps> = ({ auditId, onBac
   if (loading) {
     return (
       <div className="flex flex-col justify-center items-center h-96 space-y-4">
-        <div className="h-10 w-10 rounded-full border-4 border-accent border-t-transparent animate-spin"></div>
-        <p className="font-mono text-xs text-faint tracking-[0.18em] uppercase">Correlating attack paths…</p>
+        <div className="h-10 w-10 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
+        <p className="font-mono text-xs text-muted tracking-[0.18em] uppercase">Correlating attack paths…</p>
       </div>
     );
   }
 
   if (error || !detail) {
     return (
-      <div className="banner banner-error space-y-2">
-        <div className="font-bold uppercase text-sm">Attack path error</div>
-        <div>{error || 'Audit not found'}</div>
+      <div className="banner border border-white/30 bg-surface-2 space-y-2">
+        <div className="font-bold uppercase text-sm text-ink">Attack path error</div>
+        <div className="text-muted">{error || 'Audit not found'}</div>
       </div>
     );
   }
@@ -117,8 +117,6 @@ export const AttackPathGraph: React.FC<AttackPathGraphProps> = ({ auditId, onBac
     setIsPlaying(false);
   };
 
-  // NOTE: this view deliberately uses no decorative shapes or entrance motion —
-  // the graph must stay static and readable at all times.
   return (
     <div className="space-y-10 pb-16">
       {/* Header */}
@@ -149,12 +147,12 @@ export const AttackPathGraph: React.FC<AttackPathGraphProps> = ({ auditId, onBac
 
       {/* Single Key Fix Highlight Box */}
       {single_fix_recommendation && (
-        <div className="card p-6 space-y-4">
-          <div className="flex items-center gap-2 font-mono text-[12px] font-bold uppercase tracking-widest text-ok">
+        <div className="card p-6 space-y-4 border-2 border-white/30">
+          <div className="flex items-center gap-2 font-mono text-[12px] font-bold uppercase tracking-widest text-ink">
             <Zap className="w-4 h-4" />
             Single key fix &bull; optimal remediation move
           </div>
-          <code className="block code-surface p-4 text-sm text-ok">
+          <code className="block code-surface p-4 text-sm text-ink border border-white/20">
             {single_fix_recommendation.remediation}
           </code>
           <p className="text-caption text-muted">
@@ -165,26 +163,26 @@ export const AttackPathGraph: React.FC<AttackPathGraphProps> = ({ auditId, onBac
 
       {/* Graph & Simulation Area */}
       {paths.length === 0 ? (
-        <div className="card p-12 text-center space-y-3">
-          <ShieldCheck className="w-10 h-10 text-ok mx-auto" />
+        <div className="card p-12 text-center space-y-3 border border-white/20">
+          <ShieldCheck className="w-10 h-10 text-ink mx-auto" />
           <div className="font-semibold text-ink">No active attack paths detected</div>
           <div className="text-caption text-muted">Device configuration has passed critical chain correlation.</div>
         </div>
       ) : (
         <div className="space-y-8">
           {/* Interactive Simulation Controls */}
-          <div className="card-raise p-5 sm:p-6 space-y-5">
+          <div className="card p-5 sm:p-6 space-y-5 border border-white/20">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div className="flex items-center gap-2 font-mono text-[12px] font-bold uppercase tracking-widest text-ok">
+              <div className="flex items-center gap-2 font-mono text-[12px] font-bold uppercase tracking-widest text-ink">
                 <Activity className="w-4 h-4" />
                 Adversary pivot simulator
               </div>
 
-              {/* Playback Controls — no motion in controls themselves */}
+              {/* Playback Controls */}
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsPlaying(!isPlaying)}
-                  className="btn btn-primary btn-sm"
+                  className="btn btn-solid btn-sm"
                 >
                   {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
                   {isPlaying ? 'Pause' : 'Simulate pivot'}
@@ -216,7 +214,7 @@ export const AttackPathGraph: React.FC<AttackPathGraphProps> = ({ auditId, onBac
                   key={idx}
                   onClick={() => handleSelectPath(idx)}
                   className={`btn btn-sm ${
-                    activePathIdx === idx ? 'btn-primary' : 'btn-ghost'
+                    activePathIdx === idx ? 'btn-solid' : 'btn-ghost'
                   }`}
                 >
                   Path #{idx + 1}: {p.name}
@@ -227,7 +225,7 @@ export const AttackPathGraph: React.FC<AttackPathGraphProps> = ({ auditId, onBac
             {/* Interactive Step Visualizer */}
             {selectedPath && (
               <div className="space-y-4">
-                <div className="flex flex-wrap items-center gap-3 rounded-xl border border-white/10 bg-[#0c0c0e] p-4">
+                <div className="flex flex-wrap items-center gap-3 rounded-md border border-white/20 bg-surface-2 p-4">
                   {selectedPath.finding_rule_ids?.map((fId, fIdx) => {
                     const isPassed = fIdx < currentStep;
                     const isCurrent = fIdx === currentStep;
@@ -239,20 +237,20 @@ export const AttackPathGraph: React.FC<AttackPathGraphProps> = ({ auditId, onBac
                             setIsPlaying(false);
                             setCurrentStep(fIdx);
                           }}
-                          className={`rounded-xl border p-3 font-mono text-xs flex items-center gap-2.5 transition-colors duration-150 cursor-pointer text-left hover:border-white/30 ${
+                          className={`rounded-md border p-3 font-mono text-xs flex items-center gap-2.5 transition-colors duration-150 cursor-pointer text-left ${
                             isCurrent
-                              ? 'bg-[#D92D20] border-[#D92D20] text-white'
+                              ? 'bg-white border-white text-black font-bold'
                               : isPassed
-                              ? 'bg-[#067647]/15 border-[#067647]/60 text-[#4ADE80]'
-                              : 'bg-surface border-white/10 text-faint'
+                              ? 'bg-surface-3 border-white/40 text-white'
+                              : 'bg-surface-1 border-white/10 text-muted'
                           }`}
                         >
                           <span
-                            className={`h-6 w-6 font-bold flex items-center justify-center text-[11px] rounded-lg ${
+                            className={`h-6 w-6 font-bold flex items-center justify-center text-[11px] rounded ${
                               isCurrent
-                                ? 'bg-white text-[#D92D20]'
+                                ? 'bg-black text-white'
                                 : isPassed
-                                ? 'bg-[#067647] text-white'
+                                ? 'bg-white text-black'
                                 : 'bg-surface-3 text-muted'
                             }`}
                           >
@@ -266,22 +264,22 @@ export const AttackPathGraph: React.FC<AttackPathGraphProps> = ({ auditId, onBac
                           </span>
                         </button>
                         {fIdx < (selectedPath.finding_rule_ids.length - 1) && (
-                          <span className={`font-bold text-sm ${isPassed ? 'text-ok' : 'text-faint'}`}>&rarr;</span>
+                          <span className={`font-bold text-sm ${isPassed ? 'text-white' : 'text-muted'}`}>&rarr;</span>
                         )}
                       </React.Fragment>
                     );
                   })}
                 </div>
 
-                {/* Simulation Terminal Output with smooth transition */}
-                <div className="code-surface p-4 text-xs text-ok flex items-start gap-3 transition-opacity duration-150">
+                {/* Simulation Terminal Output */}
+                <div className="code-surface p-4 text-xs text-white border border-white/20 flex items-start gap-3">
                   <Terminal className="w-4 h-4 mt-0.5 shrink-0" />
                   <div>
                     <span className="text-muted">SIMULATION STEP [{currentStep + 1}/{totalSteps}]:</span>{' '}
                     <span>
                       Adversary exploits rule violation <strong className="text-white">{selectedPath.finding_rule_ids[currentStep]}</strong>.
                     </span>
-                    <div className="text-[11px] text-faint mt-1">
+                    <div className="text-[11px] text-muted mt-1">
                       Rationale: {selectedPath.narrative}
                     </div>
                   </div>
@@ -292,19 +290,19 @@ export const AttackPathGraph: React.FC<AttackPathGraphProps> = ({ auditId, onBac
 
           {/* Detailed Path List */}
           {paths.map((p, idx) => (
-            <div key={idx} className="card p-5 sm:p-6 space-y-5">
+            <div key={idx} className="card p-5 sm:p-6 space-y-5 border border-white/20">
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="badge badge-critical">Path #{idx + 1} &bull; {p.severity}</span>
                   <span className="font-display font-bold text-[15px] text-ink">{p.name}</span>
                 </div>
-                <span className="font-mono text-[11px] text-faint uppercase">
+                <span className="font-mono text-[11px] text-muted uppercase">
                   Chain length: {p.finding_rule_ids?.length || 0} steps
                 </span>
               </div>
 
               {/* Exploit Steps Visualization */}
-              <div className="rounded-xl border border-white/10 bg-[#0c0c0e] space-y-4 p-5">
+              <div className="rounded-md border border-white/20 bg-surface-2 space-y-4 p-5">
                 <div className="font-mono text-[11px] uppercase tracking-[0.16em] font-bold text-muted">
                   Exploit chain narrative
                 </div>
@@ -316,14 +314,14 @@ export const AttackPathGraph: React.FC<AttackPathGraphProps> = ({ auditId, onBac
                 <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-white/10">
                   {p.finding_rule_ids?.map((fId, fIdx) => (
                     <React.Fragment key={fIdx}>
-                      <div className="rounded-lg border border-white/10 bg-surface-2 p-2 text-xs font-mono text-ink flex items-center gap-2">
-                        <span className="h-5 w-5 rounded-md bg-[#D92D20] text-white font-bold flex items-center justify-center text-[10px]">
+                      <div className="rounded border border-white/20 bg-surface-3 p-2 text-xs font-mono text-ink flex items-center gap-2">
+                        <span className="h-5 w-5 rounded bg-white text-black font-bold flex items-center justify-center text-[10px]">
                           {fIdx + 1}
                         </span>
                         <span>{fId}</span>
                       </div>
                       {fIdx < (p.finding_rule_ids.length - 1) && (
-                        <span className="text-ok font-bold text-sm">&rarr;</span>
+                        <span className="text-white font-bold text-sm">&rarr;</span>
                       )}
                     </React.Fragment>
                   ))}
@@ -332,13 +330,13 @@ export const AttackPathGraph: React.FC<AttackPathGraphProps> = ({ auditId, onBac
 
               {/* Break Rule / Severance Command for this path */}
               {p.break_why && (
-                <div className="rounded-xl bg-surface-2 border border-white/10 p-4 space-y-1.5">
-                  <div className="font-mono text-[11px] font-bold uppercase tracking-widest text-faint">Severance rationale</div>
+                <div className="rounded-md bg-surface-2 border border-white/10 p-4 space-y-1.5">
+                  <div className="font-mono text-[11px] font-bold uppercase tracking-widest text-muted">Severance rationale</div>
                   <div className="text-[14px] font-semibold text-ink">{p.break_why}</div>
                 </div>
               )}
 
-              {/* Expandable Kill Chain Breakdown with smooth collapsible animation */}
+              {/* Expandable Kill Chain Breakdown */}
               <div className="pt-1">
                 <button
                   type="button"
@@ -357,19 +355,19 @@ export const AttackPathGraph: React.FC<AttackPathGraphProps> = ({ auditId, onBac
 
                 <div className={`collapsible-grid ${expandedPaths.includes(idx) ? 'is-expanded' : ''}`}>
                   <div className="collapsible-inner pt-3">
-                    <div className="rounded-xl border border-white/10 bg-surface-2 p-4 space-y-3 font-mono text-xs">
+                    <div className="rounded-md border border-white/10 bg-surface-2 p-4 space-y-3 font-mono text-xs">
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div className="rounded-lg bg-surface-3 p-3 border border-white/5 space-y-1">
-                          <span className="text-faint text-[10px] uppercase tracking-wider block">Target Surface</span>
+                        <div className="rounded bg-surface-3 p-3 border border-white/10 space-y-1">
+                          <span className="text-muted text-[10px] uppercase tracking-wider block">Target Surface</span>
                           <span className="text-ink font-semibold">Management Plane / VTY</span>
                         </div>
-                        <div className="rounded-lg bg-surface-3 p-3 border border-white/5 space-y-1">
-                          <span className="text-faint text-[10px] uppercase tracking-wider block">Adversary TTP</span>
-                          <span className="text-crit font-semibold">Cleartext Ingress &rarr; Escalation</span>
+                        <div className="rounded bg-surface-3 p-3 border border-white/10 space-y-1">
+                          <span className="text-muted text-[10px] uppercase tracking-wider block">Adversary TTP</span>
+                          <span className="text-white font-semibold">Cleartext Ingress &rarr; Escalation</span>
                         </div>
-                        <div className="rounded-lg bg-surface-3 p-3 border border-white/5 space-y-1">
-                          <span className="text-faint text-[10px] uppercase tracking-wider block">Remediation Leverage</span>
-                          <span className="text-ok font-semibold">1-line CLI command dismantles path</span>
+                        <div className="rounded bg-surface-3 p-3 border border-white/10 space-y-1">
+                          <span className="text-muted text-[10px] uppercase tracking-wider block">Remediation Leverage</span>
+                          <span className="text-white font-semibold">1-line CLI command dismantles path</span>
                         </div>
                       </div>
                       <p className="text-caption text-muted font-sans pt-1">

@@ -207,78 +207,78 @@ export const UploadView: React.FC<UploadViewProps> = ({
 
   const lineCount = rawText ? rawText.split('\n').length : 0;
 
-  const presetStyle = (active: boolean, accent: boolean) =>
-    `text-left p-4 rounded-2xl border transition-colors duration-150 ${
+  const presetStyle = (active: boolean) =>
+    `text-left p-3.5 rounded border transition-colors duration-140 ${
       active
-        ? 'border-accent/70 bg-accent-soft text-white'
-        : 'border-white/10 bg-surface-2 hover:border-white/25 text-ink'
+        ? 'border-white bg-[#18181c] text-white'
+        : 'border-white/10 bg-[#121215] hover:border-white/25 text-[#a1a1aa]'
     }`;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-10 pb-16">
+    <div className="max-w-4xl mx-auto space-y-8 pb-16">
       {/* Header */}
       <div>
-        <div className="kicker mb-3">Ingest &amp; audit</div>
-        <h1 className="font-display font-bold text-h1 tracking-tight text-ink">Submit device running config</h1>
-        <p className="mt-3 max-w-2xl text-body text-muted">
+        <div className="kicker mb-2">Ingest &amp; audit</div>
+        <h1 className="font-sans font-bold text-2xl sm:text-3xl tracking-tight text-white">Submit device running config</h1>
+        <p className="mt-2 max-w-2xl text-xs sm:text-sm text-[#a1a1aa] leading-relaxed">
           Evaluate multi-vendor running configs against CIS, NIST SP 800-53, and DISA STIG benchmarks using deterministic rule engines.
         </p>
       </div>
 
       {/* Preset Starter Cards */}
-      <div className="space-y-3">
-        <div className="font-mono text-[11px] uppercase font-bold text-faint tracking-wider flex items-center gap-1.5">
-          <Sparkles className="w-3.5 h-3.5 text-ok" />
+      <div className="space-y-2.5">
+        <div className="font-mono text-[10px] uppercase font-bold text-[#71717a] tracking-wider flex items-center gap-1.5">
+          <Sparkles className="w-3.5 h-3.5 text-white" />
           <span>Benchmark templates</span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-[13px]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-[12px]">
           <button
             type="button"
             onClick={() => loadPreset('cisco_compliant', 'cisco_hardened.cfg')}
-            className={presetStyle(activePreset === 'cisco_compliant', true)}
+            className={presetStyle(activePreset === 'cisco_compliant')}
           >
             <div className="flex items-center justify-between mb-1 font-bold">
-              <span className={activePreset === 'cisco_compliant' ? 'text-ok' : 'text-ink'}>Cisco IOS (Hardened)</span>
-              {activePreset === 'cisco_compliant' && <Check className="w-3.5 h-3.5 text-ok" />}
+              <span className="text-white">Cisco IOS (Hardened)</span>
+              {activePreset === 'cisco_compliant' && <Check className="w-3.5 h-3.5 text-white" />}
             </div>
-            <p className="text-caption text-muted leading-relaxed">CIS / NIST compliant baseline.</p>
+            <p className="text-[11px] text-[#a1a1aa] leading-normal">CIS / NIST compliant baseline.</p>
           </button>
 
           <button
             type="button"
             onClick={() => loadPreset('cisco_vulnerable', 'cisco_vulnerable.cfg')}
-            className={presetStyle(activePreset === 'cisco_vulnerable', true)}
+            className={presetStyle(activePreset === 'cisco_vulnerable')}
           >
             <div className="flex items-center justify-between mb-1 font-bold">
-              <span className={activePreset === 'cisco_vulnerable' ? 'text-crit' : 'text-ink'}>Cisco IOS (Vulnerable)</span>
-              {activePreset === 'cisco_vulnerable' && <Check className="w-3.5 h-3.5 text-crit" />}
+              <span className="text-white">Cisco IOS (Vulnerable)</span>
+              {activePreset === 'cisco_vulnerable' && <Check className="w-3.5 h-3.5 text-white" />}
             </div>
-            <p className="text-caption text-muted leading-relaxed">Multi-stage attack paths &amp; single-fix.</p>
+            <p className="text-[11px] text-[#a1a1aa] leading-normal">Multi-stage attack paths &amp; single-fix.</p>
           </button>
 
           <button
             type="button"
             onClick={() => loadPreset('fortios_vulnerable', 'fortigate_vuln.cfg')}
-            className={presetStyle(activePreset === 'fortios_vulnerable', true)}
+            className={presetStyle(activePreset === 'fortios_vulnerable')}
           >
             <div className="flex items-center justify-between mb-1 font-bold">
-              <span className={activePreset === 'fortios_vulnerable' ? 'text-high' : 'text-ink'}>FortiGate Firewall</span>
-              {activePreset === 'fortios_vulnerable' && <Check className="w-3.5 h-3.5 text-high" />}
+              <span className="text-white">FortiGate Firewall</span>
+              {activePreset === 'fortios_vulnerable' && <Check className="w-3.5 h-3.5 text-white" />}
             </div>
-            <p className="text-caption text-muted leading-relaxed">FortiOS block syntax parsing.</p>
+            <p className="text-[11px] text-[#a1a1aa] leading-normal">FortiOS block syntax parsing.</p>
           </button>
 
           <button
             type="button"
             onClick={() => loadPreset('whitebox_unknown', 'openflow_whitebox.cfg')}
-            className={presetStyle(activePreset === 'whitebox_unknown', true)}
+            className={presetStyle(activePreset === 'whitebox_unknown')}
           >
             <div className="flex items-center justify-between mb-1 font-bold">
-              <span className={activePreset === 'whitebox_unknown' ? 'text-med' : 'text-ink'}>Whitebox / Unknown</span>
-              {activePreset === 'whitebox_unknown' && <Check className="w-3.5 h-3.5 text-med" />}
+              <span className="text-white">Whitebox / Unknown</span>
+              {activePreset === 'whitebox_unknown' && <Check className="w-3.5 h-3.5 text-white" />}
             </div>
-            <p className="text-caption text-muted leading-relaxed">Triggers AI proposal &amp; human approval.</p>
+            <p className="text-[11px] text-[#a1a1aa] leading-normal">Triggers AI proposal &amp; human approval.</p>
           </button>
         </div>
       </div>
@@ -291,10 +291,10 @@ export const UploadView: React.FC<UploadViewProps> = ({
       )}
 
       {/* Main Ingestion Form */}
-      <form onSubmit={handleAuditSubmit} className="card p-6 sm:p-8 space-y-6">
+      <form onSubmit={handleAuditSubmit} className="card p-6 space-y-5 border border-white/15 bg-[#121215]">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block font-mono text-[11px] font-bold text-ink uppercase tracking-wider mb-2">
+            <label className="block font-mono text-[10px] font-bold text-white uppercase tracking-wider mb-1.5">
               Device hostname / target file
             </label>
             <input
@@ -302,20 +302,20 @@ export const UploadView: React.FC<UploadViewProps> = ({
               value={filename}
               onChange={(e) => setFilename(e.target.value)}
               placeholder="e.g. core-router-01.cfg"
-              className="field font-semibold"
+              className="field font-medium !bg-black border-white/15 focus:border-white"
               required
             />
           </div>
 
           <div>
-            <label className="block font-mono text-[11px] font-bold text-ink uppercase tracking-wider mb-2">
+            <label className="block font-mono text-[10px] font-bold text-white uppercase tracking-wider mb-1.5">
               Upload config file or zip archive (.zip, .cfg, .txt)
             </label>
-            <label className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-surface-2 border border-white/10 hover:border-white/30 cursor-pointer transition-colors duration-150">
-              <span className="text-[13px] text-muted truncate max-w-[240px]">
+            <label className="flex items-center justify-between px-3 py-2 rounded bg-black border border-white/15 hover:border-white/40 cursor-pointer transition-colors">
+              <span className="text-[12px] text-[#a1a1aa] truncate max-w-[220px]">
                 {selectedFiles.length > 0 ? (selectedFiles.length === 1 ? selectedFiles[0].name : `${selectedFiles.length} files selected`) : 'Choose file or .zip archive...'}
               </span>
-              <span className="btn btn-primary btn-sm !py-1.5 flex items-center gap-1">
+              <span className="btn btn-ghost btn-sm !py-1 !px-2.5 flex items-center gap-1">
                 <Archive className="w-3 h-3" />
                 Browse
               </span>
@@ -332,38 +332,36 @@ export const UploadView: React.FC<UploadViewProps> = ({
 
         {/* Batch Upload Summary Display */}
         {batchResult && (
-          <div className="card-raise p-5 space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
-              <div className="flex items-center gap-2 font-display text-[15px] font-bold text-ink">
-                <Layers className="w-5 h-5 text-ok" />
+          <div className="p-4 rounded border border-white/15 bg-black space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-2.5">
+              <div className="flex items-center gap-2 font-sans text-xs font-bold text-white uppercase tracking-wider">
+                <Layers className="w-4 h-4 text-white" />
                 Fleet batch audit complete
               </div>
               <span className="badge badge-accent">{batchResult.completed_count} / {batchResult.total_files} configs audited</span>
             </div>
 
-            <div className="grid grid-cols-1 divide-y divide-white/10 max-h-60 overflow-y-auto text-[13px]">
+            <div className="grid grid-cols-1 divide-y divide-white/10 max-h-56 overflow-y-auto text-xs">
               {batchResult.results.map((r) => (
-                <div key={r.audit_id || r.filename} className="py-2.5 flex items-center justify-between gap-3 hover:bg-surface-2/60 px-2 rounded-lg transition-colors duration-100">
-                  <div className="flex items-center space-x-3 min-w-0">
-                    <span className="font-semibold text-ink truncate">{r.filename}</span>
+                <div key={r.audit_id || r.filename} className="py-2 flex items-center justify-between gap-3 hover:bg-[#18181c] px-2 rounded transition-colors">
+                  <div className="flex items-center space-x-2.5 min-w-0">
+                    <span className="font-medium text-white truncate">{r.filename}</span>
                     <span className="badge badge-neutral uppercase">{r.vendor}</span>
                   </div>
 
-                  <div className="flex items-center space-x-4 shrink-0">
+                  <div className="flex items-center space-x-3 shrink-0">
                     <div className="text-right">
-                      <span className={`font-bold ${
-                        r.compliance_score >= 80 ? 'text-ok' : r.compliance_score >= 50 ? 'text-high' : 'text-crit'
-                      }`}>
+                      <span className="font-mono font-bold text-white">
                         {r.compliance_score.toFixed(1)}% score
                       </span>
-                      <span className="font-mono text-[10px] text-faint block">{r.failed_findings} fails &bull; {r.attack_paths_count} threats</span>
+                      <span className="font-mono text-[9.5px] text-[#71717a] block">{r.failed_findings} fails &bull; {r.attack_paths_count} threats</span>
                     </div>
 
                     {r.audit_id && (
                       <button
                         type="button"
                         onClick={() => onAuditCompleted(r.audit_id)}
-                        className="btn btn-solid btn-sm"
+                        className="btn btn-primary btn-sm"
                       >
                         View audit &rarr;
                       </button>
@@ -376,13 +374,13 @@ export const UploadView: React.FC<UploadViewProps> = ({
         )}
 
         {/* Textarea */}
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <label className="font-mono text-[11px] font-bold text-ink uppercase tracking-wider flex items-center gap-1.5">
-              <Terminal className="w-3.5 h-3.5 text-ok" />
+            <label className="font-mono text-[10px] font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+              <Terminal className="w-3.5 h-3.5 text-white" />
               <span>Running configuration payload</span>
             </label>
-            <span className="font-mono text-[11px] text-faint">
+            <span className="font-mono text-[10px] text-[#71717a]">
               {lineCount} lines &bull; {rawText.length} bytes
             </span>
           </div>
@@ -390,17 +388,17 @@ export const UploadView: React.FC<UploadViewProps> = ({
           <textarea
             value={rawText}
             onChange={(e) => setRawText(e.target.value)}
-            rows={14}
+            rows={13}
             placeholder="Paste device running-config here..."
-            className="code-surface w-full p-4 text-ok resize-y outline-none focus:border-accent/60"
+            className="code-surface w-full p-3 text-[#e5e5e5] resize-y outline-none border border-white/15 bg-black focus:border-white text-xs"
             spellCheck={false}
           />
         </div>
 
         {/* Footer CTAs */}
-        <div className="flex flex-wrap justify-between items-center gap-4 pt-2">
-          <div className="flex items-center text-[12px] text-muted">
-            <Info className="w-3.5 h-3.5 mr-1.5 text-ok" />
+        <div className="flex flex-wrap justify-between items-center gap-4 pt-1">
+          <div className="flex items-center text-xs text-[#a1a1aa]">
+            <Info className="w-3.5 h-3.5 mr-1.5 text-white" />
             <span>Deterministic state machine audit: sub-millisecond execution</span>
           </div>
 
@@ -414,7 +412,7 @@ export const UploadView: React.FC<UploadViewProps> = ({
             ) : (
               <>
                 <span>Run compliance audit</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 ml-1" />
               </>
             )}
           </button>

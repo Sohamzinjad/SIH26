@@ -117,17 +117,17 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onVie
   if (loading) {
     return (
       <div className="flex flex-col justify-center items-center h-96 space-y-4">
-        <div className="h-10 w-10 rounded-full border-4 border-accent border-t-transparent animate-spin"></div>
-        <p className="font-mono text-xs text-faint tracking-[0.18em] uppercase">Loading audit #{auditId}…</p>
+        <div className="h-10 w-10 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
+        <p className="font-mono text-xs text-muted tracking-[0.18em] uppercase">Loading audit #{auditId}…</p>
       </div>
     );
   }
 
   if (error || !detail) {
     return (
-      <div className="banner banner-error space-y-2">
-        <div className="font-bold uppercase text-sm">Audit load error</div>
-        <div>{error || 'Audit not found'}</div>
+      <div className="banner border border-white/30 bg-surface-2 space-y-2">
+        <div className="font-bold uppercase text-sm text-ink">Audit load error</div>
+        <div className="text-muted">{error || 'Audit not found'}</div>
       </div>
     );
   }
@@ -207,8 +207,8 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onVie
 
       {/* Pending AI Mapping Banner (if unknown dialect file) */}
       {audit.status === 'PENDING_AI_MAPPING' && (
-        <div className="banner border-2 !border-high/70 bg-high/10 space-y-4">
-          <div className="flex items-center gap-2 font-bold text-high">
+        <div className="card p-5 border-2 border-white/40 bg-surface-2 space-y-4">
+          <div className="flex items-center gap-2 font-bold text-ink">
             <Zap className="w-4 h-4" />
             Unknown vendor dialect &bull; pending AI mapping approval
           </div>
@@ -221,7 +221,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onVie
             {onNavigateTab && (
               <button
                 onClick={() => onNavigateTab('mappings')}
-                className="btn btn-primary btn-sm"
+                className="btn btn-solid btn-sm"
               >
                 <Workflow className="w-4 h-4" />
                 Review &amp; approve in Mappings
@@ -238,9 +238,9 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onVie
 
       {/* Single Key Fix Hero Banner (if present) */}
       {single_fix_recommendation && (
-        <div className="card p-6 space-y-4">
+        <div className="card p-6 space-y-4 border-2 border-white/30">
           <div className="flex justify-between items-start gap-4">
-            <div className="flex items-center gap-2 font-mono text-[12px] font-bold uppercase tracking-widest text-ok">
+            <div className="flex items-center gap-2 font-mono text-[12px] font-bold uppercase tracking-widest text-ink">
               <Zap className="w-4 h-4" />
               Single key fix &bull; maximum leverage remediation
             </div>
@@ -248,12 +248,12 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onVie
               onClick={() => handleCopyRemediation(single_fix_recommendation.remediation)}
               className="btn btn-ghost btn-sm"
             >
-              {copiedRemediation ? <Check className="w-3.5 h-3.5 text-ok" /> : <Copy className="w-3.5 h-3.5" />}
+              {copiedRemediation ? <Check className="w-3.5 h-3.5 text-ink" /> : <Copy className="w-3.5 h-3.5" />}
               {copiedRemediation ? 'Copied' : 'Copy command'}
             </button>
           </div>
 
-          <code className="block code-surface p-4 text-sm text-ok font-mono">
+          <code className="block code-surface p-4 text-sm text-ink font-mono border border-white/20">
             {single_fix_recommendation.remediation}
           </code>
 
@@ -269,8 +269,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onVie
         </div>
       )}
 
-      {/* Main Grid: Findings Table + Config Evidence Drawer
-          NOTE: dense read area — decorative shapes and entrance motion are intentionally absent. */}
+      {/* Main Grid: Findings Table + Config Evidence Drawer */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left 7 Columns: Findings Table */}
         <div className="lg:col-span-7 card p-4 sm:p-5 space-y-4">
@@ -344,20 +343,20 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onVie
                       key={f.rule_id}
                       onClick={() => setSelectedFinding(f)}
                       className={`row-hover cursor-pointer transition-colors duration-100 ${
-                        isSelected ? '!bg-accent-soft' : ''
+                        isSelected ? '!bg-white/10' : ''
                       }`}
                     >
                       <td className="py-2.5 px-3 font-bold font-mono text-[12px] text-ink">{f.rule_id}</td>
                       <td className="py-2.5 px-3 font-medium truncate max-w-[200px] text-ink">{f.title}</td>
-                      <td className={`py-2.5 px-3 text-[12px] ${isSelected ? 'text-muted' : 'text-faint'}`}>{f.framework}</td>
+                      <td className={`py-2.5 px-3 text-[12px] ${isSelected ? 'text-ink' : 'text-muted'}`}>{f.framework}</td>
                       <td className="py-2.5 px-3">{severityBadge(f.severity)}</td>
                       <td className="py-2.5 px-3">
                         {f.waived ? (
                           <span className="badge badge-pending">Waived</span>
+                        ) : f.status === 'pass' ? (
+                          <span className="badge badge-pass">PASS</span>
                         ) : (
-                          <span className={`font-bold text-[11px] uppercase ${f.status === 'pass' ? 'text-ok' : 'text-crit'}`}>
-                            {f.status}
-                          </span>
+                          <span className="badge badge-fail">FAIL</span>
                         )}
                       </td>
                       <td className="py-2.5 px-3 text-right font-bold text-muted">
@@ -384,41 +383,41 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onVie
           <div className="flex justify-between items-center py-1 font-mono text-[12px] font-bold text-ink">
             <span>Line evidence &amp; code viewer</span>
             {selectedFinding && (
-              <span className="badge badge-accent">Rule #{selectedFinding.rule_id}</span>
+              <span className="badge badge-neutral">Rule #{selectedFinding.rule_id}</span>
             )}
           </div>
 
           {selectedFinding ? (
             <div className="space-y-4">
-              <div className="rounded-xl bg-surface-2 border border-white/10 p-4 space-y-1.5">
+              <div className="rounded-md bg-surface-2 border border-white/10 p-4 space-y-1.5">
                 <div className="text-[15px] font-semibold text-ink">{selectedFinding.title}</div>
                 <div className="text-caption text-muted">{selectedFinding.explanation || selectedFinding.rule_id}</div>
               </div>
 
               {/* Code Snippet */}
               {selectedFinding.evidence?.snippet ? (
-                <div className="code-surface h-64 overflow-y-auto p-4 text-ok">
+                <div className="code-surface h-64 overflow-y-auto p-4 text-ink border border-white/10">
                   <pre>{selectedFinding.evidence.snippet}</pre>
                 </div>
               ) : (
-                <div className="code-surface p-4 text-muted">
+                <div className="code-surface p-4 text-muted border border-white/10">
                   No direct line snippet returned for this rule check.
                 </div>
               )}
 
               {/* Remediation Snippet */}
               {selectedFinding.remediation && (
-                <div className="card-raise p-4 space-y-2">
-                  <div className="font-mono text-[11px] font-bold uppercase tracking-widest text-ok">Remediation command</div>
-                  <code className="block code-surface p-3 text-[13px] font-mono text-ok">{selectedFinding.remediation}</code>
+                <div className="card p-4 space-y-2 border border-white/20">
+                  <div className="font-mono text-[11px] font-bold uppercase tracking-widest text-ink">Remediation command</div>
+                  <code className="block code-surface p-3 text-[13px] font-mono text-ink border border-white/10">{selectedFinding.remediation}</code>
                 </div>
               )}
 
               {/* Waiver Section with smooth collapsible animation */}
-              <div className="card-raise p-4 space-y-3">
+              <div className="card p-4 space-y-3 border border-white/20">
                 <div className="flex items-center justify-between">
                   <div className="font-mono text-[11px] font-bold uppercase tracking-widest text-muted flex items-center gap-1.5">
-                    <ShieldAlert className="w-3.5 h-3.5 text-accent-hover" />
+                    <ShieldAlert className="w-3.5 h-3.5 text-ink" />
                     <span>Governance Waiver &amp; Exception</span>
                   </div>
                   {selectedFinding.waived ? (
@@ -443,9 +442,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onVie
 
                 {waiverMsg && (
                   <div
-                    className={`banner !py-2 !px-3 text-xs ${
-                      waiverMsg.type === 'success' ? 'banner-success' : 'banner-error'
-                    }`}
+                    className="p-3 border text-xs font-mono rounded bg-surface-2 border-white/30 text-ink"
                   >
                     {waiverMsg.text}
                   </div>
@@ -453,19 +450,19 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onVie
 
                 {selectedFinding.waived ? (
                   <div className="space-y-2 text-xs">
-                    <div className="rounded-lg bg-surface-3 p-3 border border-white/10 space-y-1">
+                    <div className="rounded bg-surface-3 p-3 border border-white/10 space-y-1">
                       <div className="text-muted">
                         Waived by <strong className="text-ink">{selectedFinding.waived_by || 'analyst'}</strong>
                         {selectedFinding.waived_at ? ` on ${selectedFinding.waived_at}` : ''}
                       </div>
-                      <div className="text-faint italic font-mono text-[11px]">
+                      <div className="text-muted italic font-mono text-[11px]">
                         "{selectedFinding.waiver_justification || 'No justification recorded'}"
                       </div>
                     </div>
                     <button
                       onClick={handleRevokeWaiver}
                       disabled={waiverProcessing}
-                      className="btn btn-danger btn-sm w-full"
+                      className="btn btn-outline btn-sm w-full"
                     >
                       {waiverProcessing ? 'Revoking…' : 'Revoke waiver'}
                     </button>
@@ -497,7 +494,7 @@ export const AuditDetailView: React.FC<AuditDetailViewProps> = ({ auditId, onVie
                         <button
                           onClick={handleApplyWaiver}
                           disabled={waiverProcessing || !waiverJustification.trim()}
-                          className="btn btn-primary btn-sm flex-1"
+                          className="btn btn-solid btn-sm flex-1"
                         >
                           {waiverProcessing ? 'Recording…' : 'Submit official waiver'}
                         </button>
